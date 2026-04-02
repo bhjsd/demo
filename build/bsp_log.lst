@@ -1,0 +1,262 @@
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccQKbcjF.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 1
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"bsp_log.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.file 1 "bsp/log/bsp_log.c"
+  19              		.section	.text.BSPLogInit,"ax",%progbits
+  20              		.align	1
+  21              		.global	BSPLogInit
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	BSPLogInit:
+  27              	.LFB3:
+   1:bsp/log/bsp_log.c **** #include "bsp_log.h"
+   2:bsp/log/bsp_log.c **** 
+   3:bsp/log/bsp_log.c **** #include "SEGGER_RTT.h"
+   4:bsp/log/bsp_log.c **** #include "SEGGER_RTT_Conf.h"
+   5:bsp/log/bsp_log.c **** #include <stdio.h>
+   6:bsp/log/bsp_log.c **** 
+   7:bsp/log/bsp_log.c **** 
+   8:bsp/log/bsp_log.c **** void BSPLogInit()
+   9:bsp/log/bsp_log.c **** {
+  28              		.loc 1 9 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32 0000 08B5     		push	{r3, lr}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 8
+  35              		.cfi_offset 3, -8
+  36              		.cfi_offset 14, -4
+  10:bsp/log/bsp_log.c ****     SEGGER_RTT_Init();
+  37              		.loc 1 10 5 view .LVU1
+  38 0002 FFF7FEFF 		bl	SEGGER_RTT_Init
+  39              	.LVL0:
+  11:bsp/log/bsp_log.c **** }
+  40              		.loc 1 11 1 is_stmt 0 view .LVU2
+  41 0006 08BD     		pop	{r3, pc}
+  42              		.cfi_endproc
+  43              	.LFE3:
+  45              		.section	.text.PrintLog,"ax",%progbits
+  46              		.align	1
+  47              		.global	PrintLog
+  48              		.syntax unified
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccQKbcjF.s 			page 2
+
+
+  49              		.thumb
+  50              		.thumb_func
+  52              	PrintLog:
+  53              	.LVL1:
+  54              	.LFB4:
+  12:bsp/log/bsp_log.c **** 
+  13:bsp/log/bsp_log.c **** int PrintLog(const char *fmt, ...)
+  14:bsp/log/bsp_log.c **** {
+  55              		.loc 1 14 1 is_stmt 1 view -0
+  56              		.cfi_startproc
+  57              		@ args = 4, pretend = 16, frame = 8
+  58              		@ frame_needed = 0, uses_anonymous_args = 1
+  59              		.loc 1 14 1 is_stmt 0 view .LVU4
+  60 0000 0FB4     		push	{r0, r1, r2, r3}
+  61              	.LCFI1:
+  62              		.cfi_def_cfa_offset 16
+  63              		.cfi_offset 0, -16
+  64              		.cfi_offset 1, -12
+  65              		.cfi_offset 2, -8
+  66              		.cfi_offset 3, -4
+  67 0002 00B5     		push	{lr}
+  68              	.LCFI2:
+  69              		.cfi_def_cfa_offset 20
+  70              		.cfi_offset 14, -20
+  71 0004 83B0     		sub	sp, sp, #12
+  72              	.LCFI3:
+  73              		.cfi_def_cfa_offset 32
+  74 0006 04AB     		add	r3, sp, #16
+  75 0008 53F8041B 		ldr	r1, [r3], #4
+  15:bsp/log/bsp_log.c ****     va_list args;
+  76              		.loc 1 15 5 is_stmt 1 view .LVU5
+  16:bsp/log/bsp_log.c ****     va_start(args, fmt);
+  77              		.loc 1 16 5 view .LVU6
+  78 000c 0193     		str	r3, [sp, #4]
+  17:bsp/log/bsp_log.c ****     int n = SEGGER_RTT_vprintf(BUFFER_INDEX, fmt, &args); // 一次可以开启多个buffer(多个�
+  79              		.loc 1 17 5 view .LVU7
+  80              		.loc 1 17 13 is_stmt 0 view .LVU8
+  81 000e 01AA     		add	r2, sp, #4
+  82 0010 0020     		movs	r0, #0
+  83 0012 FFF7FEFF 		bl	SEGGER_RTT_vprintf
+  84              	.LVL2:
+  18:bsp/log/bsp_log.c ****     va_end(args);
+  85              		.loc 1 18 5 is_stmt 1 view .LVU9
+  19:bsp/log/bsp_log.c ****     return n;
+  86              		.loc 1 19 5 view .LVU10
+  20:bsp/log/bsp_log.c **** }
+  87              		.loc 1 20 1 is_stmt 0 view .LVU11
+  88 0016 03B0     		add	sp, sp, #12
+  89              	.LCFI4:
+  90              		.cfi_def_cfa_offset 20
+  91              		@ sp needed
+  92 0018 5DF804EB 		ldr	lr, [sp], #4
+  93              	.LCFI5:
+  94              		.cfi_restore 14
+  95              		.cfi_def_cfa_offset 16
+  96 001c 04B0     		add	sp, sp, #16
+  97              	.LCFI6:
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccQKbcjF.s 			page 3
+
+
+  98              		.cfi_restore 3
+  99              		.cfi_restore 2
+ 100              		.cfi_restore 1
+ 101              		.cfi_restore 0
+ 102              		.cfi_def_cfa_offset 0
+ 103 001e 7047     		bx	lr
+ 104              		.cfi_endproc
+ 105              	.LFE4:
+ 107              		.section	.rodata.Float2Str.str1.4,"aMS",%progbits,1
+ 108              		.align	2
+ 109              	.LC0:
+ 110 0000 2D25642E 		.ascii	"-%d.%d\000"
+ 110      256400
+ 111 0007 00       		.align	2
+ 112              	.LC1:
+ 113 0008 25642E25 		.ascii	"%d.%d\000"
+ 113      6400
+ 114              		.section	.text.Float2Str,"ax",%progbits
+ 115              		.align	1
+ 116              		.global	Float2Str
+ 117              		.syntax unified
+ 118              		.thumb
+ 119              		.thumb_func
+ 121              	Float2Str:
+ 122              	.LVL3:
+ 123              	.LFB5:
+  21:bsp/log/bsp_log.c **** 
+  22:bsp/log/bsp_log.c **** void Float2Str(char *str, float va)
+  23:bsp/log/bsp_log.c **** {
+ 124              		.loc 1 23 1 is_stmt 1 view -0
+ 125              		.cfi_startproc
+ 126              		@ args = 0, pretend = 0, frame = 0
+ 127              		@ frame_needed = 0, uses_anonymous_args = 0
+ 128              		.loc 1 23 1 is_stmt 0 view .LVU13
+ 129 0000 08B5     		push	{r3, lr}
+ 130              	.LCFI7:
+ 131              		.cfi_def_cfa_offset 8
+ 132              		.cfi_offset 3, -8
+ 133              		.cfi_offset 14, -4
+  24:bsp/log/bsp_log.c ****     int flag = va < 0;
+ 134              		.loc 1 24 5 is_stmt 1 view .LVU14
+ 135              	.LVL4:
+  25:bsp/log/bsp_log.c ****     int head = (int)va;
+ 136              		.loc 1 25 5 view .LVU15
+ 137              		.loc 1 25 9 is_stmt 0 view .LVU16
+ 138 0002 BDEEC07A 		vcvt.s32.f32	s14, s0
+ 139              	.LVL5:
+  26:bsp/log/bsp_log.c ****     int point = (int)((va - head) * 1000);
+ 140              		.loc 1 26 5 is_stmt 1 view .LVU17
+ 141              		.loc 1 26 27 is_stmt 0 view .LVU18
+ 142 0006 F8EEC77A 		vcvt.f32.s32	s15, s14
+ 143 000a 70EE677A 		vsub.f32	s15, s0, s15
+ 144              		.loc 1 26 35 view .LVU19
+ 145 000e DFED0E6A 		vldr.32	s13, .L13
+ 146 0012 67EEA67A 		vmul.f32	s15, s15, s13
+ 147              		.loc 1 26 9 view .LVU20
+ 148 0016 FDEEE77A 		vcvt.s32.f32	s15, s15
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccQKbcjF.s 			page 4
+
+
+ 149 001a 17EE903A 		vmov	r3, s15	@ int
+ 150              	.LVL6:
+  27:bsp/log/bsp_log.c ****     head = abs(head);
+ 151              		.loc 1 27 5 is_stmt 1 view .LVU21
+ 152              		.loc 1 27 10 is_stmt 0 view .LVU22
+ 153 001e 17EE102A 		vmov	r2, s14	@ int
+ 154 0022 002A     		cmp	r2, #0
+ 155 0024 B8BF     		it	lt
+ 156 0026 5242     		rsblt	r2, r2, #0
+ 157              	.LVL7:
+  28:bsp/log/bsp_log.c ****     point = abs(point);
+ 158              		.loc 1 28 5 is_stmt 1 view .LVU23
+ 159              		.loc 1 28 11 is_stmt 0 view .LVU24
+ 160 0028 002B     		cmp	r3, #0
+ 161 002a B8BF     		it	lt
+ 162 002c 5B42     		rsblt	r3, r3, #0
+ 163              	.LVL8:
+  29:bsp/log/bsp_log.c ****     if (flag)
+ 164              		.loc 1 29 5 is_stmt 1 view .LVU25
+ 165              		.loc 1 29 8 is_stmt 0 view .LVU26
+ 166 002e B5EEC00A 		vcmpe.f32	s0, #0
+ 167 0032 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 168 0036 03D4     		bmi	.L12
+  30:bsp/log/bsp_log.c ****         sprintf(str, "-%d.%d", head, point);
+  31:bsp/log/bsp_log.c ****     else
+  32:bsp/log/bsp_log.c ****         sprintf(str, "%d.%d", head, point);
+ 169              		.loc 1 32 9 is_stmt 1 view .LVU27
+ 170 0038 0449     		ldr	r1, .L13+4
+ 171 003a FFF7FEFF 		bl	sprintf
+ 172              	.LVL9:
+ 173              	.L5:
+  33:bsp/log/bsp_log.c **** }
+ 174              		.loc 1 33 1 is_stmt 0 view .LVU28
+ 175 003e 08BD     		pop	{r3, pc}
+ 176              	.LVL10:
+ 177              	.L12:
+  30:bsp/log/bsp_log.c ****         sprintf(str, "-%d.%d", head, point);
+ 178              		.loc 1 30 9 is_stmt 1 view .LVU29
+ 179 0040 0349     		ldr	r1, .L13+8
+ 180 0042 FFF7FEFF 		bl	sprintf
+ 181              	.LVL11:
+  30:bsp/log/bsp_log.c ****         sprintf(str, "-%d.%d", head, point);
+ 182              		.loc 1 30 9 is_stmt 0 view .LVU30
+ 183 0046 FAE7     		b	.L5
+ 184              	.L14:
+ 185              		.align	2
+ 186              	.L13:
+ 187 0048 00007A44 		.word	1148846080
+ 188 004c 08000000 		.word	.LC1
+ 189 0050 00000000 		.word	.LC0
+ 190              		.cfi_endproc
+ 191              	.LFE5:
+ 193              		.text
+ 194              	.Letext0:
+ 195              		.file 2 "D:/14.3 rel1/lib/gcc/arm-none-eabi/15.2.1/include/stdarg.h"
+ 196              		.file 3 "D:/14.3 rel1/arm-none-eabi/include/stdio.h"
+ 197              		.file 4 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.h"
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccQKbcjF.s 			page 5
+
+
+ 198              		.file 5 "<built-in>"
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccQKbcjF.s 			page 6
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 bsp_log.c
+C:\Users\ADMINI~1\AppData\Local\Temp\ccQKbcjF.s:20     .text.BSPLogInit:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccQKbcjF.s:26     .text.BSPLogInit:00000000 BSPLogInit
+C:\Users\ADMINI~1\AppData\Local\Temp\ccQKbcjF.s:46     .text.PrintLog:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccQKbcjF.s:52     .text.PrintLog:00000000 PrintLog
+C:\Users\ADMINI~1\AppData\Local\Temp\ccQKbcjF.s:108    .rodata.Float2Str.str1.4:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccQKbcjF.s:115    .text.Float2Str:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccQKbcjF.s:121    .text.Float2Str:00000000 Float2Str
+C:\Users\ADMINI~1\AppData\Local\Temp\ccQKbcjF.s:187    .text.Float2Str:00000048 $d
+
+UNDEFINED SYMBOLS
+SEGGER_RTT_Init
+SEGGER_RTT_vprintf
+sprintf
