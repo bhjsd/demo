@@ -1,4 +1,4 @@
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 1
 
 
    1              		.cpu cortex-m7
@@ -58,7 +58,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
   28:USB_DEVICE/Target/usbd_conf.c **** /* USER CODE BEGIN Includes */
   29:USB_DEVICE/Target/usbd_conf.c **** 
   30:USB_DEVICE/Target/usbd_conf.c **** /* USER CODE END Includes */
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 2
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 2
 
 
   31:USB_DEVICE/Target/usbd_conf.c **** 
@@ -118,7 +118,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
   45 0006 B822     		movs	r2, #184
   46 0008 0021     		movs	r1, #0
   47 000a 02A8     		add	r0, sp, #8
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 3
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 3
 
 
   48              	.LVL1:
@@ -178,7 +178,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
   71              		.loc 1 77 5 is_stmt 1 view .LVU9
   77:USB_DEVICE/Target/usbd_conf.c ****     PeriphClkInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
   72              		.loc 1 77 46 is_stmt 0 view .LVU10
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 4
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 4
 
 
   73 001c 4FF48022 		mov	r2, #262144
@@ -238,7 +238,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  113              		.loc 1 93 5 view .LVU24
  114 005c 4D20     		movs	r0, #77
  115 005e FFF7FEFF 		bl	HAL_NVIC_EnableIRQ
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 5
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 5
 
 
  116              	.LVL7:
@@ -298,7 +298,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  109:USB_DEVICE/Target/usbd_conf.c **** 
  110:USB_DEVICE/Target/usbd_conf.c ****     /* Peripheral interrupt Deinit*/
  111:USB_DEVICE/Target/usbd_conf.c ****     HAL_NVIC_DisableIRQ(OTG_HS_IRQn);
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 6
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 6
 
 
  112:USB_DEVICE/Target/usbd_conf.c **** 
@@ -358,7 +358,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  196              		.loc 1 129 1 is_stmt 1 view -0
  197              		.cfi_startproc
  198              		@ args = 0, pretend = 0, frame = 0
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 7
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 7
 
 
  199              		@ frame_needed = 0, uses_anonymous_args = 0
@@ -418,7 +418,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  239 0002 01EBC103 		add	r3, r1, r1, lsl #3
  240 0006 00EB8303 		add	r3, r0, r3, lsl #2
  241 000a D3F86022 		ldr	r2, [r3, #608]
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 8
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 8
 
 
  242 000e D0F8E004 		ldr	r0, [r0, #1248]
@@ -478,7 +478,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  282 0014 08BD     		pop	{r3, pc}
  283              		.cfi_endproc
  284              	.LFE358:
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 9
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 9
 
 
  286              		.section	.text.HAL_PCD_SOFCallback,"ax",%progbits
@@ -538,7 +538,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  178:USB_DEVICE/Target/usbd_conf.c ****   * @brief  Reset callback.
  179:USB_DEVICE/Target/usbd_conf.c ****   * @param  hpcd: PCD handle
  180:USB_DEVICE/Target/usbd_conf.c ****   * @retval None
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 10
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 10
 
 
  181:USB_DEVICE/Target/usbd_conf.c ****   */
@@ -598,7 +598,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  205:USB_DEVICE/Target/usbd_conf.c ****   /* Reset Device. */
  206:USB_DEVICE/Target/usbd_conf.c ****   USBD_LL_Reset((USBD_HandleTypeDef*)hpcd->pData);
  357              		.loc 1 206 3 view .LVU67
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 11
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 11
 
 
  358 0016 D4F8E004 		ldr	r0, [r4, #1248]
@@ -658,7 +658,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  396 0004 D0F8E004 		ldr	r0, [r0, #1248]
  397              	.LVL34:
  398              		.loc 1 222 3 is_stmt 0 view .LVU74
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 12
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 12
 
 
  399 0008 FFF7FEFF 		bl	USBD_LL_Suspend
@@ -718,7 +718,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  238:USB_DEVICE/Target/usbd_conf.c ****   * @retval None
  239:USB_DEVICE/Target/usbd_conf.c ****   */
  240:USB_DEVICE/Target/usbd_conf.c **** #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 13
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 13
 
 
  241:USB_DEVICE/Target/usbd_conf.c **** static void PCD_ResumeCallback(PCD_HandleTypeDef *hpcd)
@@ -778,7 +778,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  473              		@ args = 0, pretend = 0, frame = 0
  474              		@ frame_needed = 0, uses_anonymous_args = 0
  475              		.loc 1 263 1 is_stmt 0 view .LVU90
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 14
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 14
 
 
  476 0000 08B5     		push	{r3, lr}
@@ -838,7 +838,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  516 0006 FFF7FEFF 		bl	USBD_LL_IsoINIncomplete
  517              	.LVL45:
  280:USB_DEVICE/Target/usbd_conf.c **** }
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 15
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 15
 
 
  518              		.loc 1 280 1 view .LVU98
@@ -898,7 +898,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  562              	.LVL49:
  563              	.LFB366:
  295:USB_DEVICE/Target/usbd_conf.c **** 
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 16
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 16
 
 
  296:USB_DEVICE/Target/usbd_conf.c **** /**
@@ -958,7 +958,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  595              		.loc 1 320 1 is_stmt 1 view -0
  596              		.cfi_startproc
  597              		@ args = 0, pretend = 0, frame = 0
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 17
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 17
 
 
  598              		@ frame_needed = 0, uses_anonymous_args = 0
@@ -1018,7 +1018,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  360:USB_DEVICE/Target/usbd_conf.c ****   HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 0, 0x80);
  361:USB_DEVICE/Target/usbd_conf.c ****   HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 1, 0x174);
  362:USB_DEVICE/Target/usbd_conf.c ****   /* USER CODE END TxRx_HS_Configuration */
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 18
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 18
 
 
  363:USB_DEVICE/Target/usbd_conf.c ****   }
@@ -1078,7 +1078,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  333:USB_DEVICE/Target/usbd_conf.c ****   hpcd_USB_OTG_HS.Init.lpm_enable = DISABLE;
  648              		.loc 1 333 3 is_stmt 1 view .LVU132
  333:USB_DEVICE/Target/usbd_conf.c ****   hpcd_USB_OTG_HS.Init.lpm_enable = DISABLE;
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 19
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 19
 
 
  649              		.loc 1 333 41 is_stmt 0 view .LVU133
@@ -1138,7 +1138,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  688 0058 FFF7FEFF 		bl	HAL_PCDEx_SetTxFiFo
  689              	.LVL59:
  690 005c D4E7     		b	.L44
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 20
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 20
 
 
  691              	.L48:
@@ -1198,7 +1198,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  398:USB_DEVICE/Target/usbd_conf.c ****   return usb_status;
  399:USB_DEVICE/Target/usbd_conf.c **** }
  400:USB_DEVICE/Target/usbd_conf.c **** 
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 21
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 21
 
 
  401:USB_DEVICE/Target/usbd_conf.c **** /**
@@ -1258,7 +1258,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  455:USB_DEVICE/Target/usbd_conf.c **** 
  456:USB_DEVICE/Target/usbd_conf.c **** /**
  457:USB_DEVICE/Target/usbd_conf.c ****   * @brief  Flushes an endpoint of the Low Level Driver.
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 22
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 22
 
 
  458:USB_DEVICE/Target/usbd_conf.c ****   * @param  pdev: Device handle
@@ -1318,7 +1318,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  512:USB_DEVICE/Target/usbd_conf.c ****   * @param  pdev: Device handle
  513:USB_DEVICE/Target/usbd_conf.c ****   * @param  ep_addr: Endpoint number
  514:USB_DEVICE/Target/usbd_conf.c ****   * @retval Stall (1: Yes, 0: No)
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 23
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 23
 
 
  515:USB_DEVICE/Target/usbd_conf.c ****   */
@@ -1378,7 +1378,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  750              		.loc 1 522 39 view .LVU163
  751 0028 987D     		ldrb	r0, [r3, #22]	@ zero_extendqisi2
  752              	.LVL69:
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 24
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 24
 
 
  522:USB_DEVICE/Target/usbd_conf.c ****   }
@@ -1438,7 +1438,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  569:USB_DEVICE/Target/usbd_conf.c ****   * @brief  Prepares an endpoint for reception.
  570:USB_DEVICE/Target/usbd_conf.c ****   * @param  pdev: Device handle
  571:USB_DEVICE/Target/usbd_conf.c ****   * @param  ep_addr: Endpoint number
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 25
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 25
 
 
  572:USB_DEVICE/Target/usbd_conf.c ****   * @param  pbuf: Pointer to data to be received
@@ -1498,7 +1498,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  798              	.LVL73:
  799              	.LFB381:
  598:USB_DEVICE/Target/usbd_conf.c **** 
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 26
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 26
 
 
  599:USB_DEVICE/Target/usbd_conf.c **** #ifdef USBD_HS_TESTMODE_ENABLE
@@ -1558,7 +1558,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  625:USB_DEVICE/Target/usbd_conf.c **** 
  626:USB_DEVICE/Target/usbd_conf.c **** /**
  627:USB_DEVICE/Target/usbd_conf.c ****   * @brief  Dummy memory free
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 27
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 27
 
 
  628:USB_DEVICE/Target/usbd_conf.c ****   * @param  p: Pointer to allocated  memory address
@@ -1618,7 +1618,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  870              		.align	1
  871              		.global	USBD_Get_USB_Status
  872              		.syntax unified
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 28
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 28
 
 
  873              		.thumb
@@ -1678,7 +1678,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  898              		.loc 1 674 1 view .LVU190
  899 000c 7047     		bx	lr
  900              	.L65:
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 29
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 29
 
 
  664:USB_DEVICE/Target/usbd_conf.c ****     break;
@@ -1738,7 +1738,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  379:USB_DEVICE/Target/usbd_conf.c **** 
  946              		.loc 1 379 3 is_stmt 1 view .LVU202
  379:USB_DEVICE/Target/usbd_conf.c **** 
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 30
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 30
 
 
  947              		.loc 1 379 17 is_stmt 0 view .LVU203
@@ -1798,7 +1798,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  399:USB_DEVICE/Target/usbd_conf.c **** 
  991              		.loc 1 399 1 is_stmt 0 view .LVU216
  992 000e 08BD     		pop	{r3, pc}
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 31
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 31
 
 
  993              		.cfi_endproc
@@ -1858,7 +1858,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  1039              		.syntax unified
  1040              		.thumb
  1041              		.thumb_func
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 32
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 32
 
 
  1043              	USBD_LL_OpenEP:
@@ -1918,7 +1918,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  1086              		.thumb_func
  1088              	USBD_LL_CloseEP:
  1089              	.LVL105:
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 33
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 33
 
 
  1090              	.LFB372:
@@ -1978,7 +1978,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  1134              		@ frame_needed = 0, uses_anonymous_args = 0
  463:USB_DEVICE/Target/usbd_conf.c ****   HAL_StatusTypeDef hal_status = HAL_OK;
  1135              		.loc 1 463 1 is_stmt 0 view .LVU252
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 34
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 34
 
 
  1136 0000 08B5     		push	{r3, lr}
@@ -2038,7 +2038,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  482:USB_DEVICE/Target/usbd_conf.c ****   USBD_StatusTypeDef usb_status = USBD_OK;
  1181              		.loc 1 482 3 is_stmt 1 view .LVU264
  1182              	.LVL116:
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 35
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 35
 
 
  483:USB_DEVICE/Target/usbd_conf.c **** 
@@ -2098,7 +2098,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  1225              		.loc 1 503 16 is_stmt 0 view .LVU278
  1226 0002 D0F8C802 		ldr	r0, [r0, #712]
  1227              	.LVL122:
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 36
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 36
 
 
  503:USB_DEVICE/Target/usbd_conf.c **** 
@@ -2158,7 +2158,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  1271              		.loc 1 543 3 is_stmt 1 view .LVU291
  543:USB_DEVICE/Target/usbd_conf.c **** 
  1272              		.loc 1 543 17 is_stmt 0 view .LVU292
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 37
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 37
 
 
  1273 000a FFF7FEFF 		bl	USBD_Get_USB_Status
@@ -2218,7 +2218,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  1316              		.loc 1 566 1 is_stmt 0 view .LVU305
  1317 000e 08BD     		pop	{r3, pc}
  1318              		.cfi_endproc
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 38
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 38
 
 
  1319              	.LFE378:
@@ -2278,7 +2278,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  1366      00000000 
  1366      00000000 
  1366      00000000 
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 39
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 39
 
 
  1366      00000000 
@@ -2309,85 +2309,85 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 1
  1389              		.file 15 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_cortex.h"
  1390              		.file 16 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pwr_ex.h"
  1391              		.file 17 "<built-in>"
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 40
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 40
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 usbd_conf.c
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:20     .text.HAL_PCD_MspInit:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:26     .text.HAL_PCD_MspInit:00000000 HAL_PCD_MspInit
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:127    .text.HAL_PCD_MspInit:0000006c $d
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:133    .text.HAL_PCD_MspDeInit:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:139    .text.HAL_PCD_MspDeInit:00000000 HAL_PCD_MspDeInit
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:181    .text.HAL_PCD_MspDeInit:00000024 $d
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:187    .text.HAL_PCD_SetupStageCallback:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:193    .text.HAL_PCD_SetupStageCallback:00000000 HAL_PCD_SetupStageCallback
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:219    .text.HAL_PCD_DataOutStageCallback:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:225    .text.HAL_PCD_DataOutStageCallback:00000000 HAL_PCD_DataOutStageCallback
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:253    .text.HAL_PCD_DataInStageCallback:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:259    .text.HAL_PCD_DataInStageCallback:00000000 HAL_PCD_DataInStageCallback
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:287    .text.HAL_PCD_SOFCallback:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:293    .text.HAL_PCD_SOFCallback:00000000 HAL_PCD_SOFCallback
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:318    .text.HAL_PCD_ResetCallback:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:324    .text.HAL_PCD_ResetCallback:00000000 HAL_PCD_ResetCallback
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:375    .text.HAL_PCD_SuspendCallback:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:381    .text.HAL_PCD_SuspendCallback:00000000 HAL_PCD_SuspendCallback
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:426    .text.HAL_PCD_SuspendCallback:0000002c $d
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:431    .text.HAL_PCD_ResumeCallback:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:437    .text.HAL_PCD_ResumeCallback:00000000 HAL_PCD_ResumeCallback
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:462    .text.HAL_PCD_ISOOUTIncompleteCallback:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:468    .text.HAL_PCD_ISOOUTIncompleteCallback:00000000 HAL_PCD_ISOOUTIncompleteCallback
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:493    .text.HAL_PCD_ISOINIncompleteCallback:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:499    .text.HAL_PCD_ISOINIncompleteCallback:00000000 HAL_PCD_ISOINIncompleteCallback
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:524    .text.HAL_PCD_ConnectCallback:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:530    .text.HAL_PCD_ConnectCallback:00000000 HAL_PCD_ConnectCallback
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:555    .text.HAL_PCD_DisconnectCallback:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:561    .text.HAL_PCD_DisconnectCallback:00000000 HAL_PCD_DisconnectCallback
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:586    .text.USBD_LL_Init:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:592    .text.USBD_LL_Init:00000000 USBD_LL_Init
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:699    .text.USBD_LL_Init:00000064 $d
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:1372   .bss.hpcd_USB_OTG_HS:00000000 hpcd_USB_OTG_HS
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:705    .text.USBD_LL_IsStallEP:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:711    .text.USBD_LL_IsStallEP:00000000 USBD_LL_IsStallEP
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:759    .text.USBD_LL_GetRxDataSize:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:765    .text.USBD_LL_GetRxDataSize:00000000 USBD_LL_GetRxDataSize
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:791    .text.USBD_static_malloc:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:797    .text.USBD_static_malloc:00000000 USBD_static_malloc
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:816    .text.USBD_static_malloc:00000004 $d
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:1365   .bss.mem.0:00000000 mem.0
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:821    .text.USBD_static_free:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:827    .text.USBD_static_free:00000000 USBD_static_free
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:842    .text.USBD_LL_Delay:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:848    .text.USBD_LL_Delay:00000000 USBD_LL_Delay
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:870    .text.USBD_Get_USB_Status:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:876    .text.USBD_Get_USB_Status:00000000 USBD_Get_USB_Status
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:917    .text.USBD_LL_DeInit:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:923    .text.USBD_LL_DeInit:00000000 USBD_LL_DeInit
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:957    .text.USBD_LL_Start:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:963    .text.USBD_LL_Start:00000000 USBD_LL_Start
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:997    .text.USBD_LL_Stop:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:1003   .text.USBD_LL_Stop:00000000 USBD_LL_Stop
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:1037   .text.USBD_LL_OpenEP:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:1043   .text.USBD_LL_OpenEP:00000000 USBD_LL_OpenEP
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s 			page 41
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:20     .text.HAL_PCD_MspInit:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:26     .text.HAL_PCD_MspInit:00000000 HAL_PCD_MspInit
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:127    .text.HAL_PCD_MspInit:0000006c $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:133    .text.HAL_PCD_MspDeInit:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:139    .text.HAL_PCD_MspDeInit:00000000 HAL_PCD_MspDeInit
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:181    .text.HAL_PCD_MspDeInit:00000024 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:187    .text.HAL_PCD_SetupStageCallback:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:193    .text.HAL_PCD_SetupStageCallback:00000000 HAL_PCD_SetupStageCallback
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:219    .text.HAL_PCD_DataOutStageCallback:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:225    .text.HAL_PCD_DataOutStageCallback:00000000 HAL_PCD_DataOutStageCallback
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:253    .text.HAL_PCD_DataInStageCallback:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:259    .text.HAL_PCD_DataInStageCallback:00000000 HAL_PCD_DataInStageCallback
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:287    .text.HAL_PCD_SOFCallback:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:293    .text.HAL_PCD_SOFCallback:00000000 HAL_PCD_SOFCallback
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:318    .text.HAL_PCD_ResetCallback:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:324    .text.HAL_PCD_ResetCallback:00000000 HAL_PCD_ResetCallback
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:375    .text.HAL_PCD_SuspendCallback:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:381    .text.HAL_PCD_SuspendCallback:00000000 HAL_PCD_SuspendCallback
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:426    .text.HAL_PCD_SuspendCallback:0000002c $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:431    .text.HAL_PCD_ResumeCallback:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:437    .text.HAL_PCD_ResumeCallback:00000000 HAL_PCD_ResumeCallback
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:462    .text.HAL_PCD_ISOOUTIncompleteCallback:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:468    .text.HAL_PCD_ISOOUTIncompleteCallback:00000000 HAL_PCD_ISOOUTIncompleteCallback
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:493    .text.HAL_PCD_ISOINIncompleteCallback:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:499    .text.HAL_PCD_ISOINIncompleteCallback:00000000 HAL_PCD_ISOINIncompleteCallback
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:524    .text.HAL_PCD_ConnectCallback:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:530    .text.HAL_PCD_ConnectCallback:00000000 HAL_PCD_ConnectCallback
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:555    .text.HAL_PCD_DisconnectCallback:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:561    .text.HAL_PCD_DisconnectCallback:00000000 HAL_PCD_DisconnectCallback
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:586    .text.USBD_LL_Init:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:592    .text.USBD_LL_Init:00000000 USBD_LL_Init
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:699    .text.USBD_LL_Init:00000064 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:1372   .bss.hpcd_USB_OTG_HS:00000000 hpcd_USB_OTG_HS
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:705    .text.USBD_LL_IsStallEP:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:711    .text.USBD_LL_IsStallEP:00000000 USBD_LL_IsStallEP
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:759    .text.USBD_LL_GetRxDataSize:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:765    .text.USBD_LL_GetRxDataSize:00000000 USBD_LL_GetRxDataSize
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:791    .text.USBD_static_malloc:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:797    .text.USBD_static_malloc:00000000 USBD_static_malloc
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:816    .text.USBD_static_malloc:00000004 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:1365   .bss.mem.0:00000000 mem.0
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:821    .text.USBD_static_free:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:827    .text.USBD_static_free:00000000 USBD_static_free
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:842    .text.USBD_LL_Delay:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:848    .text.USBD_LL_Delay:00000000 USBD_LL_Delay
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:870    .text.USBD_Get_USB_Status:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:876    .text.USBD_Get_USB_Status:00000000 USBD_Get_USB_Status
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:917    .text.USBD_LL_DeInit:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:923    .text.USBD_LL_DeInit:00000000 USBD_LL_DeInit
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:957    .text.USBD_LL_Start:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:963    .text.USBD_LL_Start:00000000 USBD_LL_Start
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:997    .text.USBD_LL_Stop:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:1003   .text.USBD_LL_Stop:00000000 USBD_LL_Stop
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:1037   .text.USBD_LL_OpenEP:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:1043   .text.USBD_LL_OpenEP:00000000 USBD_LL_OpenEP
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s 			page 41
 
 
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:1082   .text.USBD_LL_CloseEP:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:1088   .text.USBD_LL_CloseEP:00000000 USBD_LL_CloseEP
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:1122   .text.USBD_LL_FlushEP:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:1128   .text.USBD_LL_FlushEP:00000000 USBD_LL_FlushEP
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:1162   .text.USBD_LL_StallEP:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:1168   .text.USBD_LL_StallEP:00000000 USBD_LL_StallEP
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:1202   .text.USBD_LL_ClearStallEP:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:1208   .text.USBD_LL_ClearStallEP:00000000 USBD_LL_ClearStallEP
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:1242   .text.USBD_LL_SetUSBAddress:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:1248   .text.USBD_LL_SetUSBAddress:00000000 USBD_LL_SetUSBAddress
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:1282   .text.USBD_LL_Transmit:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:1288   .text.USBD_LL_Transmit:00000000 USBD_LL_Transmit
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:1322   .text.USBD_LL_PrepareReceive:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:1328   .text.USBD_LL_PrepareReceive:00000000 USBD_LL_PrepareReceive
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:1362   .bss.mem.0:00000000 $d
-C:\Users\ADMINI~1\AppData\Local\Temp\cc5lrOYb.s:1369   .bss.hpcd_USB_OTG_HS:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:1082   .text.USBD_LL_CloseEP:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:1088   .text.USBD_LL_CloseEP:00000000 USBD_LL_CloseEP
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:1122   .text.USBD_LL_FlushEP:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:1128   .text.USBD_LL_FlushEP:00000000 USBD_LL_FlushEP
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:1162   .text.USBD_LL_StallEP:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:1168   .text.USBD_LL_StallEP:00000000 USBD_LL_StallEP
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:1202   .text.USBD_LL_ClearStallEP:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:1208   .text.USBD_LL_ClearStallEP:00000000 USBD_LL_ClearStallEP
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:1242   .text.USBD_LL_SetUSBAddress:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:1248   .text.USBD_LL_SetUSBAddress:00000000 USBD_LL_SetUSBAddress
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:1282   .text.USBD_LL_Transmit:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:1288   .text.USBD_LL_Transmit:00000000 USBD_LL_Transmit
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:1322   .text.USBD_LL_PrepareReceive:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:1328   .text.USBD_LL_PrepareReceive:00000000 USBD_LL_PrepareReceive
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:1362   .bss.mem.0:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccGYriIg.s:1369   .bss.hpcd_USB_OTG_HS:00000000 $d
 
 UNDEFINED SYMBOLS
 memset

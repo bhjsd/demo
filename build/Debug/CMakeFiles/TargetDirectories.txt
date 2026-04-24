@@ -1,0 +1,8 @@
+D:/code - 1/demo/build/Debug/CMakeFiles/demo.dir
+D:/code - 1/demo/build/Debug/CMakeFiles/edit_cache.dir
+D:/code - 1/demo/build/Debug/CMakeFiles/rebuild_cache.dir
+D:/code - 1/demo/build/Debug/cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir
+D:/code - 1/demo/build/Debug/cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir
+D:/code - 1/demo/build/Debug/cmake/stm32cubemx/CMakeFiles/FreeRTOS.dir
+D:/code - 1/demo/build/Debug/cmake/stm32cubemx/CMakeFiles/edit_cache.dir
+D:/code - 1/demo/build/Debug/cmake/stm32cubemx/CMakeFiles/rebuild_cache.dir

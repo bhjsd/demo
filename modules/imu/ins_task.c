@@ -25,6 +25,12 @@ static INS_t INS;
 static IMU_Param_t IMU_Param;
 static PIDInstance TempCtrl = {0};
 
+/* Map INS resources to peripherals currently generated in CubeMX for this demo board. */
+#define INS_TEMP_TIM_HANDLE htim4
+#define INS_TEMP_TIM_CHANNEL TIM_CHANNEL_1
+#define INS_SPI_HANDLE hspi1
+
+
 const float xb[3] = {1, 0, 0};
 const float yb[3] = {0, 1, 0};
 const float zb[3] = {0, 0, 1};
@@ -38,7 +44,7 @@ static void IMU_Param_Correction(IMU_Param_t *param, float gyro[3], float accel[
 
 static void IMUPWMSet(uint16_t pwm)
 {
-    __HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_4, pwm);
+    __HAL_TIM_SetCompare(&INS_TEMP_TIM_HANDLE, INS_TEMP_TIM_CHANNEL, pwm);
 }
 
 /**
@@ -85,9 +91,9 @@ attitude_t *INS_Init(void)
     else
         return (attitude_t *)&INS.Gyro;
 
-    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
+    HAL_TIM_PWM_Start(&INS_TEMP_TIM_HANDLE, INS_TEMP_TIM_CHANNEL);
 
-    while (BMI088Init(&hspi2, 1) != BMI088_NO_ERROR)
+    while (BMI088Init(&INS_SPI_HANDLE, 1) != BMI088_NO_ERROR)
         ;
     IMU_Param.scale[X] = 1;
     IMU_Param.scale[Y] = 1;

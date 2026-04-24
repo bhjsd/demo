@@ -1,0 +1,459 @@
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 1
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"laser.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.file 1 "application/laser_ctrl/laser.c"
+  19              		.section	.text.Laser_Init,"ax",%progbits
+  20              		.align	1
+  21              		.global	Laser_Init
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	Laser_Init:
+  27              	.LFB0:
+   1:application/laser_ctrl/laser.c **** #include "laser.h"
+   2:application/laser_ctrl/laser.c **** 
+   3:application/laser_ctrl/laser.c **** static volatile LaserState_e g_laser_state = LASER_STATE_IDLE;
+   4:application/laser_ctrl/laser.c **** static volatile LaserState_e g_laser_target_state = LASER_STATE_IDLE;
+   5:application/laser_ctrl/laser.c **** 
+   6:application/laser_ctrl/laser.c **** void Laser_Init(void)
+   7:application/laser_ctrl/laser.c **** {
+  28              		.loc 1 7 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+   8:application/laser_ctrl/laser.c ****     g_laser_state = LASER_STATE_IDLE;
+  33              		.loc 1 8 5 view .LVU1
+  34              		.loc 1 8 19 is_stmt 0 view .LVU2
+  35 0000 0023     		movs	r3, #0
+  36 0002 024A     		ldr	r2, .L2
+  37 0004 1370     		strb	r3, [r2]
+   9:application/laser_ctrl/laser.c ****     g_laser_target_state = LASER_STATE_IDLE;
+  38              		.loc 1 9 5 is_stmt 1 view .LVU3
+  39              		.loc 1 9 26 is_stmt 0 view .LVU4
+  40 0006 024A     		ldr	r2, .L2+4
+  41 0008 1370     		strb	r3, [r2]
+  10:application/laser_ctrl/laser.c **** }
+  42              		.loc 1 10 1 view .LVU5
+  43 000a 7047     		bx	lr
+  44              	.L3:
+  45              		.align	2
+  46              	.L2:
+  47 000c 00000000 		.word	g_laser_state
+  48 0010 00000000 		.word	g_laser_target_state
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s 			page 2
+
+
+  49              		.cfi_endproc
+  50              	.LFE0:
+  52              		.section	.text.Laser_Tick,"ax",%progbits
+  53              		.align	1
+  54              		.global	Laser_Tick
+  55              		.syntax unified
+  56              		.thumb
+  57              		.thumb_func
+  59              	Laser_Tick:
+  60              	.LFB1:
+  11:application/laser_ctrl/laser.c **** 
+  12:application/laser_ctrl/laser.c **** void Laser_Tick(void)
+  13:application/laser_ctrl/laser.c **** {
+  61              		.loc 1 13 1 is_stmt 1 view -0
+  62              		.cfi_startproc
+  63              		@ args = 0, pretend = 0, frame = 0
+  64              		@ frame_needed = 0, uses_anonymous_args = 0
+  65              		@ link register save eliminated.
+  14:application/laser_ctrl/laser.c ****     if (g_laser_state == LASER_STATE_FAULT)
+  66              		.loc 1 14 5 view .LVU7
+  67              		.loc 1 14 23 is_stmt 0 view .LVU8
+  68 0000 1A4B     		ldr	r3, .L10
+  69 0002 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  70              		.loc 1 14 8 view .LVU9
+  71 0004 032B     		cmp	r3, #3
+  72 0006 2FD0     		beq	.L4
+  15:application/laser_ctrl/laser.c ****     {
+  16:application/laser_ctrl/laser.c ****         return;
+  17:application/laser_ctrl/laser.c ****     }
+  18:application/laser_ctrl/laser.c **** 
+  19:application/laser_ctrl/laser.c ****     if (g_laser_state == g_laser_target_state)
+  73              		.loc 1 19 5 is_stmt 1 view .LVU10
+  74              		.loc 1 19 23 is_stmt 0 view .LVU11
+  75 0008 184B     		ldr	r3, .L10
+  76 000a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  77 000c 184A     		ldr	r2, .L10+4
+  78 000e 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+  79              		.loc 1 19 8 view .LVU12
+  80 0010 9A42     		cmp	r2, r3
+  81 0012 29D0     		beq	.L4
+  20:application/laser_ctrl/laser.c ****     {
+  21:application/laser_ctrl/laser.c ****         return;
+  22:application/laser_ctrl/laser.c ****     }
+  23:application/laser_ctrl/laser.c **** 
+  24:application/laser_ctrl/laser.c ****     switch (g_laser_state)
+  82              		.loc 1 24 5 is_stmt 1 view .LVU13
+  83 0014 154B     		ldr	r3, .L10
+  84 0016 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  85 0018 DAB2     		uxtb	r2, r3
+  86 001a 012B     		cmp	r3, #1
+  87 001c 0ED0     		beq	.L6
+  88 001e 022A     		cmp	r2, #2
+  89 0020 1BD0     		beq	.L7
+  90 0022 0ABB     		cbnz	r2, .L4
+  25:application/laser_ctrl/laser.c ****     {
+  26:application/laser_ctrl/laser.c ****     case LASER_STATE_IDLE:
+  27:application/laser_ctrl/laser.c ****         if (g_laser_target_state == LASER_STATE_ARMED || g_laser_target_state == LASER_STATE_EMIT)
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s 			page 3
+
+
+  91              		.loc 1 27 9 view .LVU14
+  92              		.loc 1 27 34 is_stmt 0 view .LVU15
+  93 0024 124B     		ldr	r3, .L10+4
+  94 0026 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  95              		.loc 1 27 12 view .LVU16
+  96 0028 012B     		cmp	r3, #1
+  97 002a 03D0     		beq	.L8
+  98              		.loc 1 27 79 discriminator 1 view .LVU17
+  99 002c 104B     		ldr	r3, .L10+4
+ 100 002e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 101              		.loc 1 27 55 discriminator 1 view .LVU18
+ 102 0030 022B     		cmp	r3, #2
+ 103 0032 19D1     		bne	.L4
+ 104              	.L8:
+  28:application/laser_ctrl/laser.c ****         {
+  29:application/laser_ctrl/laser.c ****             g_laser_state = LASER_STATE_ARMED;
+ 105              		.loc 1 29 13 is_stmt 1 view .LVU19
+ 106              		.loc 1 29 27 is_stmt 0 view .LVU20
+ 107 0034 0D4B     		ldr	r3, .L10
+ 108 0036 0122     		movs	r2, #1
+ 109 0038 1A70     		strb	r2, [r3]
+ 110 003a 7047     		bx	lr
+ 111              	.L6:
+  30:application/laser_ctrl/laser.c ****         }
+  31:application/laser_ctrl/laser.c ****         break;
+  32:application/laser_ctrl/laser.c **** 
+  33:application/laser_ctrl/laser.c ****     case LASER_STATE_ARMED:
+  34:application/laser_ctrl/laser.c ****         if (g_laser_target_state == LASER_STATE_IDLE)
+ 112              		.loc 1 34 9 is_stmt 1 view .LVU21
+ 113              		.loc 1 34 34 is_stmt 0 view .LVU22
+ 114 003c 0C4B     		ldr	r3, .L10+4
+ 115 003e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 116              		.loc 1 34 12 view .LVU23
+ 117 0040 1BB9     		cbnz	r3, .L9
+  35:application/laser_ctrl/laser.c ****         {
+  36:application/laser_ctrl/laser.c ****             g_laser_state = LASER_STATE_IDLE;
+ 118              		.loc 1 36 13 is_stmt 1 view .LVU24
+ 119              		.loc 1 36 27 is_stmt 0 view .LVU25
+ 120 0042 0A4B     		ldr	r3, .L10
+ 121 0044 0022     		movs	r2, #0
+ 122 0046 1A70     		strb	r2, [r3]
+ 123 0048 7047     		bx	lr
+ 124              	.L9:
+  37:application/laser_ctrl/laser.c ****         }
+  38:application/laser_ctrl/laser.c ****         else if (g_laser_target_state == LASER_STATE_EMIT)
+ 125              		.loc 1 38 14 is_stmt 1 view .LVU26
+ 126              		.loc 1 38 39 is_stmt 0 view .LVU27
+ 127 004a 094B     		ldr	r3, .L10+4
+ 128 004c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 129              		.loc 1 38 17 view .LVU28
+ 130 004e 022B     		cmp	r3, #2
+ 131 0050 0AD1     		bne	.L4
+  39:application/laser_ctrl/laser.c ****         {
+  40:application/laser_ctrl/laser.c ****             g_laser_state = LASER_STATE_EMIT;
+ 132              		.loc 1 40 13 is_stmt 1 view .LVU29
+ 133              		.loc 1 40 27 is_stmt 0 view .LVU30
+ 134 0052 064B     		ldr	r3, .L10
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s 			page 4
+
+
+ 135 0054 0222     		movs	r2, #2
+ 136 0056 1A70     		strb	r2, [r3]
+ 137 0058 7047     		bx	lr
+ 138              	.L7:
+  41:application/laser_ctrl/laser.c ****         }
+  42:application/laser_ctrl/laser.c ****         break;
+  43:application/laser_ctrl/laser.c **** 
+  44:application/laser_ctrl/laser.c ****     case LASER_STATE_EMIT:
+  45:application/laser_ctrl/laser.c ****         if (g_laser_target_state != LASER_STATE_EMIT)
+ 139              		.loc 1 45 9 is_stmt 1 view .LVU31
+ 140              		.loc 1 45 34 is_stmt 0 view .LVU32
+ 141 005a 054B     		ldr	r3, .L10+4
+ 142 005c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 143              		.loc 1 45 12 view .LVU33
+ 144 005e 022B     		cmp	r3, #2
+ 145 0060 02D0     		beq	.L4
+  46:application/laser_ctrl/laser.c ****         {
+  47:application/laser_ctrl/laser.c ****             g_laser_state = LASER_STATE_ARMED;
+ 146              		.loc 1 47 13 is_stmt 1 view .LVU34
+ 147              		.loc 1 47 27 is_stmt 0 view .LVU35
+ 148 0062 024B     		ldr	r3, .L10
+ 149 0064 0122     		movs	r2, #1
+ 150 0066 1A70     		strb	r2, [r3]
+ 151              	.L4:
+  48:application/laser_ctrl/laser.c ****         }
+  49:application/laser_ctrl/laser.c ****         break;
+  50:application/laser_ctrl/laser.c **** 
+  51:application/laser_ctrl/laser.c ****     case LASER_STATE_FAULT:
+  52:application/laser_ctrl/laser.c ****     default:
+  53:application/laser_ctrl/laser.c ****         break;
+  54:application/laser_ctrl/laser.c ****     }
+  55:application/laser_ctrl/laser.c **** }
+ 152              		.loc 1 55 1 view .LVU36
+ 153 0068 7047     		bx	lr
+ 154              	.L11:
+ 155 006a 00BF     		.align	2
+ 156              	.L10:
+ 157 006c 00000000 		.word	g_laser_state
+ 158 0070 00000000 		.word	g_laser_target_state
+ 159              		.cfi_endproc
+ 160              	.LFE1:
+ 162              		.section	.text.Laser_EnterFault,"ax",%progbits
+ 163              		.align	1
+ 164              		.global	Laser_EnterFault
+ 165              		.syntax unified
+ 166              		.thumb
+ 167              		.thumb_func
+ 169              	Laser_EnterFault:
+ 170              	.LFB3:
+  56:application/laser_ctrl/laser.c **** 
+  57:application/laser_ctrl/laser.c **** void Laser_SetTargetState(LaserState_e target)
+  58:application/laser_ctrl/laser.c **** {
+  59:application/laser_ctrl/laser.c ****     if (target < LASER_STATE_IDLE || target > LASER_STATE_FAULT)
+  60:application/laser_ctrl/laser.c ****     {
+  61:application/laser_ctrl/laser.c ****         return;
+  62:application/laser_ctrl/laser.c ****     }
+  63:application/laser_ctrl/laser.c **** 
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s 			page 5
+
+
+  64:application/laser_ctrl/laser.c ****     if (target == LASER_STATE_FAULT)
+  65:application/laser_ctrl/laser.c ****     {
+  66:application/laser_ctrl/laser.c ****         Laser_EnterFault();
+  67:application/laser_ctrl/laser.c ****         return;
+  68:application/laser_ctrl/laser.c ****     }
+  69:application/laser_ctrl/laser.c **** 
+  70:application/laser_ctrl/laser.c ****     if (g_laser_state == LASER_STATE_FAULT)
+  71:application/laser_ctrl/laser.c ****     {
+  72:application/laser_ctrl/laser.c ****         if (target == LASER_STATE_IDLE)
+  73:application/laser_ctrl/laser.c ****         {
+  74:application/laser_ctrl/laser.c ****             g_laser_state = LASER_STATE_IDLE;
+  75:application/laser_ctrl/laser.c ****         }
+  76:application/laser_ctrl/laser.c ****         else
+  77:application/laser_ctrl/laser.c ****         {
+  78:application/laser_ctrl/laser.c ****             return;
+  79:application/laser_ctrl/laser.c ****         }
+  80:application/laser_ctrl/laser.c ****     }
+  81:application/laser_ctrl/laser.c **** 
+  82:application/laser_ctrl/laser.c ****     g_laser_target_state = target;
+  83:application/laser_ctrl/laser.c **** }
+  84:application/laser_ctrl/laser.c **** 
+  85:application/laser_ctrl/laser.c **** void Laser_EnterFault(void)
+  86:application/laser_ctrl/laser.c **** {
+ 171              		.loc 1 86 1 is_stmt 1 view -0
+ 172              		.cfi_startproc
+ 173              		@ args = 0, pretend = 0, frame = 0
+ 174              		@ frame_needed = 0, uses_anonymous_args = 0
+ 175              		@ link register save eliminated.
+  87:application/laser_ctrl/laser.c ****     g_laser_state = LASER_STATE_FAULT;
+ 176              		.loc 1 87 5 view .LVU38
+ 177              		.loc 1 87 19 is_stmt 0 view .LVU39
+ 178 0000 0323     		movs	r3, #3
+ 179 0002 024A     		ldr	r2, .L13
+ 180 0004 1370     		strb	r3, [r2]
+  88:application/laser_ctrl/laser.c ****     g_laser_target_state = LASER_STATE_FAULT;
+ 181              		.loc 1 88 5 is_stmt 1 view .LVU40
+ 182              		.loc 1 88 26 is_stmt 0 view .LVU41
+ 183 0006 024A     		ldr	r2, .L13+4
+ 184 0008 1370     		strb	r3, [r2]
+  89:application/laser_ctrl/laser.c **** }
+ 185              		.loc 1 89 1 view .LVU42
+ 186 000a 7047     		bx	lr
+ 187              	.L14:
+ 188              		.align	2
+ 189              	.L13:
+ 190 000c 00000000 		.word	g_laser_state
+ 191 0010 00000000 		.word	g_laser_target_state
+ 192              		.cfi_endproc
+ 193              	.LFE3:
+ 195              		.section	.text.Laser_SetTargetState,"ax",%progbits
+ 196              		.align	1
+ 197              		.global	Laser_SetTargetState
+ 198              		.syntax unified
+ 199              		.thumb
+ 200              		.thumb_func
+ 202              	Laser_SetTargetState:
+ 203              	.LVL0:
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s 			page 6
+
+
+ 204              	.LFB2:
+  58:application/laser_ctrl/laser.c ****     if (target < LASER_STATE_IDLE || target > LASER_STATE_FAULT)
+ 205              		.loc 1 58 1 is_stmt 1 view -0
+ 206              		.cfi_startproc
+ 207              		@ args = 0, pretend = 0, frame = 0
+ 208              		@ frame_needed = 0, uses_anonymous_args = 0
+  59:application/laser_ctrl/laser.c ****     {
+ 209              		.loc 1 59 5 view .LVU44
+  59:application/laser_ctrl/laser.c ****     {
+ 210              		.loc 1 59 8 is_stmt 0 view .LVU45
+ 211 0000 0328     		cmp	r0, #3
+ 212 0002 10D8     		bhi	.L20
+  58:application/laser_ctrl/laser.c ****     if (target < LASER_STATE_IDLE || target > LASER_STATE_FAULT)
+ 213              		.loc 1 58 1 view .LVU46
+ 214 0004 08B5     		push	{r3, lr}
+ 215              	.LCFI0:
+ 216              		.cfi_def_cfa_offset 8
+ 217              		.cfi_offset 3, -8
+ 218              		.cfi_offset 14, -4
+  64:application/laser_ctrl/laser.c ****     {
+ 219              		.loc 1 64 5 is_stmt 1 view .LVU47
+  64:application/laser_ctrl/laser.c ****     {
+ 220              		.loc 1 64 8 is_stmt 0 view .LVU48
+ 221 0006 06D0     		beq	.L23
+  70:application/laser_ctrl/laser.c ****     {
+ 222              		.loc 1 70 5 is_stmt 1 view .LVU49
+  70:application/laser_ctrl/laser.c ****     {
+ 223              		.loc 1 70 23 is_stmt 0 view .LVU50
+ 224 0008 074B     		ldr	r3, .L25
+ 225 000a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  70:application/laser_ctrl/laser.c ****     {
+ 226              		.loc 1 70 8 view .LVU51
+ 227 000c 032B     		cmp	r3, #3
+ 228 000e 05D0     		beq	.L24
+ 229              	.L18:
+  82:application/laser_ctrl/laser.c **** }
+ 230              		.loc 1 82 5 is_stmt 1 view .LVU52
+  82:application/laser_ctrl/laser.c **** }
+ 231              		.loc 1 82 26 is_stmt 0 view .LVU53
+ 232 0010 064B     		ldr	r3, .L25+4
+ 233 0012 1870     		strb	r0, [r3]
+ 234              	.LVL1:
+ 235              	.L15:
+  83:application/laser_ctrl/laser.c **** 
+ 236              		.loc 1 83 1 view .LVU54
+ 237 0014 08BD     		pop	{r3, pc}
+ 238              	.LVL2:
+ 239              	.L23:
+  66:application/laser_ctrl/laser.c ****         return;
+ 240              		.loc 1 66 9 is_stmt 1 view .LVU55
+ 241 0016 FFF7FEFF 		bl	Laser_EnterFault
+ 242              	.LVL3:
+  67:application/laser_ctrl/laser.c ****     }
+ 243              		.loc 1 67 9 view .LVU56
+ 244 001a FBE7     		b	.L15
+ 245              	.LVL4:
+ 246              	.L24:
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s 			page 7
+
+
+  72:application/laser_ctrl/laser.c ****         {
+ 247              		.loc 1 72 9 view .LVU57
+  72:application/laser_ctrl/laser.c ****         {
+ 248              		.loc 1 72 12 is_stmt 0 view .LVU58
+ 249 001c 0028     		cmp	r0, #0
+ 250 001e F9D1     		bne	.L15
+  74:application/laser_ctrl/laser.c ****         }
+ 251              		.loc 1 74 13 is_stmt 1 view .LVU59
+  74:application/laser_ctrl/laser.c ****         }
+ 252              		.loc 1 74 27 is_stmt 0 view .LVU60
+ 253 0020 014B     		ldr	r3, .L25
+ 254 0022 1870     		strb	r0, [r3]
+ 255 0024 F4E7     		b	.L18
+ 256              	.L20:
+ 257              	.LCFI1:
+ 258              		.cfi_def_cfa_offset 0
+ 259              		.cfi_restore 3
+ 260              		.cfi_restore 14
+  74:application/laser_ctrl/laser.c ****         }
+ 261              		.loc 1 74 27 view .LVU61
+ 262 0026 7047     		bx	lr
+ 263              	.L26:
+ 264              		.align	2
+ 265              	.L25:
+ 266 0028 00000000 		.word	g_laser_state
+ 267 002c 00000000 		.word	g_laser_target_state
+ 268              		.cfi_endproc
+ 269              	.LFE2:
+ 271              		.section	.text.Laser_GetState,"ax",%progbits
+ 272              		.align	1
+ 273              		.global	Laser_GetState
+ 274              		.syntax unified
+ 275              		.thumb
+ 276              		.thumb_func
+ 278              	Laser_GetState:
+ 279              	.LFB4:
+  90:application/laser_ctrl/laser.c **** 
+  91:application/laser_ctrl/laser.c **** LaserState_e Laser_GetState(void)
+  92:application/laser_ctrl/laser.c **** {
+ 280              		.loc 1 92 1 is_stmt 1 view -0
+ 281              		.cfi_startproc
+ 282              		@ args = 0, pretend = 0, frame = 0
+ 283              		@ frame_needed = 0, uses_anonymous_args = 0
+ 284              		@ link register save eliminated.
+  93:application/laser_ctrl/laser.c ****     return g_laser_state;
+ 285              		.loc 1 93 5 view .LVU63
+ 286              		.loc 1 93 12 is_stmt 0 view .LVU64
+ 287 0000 014B     		ldr	r3, .L28
+ 288 0002 1878     		ldrb	r0, [r3]	@ zero_extendqisi2
+  94:application/laser_ctrl/laser.c **** }
+ 289              		.loc 1 94 1 view .LVU65
+ 290 0004 7047     		bx	lr
+ 291              	.L29:
+ 292 0006 00BF     		.align	2
+ 293              	.L28:
+ 294 0008 00000000 		.word	g_laser_state
+ 295              		.cfi_endproc
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s 			page 8
+
+
+ 296              	.LFE4:
+ 298              		.section	.bss.g_laser_target_state,"aw",%nobits
+ 301              	g_laser_target_state:
+ 302 0000 00       		.space	1
+ 303              		.section	.bss.g_laser_state,"aw",%nobits
+ 306              	g_laser_state:
+ 307 0000 00       		.space	1
+ 308              		.text
+ 309              	.Letext0:
+ 310              		.file 2 "application/laser_ctrl/laser.h"
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s 			page 9
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 laser.c
+C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s:20     .text.Laser_Init:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s:26     .text.Laser_Init:00000000 Laser_Init
+C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s:47     .text.Laser_Init:0000000c $d
+C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s:306    .bss.g_laser_state:00000000 g_laser_state
+C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s:301    .bss.g_laser_target_state:00000000 g_laser_target_state
+C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s:53     .text.Laser_Tick:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s:59     .text.Laser_Tick:00000000 Laser_Tick
+C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s:157    .text.Laser_Tick:0000006c $d
+C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s:163    .text.Laser_EnterFault:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s:169    .text.Laser_EnterFault:00000000 Laser_EnterFault
+C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s:190    .text.Laser_EnterFault:0000000c $d
+C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s:196    .text.Laser_SetTargetState:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s:202    .text.Laser_SetTargetState:00000000 Laser_SetTargetState
+C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s:266    .text.Laser_SetTargetState:00000028 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s:272    .text.Laser_GetState:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s:278    .text.Laser_GetState:00000000 Laser_GetState
+C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s:294    .text.Laser_GetState:00000008 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s:302    .bss.g_laser_target_state:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\cckm7llH.s:307    .bss.g_laser_state:00000000 $d
+
+NO UNDEFINED SYMBOLS

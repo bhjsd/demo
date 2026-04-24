@@ -31,7 +31,7 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
+#include "laser_task.h"
 /* USER CODE END PV */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
@@ -89,12 +89,14 @@
 /* Create buffer for reception and transmission           */
 /* It's up to user to redefine and/or remove those define */
 /** Received data over USB are stored in this buffer      */
-uint8_t UserRxBufferHS[APP_RX_DATA_SIZE];
+__attribute__((section(".dma_buffer"), aligned(32))) uint8_t UserRxBufferHS[APP_RX_DATA_SIZE];
 
 /** Data to send over USB CDC are stored in this buffer   */
-uint8_t UserTxBufferHS[APP_TX_DATA_SIZE];
+__attribute__((section(".dma_buffer"), aligned(32))) uint8_t UserTxBufferHS[APP_TX_DATA_SIZE];
 
 /* USER CODE BEGIN PRIVATE_VARIABLES */
+static USBCallback usb_tx_callback = NULL;
+static USBCallback usb_rx_callback = NULL;
 
 /* USER CODE END PRIVATE_VARIABLES */
 
@@ -110,6 +112,13 @@ uint8_t UserTxBufferHS[APP_TX_DATA_SIZE];
 extern USBD_HandleTypeDef hUsbDeviceHS;
 
 /* USER CODE BEGIN EXPORTED_VARIABLES */
+
+uint8_t *CDCInitRxbufferNcallback(USBCallback tx_cbk, USBCallback rx_cbk)
+{
+  usb_tx_callback = tx_cbk;
+  usb_rx_callback = rx_cbk;
+  return UserRxBufferHS;
+}
 
 /* USER CODE END EXPORTED_VARIABLES */
 
@@ -264,6 +273,18 @@ static int8_t CDC_Control_HS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_HS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 11 */
+  if ((Buf == NULL) || (Len == NULL))
+  {
+    return (USBD_FAIL);
+  }
+
+  if (usb_rx_callback != NULL)
+  {
+    usb_rx_callback((uint16_t)(*Len));
+  }
+
+  LaserCtrl_OnUsbRx(Buf, (uint16_t)(*Len));
+
   USBD_CDC_SetRxBuffer(&hUsbDeviceHS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceHS);
   return (USBD_OK);
@@ -281,10 +302,6 @@ uint8_t CDC_Transmit_HS(uint8_t* Buf, uint16_t Len)
 {
   uint8_t result = USBD_OK;
   /* USER CODE BEGIN 12 */
-  USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDeviceHS.pClassData;
-  if (hcdc->TxState != 0){
-    return USBD_BUSY;
-  }
   USBD_CDC_SetTxBuffer(&hUsbDeviceHS, Buf, Len);
   result = USBD_CDC_TransmitPacket(&hUsbDeviceHS);
   /* USER CODE END 12 */
@@ -307,6 +324,10 @@ static int8_t CDC_TransmitCplt_HS(uint8_t *Buf, uint32_t *Len, uint8_t epnum)
 {
   uint8_t result = USBD_OK;
   /* USER CODE BEGIN 14 */
+  if ((usb_tx_callback != NULL) && (Len != NULL))
+  {
+    usb_tx_callback((uint16_t)(*Len));
+  }
   UNUSED(Buf);
   UNUSED(Len);
   UNUSED(epnum);

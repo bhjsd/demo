@@ -1,0 +1,1719 @@
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 1
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"robot_cmd.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.file 1 "application/cmd/robot_cmd.c"
+  19              		.section	.rodata.EmergencyHandler.str1.4,"aMS",%progbits,1
+  20              		.align	2
+  21              	.LC0:
+  22 0000 453A00   		.ascii	"E:\000"
+  23 0003 00       		.align	2
+  24              	.LC1:
+  25 0004 1B5B313B 		.ascii	"\033[1;31m\000"
+  25      33316D00 
+  26              		.align	2
+  27              	.LC2:
+  28 000c 20202573 		.ascii	"  %s%s[CMD] emergency stop!\015\012%s\000"
+  28      25735B43 
+  28      4D445D20 
+  28      656D6572 
+  28      67656E63 
+  29              		.align	2
+  30              	.LC3:
+  31 002c 1B5B306D 		.ascii	"\033[0m\000"
+  31      00
+  32              		.section	.text.EmergencyHandler,"ax",%progbits
+  33              		.align	1
+  34              		.syntax unified
+  35              		.thumb
+  36              		.thumb_func
+  38              	EmergencyHandler:
+  39              	.LFB400:
+   1:application/cmd/robot_cmd.c **** // app
+   2:application/cmd/robot_cmd.c **** #include "robot_def.h"
+   3:application/cmd/robot_cmd.c **** #include "robot_cmd.h"
+   4:application/cmd/robot_cmd.c **** // module
+   5:application/cmd/robot_cmd.c **** #include "controller.h"
+   6:application/cmd/robot_cmd.c **** #include "ins_task.h"
+   7:application/cmd/robot_cmd.c **** #include "master_process.h"
+   8:application/cmd/robot_cmd.c **** #include "message_center.h"
+   9:application/cmd/robot_cmd.c **** #include "general_def.h"
+  10:application/cmd/robot_cmd.c **** #include "dji_motor.h"
+  11:application/cmd/robot_cmd.c **** #include "bmi088.h"
+  12:application/cmd/robot_cmd.c **** #include "vofa.h"
+  13:application/cmd/robot_cmd.c **** // bsp
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 2
+
+
+  14:application/cmd/robot_cmd.c **** #include "bsp_dwt.h"
+  15:application/cmd/robot_cmd.c **** #include "bsp_log.h"
+  16:application/cmd/robot_cmd.c **** 
+  17:application/cmd/robot_cmd.c **** #include "opencv.h"
+  18:application/cmd/robot_cmd.c **** 
+  19:application/cmd/robot_cmd.c **** #include "kalman_filter.h"
+  20:application/cmd/robot_cmd.c **** 
+  21:application/cmd/robot_cmd.c **** #include "arm_math.h"
+  22:application/cmd/robot_cmd.c **** #include "param_config.h"
+  23:application/cmd/robot_cmd.c **** 
+  24:application/cmd/robot_cmd.c **** // 添加卡尔曼滤波器实例
+  25:application/cmd/robot_cmd.c **** static KalmanFilter_t yaw_error_kf;
+  26:application/cmd/robot_cmd.c **** static KalmanFilter_t pitch_error_kf;
+  27:application/cmd/robot_cmd.c **** static float filtered_yaw_error = 0.0f;
+  28:application/cmd/robot_cmd.c **** static float filtered_pitch_error = 0.0f;
+  29:application/cmd/robot_cmd.c **** 
+  30:application/cmd/robot_cmd.c **** /* cmd应用包含的模块实例指针和交互信息存储*/
+  31:application/cmd/robot_cmd.c **** #ifdef GIMBAL_BOARD // 对双板的兼容,条件编译
+  32:application/cmd/robot_cmd.c **** #include "can_comm.h"
+  33:application/cmd/robot_cmd.c **** static CANCommInstance *cmd_can_comm; // 双板通信
+  34:application/cmd/robot_cmd.c **** #endif
+  35:application/cmd/robot_cmd.c **** #ifdef ONE_BOARD
+  36:application/cmd/robot_cmd.c **** static Publisher_t *chassis_cmd_pub;   // 底盘控制消息发布者
+  37:application/cmd/robot_cmd.c **** static Subscriber_t *chassis_feed_sub; // 底盘反馈信息订阅者
+  38:application/cmd/robot_cmd.c **** #endif                                 // ONE_BOARD
+  39:application/cmd/robot_cmd.c **** 
+  40:application/cmd/robot_cmd.c **** static Chassis_Ctrl_Cmd_s chassis_cmd_send;      // 发送给底盘应用的信息,包括控制信�
+  41:application/cmd/robot_cmd.c **** static Chassis_Upload_Data_s chassis_fetch_data; // 从底盘应用接收的反馈信息信息,底�
+  42:application/cmd/robot_cmd.c **** 
+  43:application/cmd/robot_cmd.c **** static Publisher_t *gimbal_cmd_pub;            // 云台控制消息发布者
+  44:application/cmd/robot_cmd.c **** static Subscriber_t *gimbal_feed_sub;          // 云台反馈信息订阅者
+  45:application/cmd/robot_cmd.c **** static Gimbal_Ctrl_Cmd_s gimbal_cmd_send;      // 传递给云台的控制信息
+  46:application/cmd/robot_cmd.c **** static Gimbal_Upload_Data_s gimbal_fetch_data; // 从云台获取的反馈信息
+  47:application/cmd/robot_cmd.c **** 
+  48:application/cmd/robot_cmd.c **** static Robot_Status_e robot_state; // 机器人整体工作状态
+  49:application/cmd/robot_cmd.c **** 
+  50:application/cmd/robot_cmd.c **** PIDInstance yaw_tracking_pid;           // 云台yaw跟随pid
+  51:application/cmd/robot_cmd.c **** PIDInstance pitch_tracking_pid;         // 云台pitch跟随pid
+  52:application/cmd/robot_cmd.c **** static float yaw_tracking_pid_output;   // 云台yaw跟随pid输出
+  53:application/cmd/robot_cmd.c **** static float pitch_tracking_pid_output; // 云台pitch跟随pid输出
+  54:application/cmd/robot_cmd.c **** 
+  55:application/cmd/robot_cmd.c **** static float vofa_debug[7];
+  56:application/cmd/robot_cmd.c **** 
+  57:application/cmd/robot_cmd.c **** // #define PITCH_HORIZON_ECD 6800 // 俯仰水平时的电机编码器
+  58:application/cmd/robot_cmd.c **** 
+  59:application/cmd/robot_cmd.c **** // 在RobotCMDInit()中添加卡尔曼滤波器初始化
+  60:application/cmd/robot_cmd.c **** static void VisionKalmanFilterInit()
+  61:application/cmd/robot_cmd.c **** {
+  62:application/cmd/robot_cmd.c ****     // yaw误差卡尔曼滤波器初始化
+  63:application/cmd/robot_cmd.c ****     Kalman_Filter_Init(&yaw_error_kf, 2, 0, 1); // 状态2维(位置,速度), 控制0维, 观测1�
+  64:application/cmd/robot_cmd.c **** 
+  65:application/cmd/robot_cmd.c ****     static float P_init_yaw[4] = {
+  66:application/cmd/robot_cmd.c ****         5.0f, 0.0f, // 减小初始不确定性
+  67:application/cmd/robot_cmd.c ****         0.0f, 5.0f};
+  68:application/cmd/robot_cmd.c ****     memcpy(yaw_error_kf.P_data, P_init_yaw, sizeof(P_init_yaw));
+  69:application/cmd/robot_cmd.c **** 
+  70:application/cmd/robot_cmd.c ****     // 状态转移矩阵F (dt = 1/200 = 0.005s, 200Hz控制频率)
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 3
+
+
+  71:application/cmd/robot_cmd.c ****     static float F_init_yaw[4] = {
+  72:application/cmd/robot_cmd.c ****         1.0f, 0.005f, // 修正时间步长
+  73:application/cmd/robot_cmd.c ****         0.0f, 1.0f};
+  74:application/cmd/robot_cmd.c ****     memcpy(yaw_error_kf.F_data, F_init_yaw, sizeof(F_init_yaw));
+  75:application/cmd/robot_cmd.c **** 
+  76:application/cmd/robot_cmd.c ****     // 过程噪声协方差矩阵Q
+  77:application/cmd/robot_cmd.c ****     static float Q_init_yaw[4] = {
+  78:application/cmd/robot_cmd.c ****         0.1f, 0.0f, // 增大位置过程噪声
+  79:application/cmd/robot_cmd.c ****         0.0f, 1.0f  // 增大速度过程噪声
+  80:application/cmd/robot_cmd.c ****     };
+  81:application/cmd/robot_cmd.c ****     memcpy(yaw_error_kf.Q_data, Q_init_yaw, sizeof(Q_init_yaw));
+  82:application/cmd/robot_cmd.c **** 
+  83:application/cmd/robot_cmd.c ****     // 观测矩阵H
+  84:application/cmd/robot_cmd.c ****     static uint8_t measurement_map_yaw[1] = {1}; // 观测第1个状态(位置)
+  85:application/cmd/robot_cmd.c ****     static float measurement_degree_yaw[1] = {1.0f};
+  86:application/cmd/robot_cmd.c ****     static float mat_R_diagonal_yaw[1] = {1.0f};               // 减小观测噪声，增加对观
+  87:application/cmd/robot_cmd.c ****     static float state_min_variance_yaw[2] = {0.001f, 0.001f}; // 减小最小方差
+  88:application/cmd/robot_cmd.c **** 
+  89:application/cmd/robot_cmd.c ****     yaw_error_kf.UseAutoAdjustment = 1;
+  90:application/cmd/robot_cmd.c ****     memcpy(yaw_error_kf.MeasurementMap, measurement_map_yaw, sizeof(measurement_map_yaw));
+  91:application/cmd/robot_cmd.c ****     memcpy(yaw_error_kf.MeasurementDegree, measurement_degree_yaw, sizeof(measurement_degree_yaw));
+  92:application/cmd/robot_cmd.c ****     memcpy(yaw_error_kf.MatR_DiagonalElements, mat_R_diagonal_yaw, sizeof(mat_R_diagonal_yaw));
+  93:application/cmd/robot_cmd.c ****     memcpy(yaw_error_kf.StateMinVariance, state_min_variance_yaw, sizeof(state_min_variance_yaw));
+  94:application/cmd/robot_cmd.c **** 
+  95:application/cmd/robot_cmd.c ****     // pitch误差卡尔曼滤波器初始化
+  96:application/cmd/robot_cmd.c ****     Kalman_Filter_Init(&pitch_error_kf, 2, 0, 1); // 状态2维(位置,速度), 控制0维, 观测1
+  97:application/cmd/robot_cmd.c ****     static float P_init_pitch[4] = {
+  98:application/cmd/robot_cmd.c ****         5.0f, 0.0f, // 减小初始不确定性
+  99:application/cmd/robot_cmd.c ****         0.0f, 5.0f};
+ 100:application/cmd/robot_cmd.c ****     memcpy(pitch_error_kf.P_data, P_init_pitch, sizeof(P_init_pitch));
+ 101:application/cmd/robot_cmd.c ****     // 状态转移矩阵F (dt = 1/200 = 0.005s, 200Hz控制频率)
+ 102:application/cmd/robot_cmd.c ****     static float F_init_pitch[4] = {
+ 103:application/cmd/robot_cmd.c ****         1.0f, 0.005f, // 修正时间步长
+ 104:application/cmd/robot_cmd.c ****         0.0f, 1.0f};
+ 105:application/cmd/robot_cmd.c ****     memcpy(pitch_error_kf.F_data, F_init_pitch, sizeof(F_init_pitch));
+ 106:application/cmd/robot_cmd.c ****     // 过程噪声协方差矩阵Q
+ 107:application/cmd/robot_cmd.c ****     static float Q_init_pitch[4] = {
+ 108:application/cmd/robot_cmd.c ****         0.1f, 0.0f, // 增大位置过程噪声
+ 109:application/cmd/robot_cmd.c ****         0.0f, 1.0f  // 增大速度过程噪声
+ 110:application/cmd/robot_cmd.c ****     };
+ 111:application/cmd/robot_cmd.c ****     memcpy(pitch_error_kf.Q_data, Q_init_pitch, sizeof(Q_init_pitch));
+ 112:application/cmd/robot_cmd.c ****     // 观测矩阵H
+ 113:application/cmd/robot_cmd.c ****     static uint8_t measurement_map_pitch[1] = {1}; // 观测第1个状态(位置)
+ 114:application/cmd/robot_cmd.c ****     static float measurement_degree_pitch[1] = {1.0f};
+ 115:application/cmd/robot_cmd.c ****     static float mat_R_diagonal_pitch[1] = {1.0f};               // 减小观测噪声，增加对�
+ 116:application/cmd/robot_cmd.c ****     static float state_min_variance_pitch[2] = {0.001f, 0.001f}; // 减小最小方差
+ 117:application/cmd/robot_cmd.c ****     pitch_error_kf.UseAutoAdjustment = 1;
+ 118:application/cmd/robot_cmd.c ****     memcpy(pitch_error_kf.MeasurementMap, measurement_map_pitch, sizeof(measurement_map_pitch));
+ 119:application/cmd/robot_cmd.c ****     memcpy(pitch_error_kf.MeasurementDegree, measurement_degree_pitch, sizeof(measurement_degree_pi
+ 120:application/cmd/robot_cmd.c ****     memcpy(pitch_error_kf.MatR_DiagonalElements, mat_R_diagonal_pitch, sizeof(mat_R_diagonal_pitch)
+ 121:application/cmd/robot_cmd.c ****     memcpy(pitch_error_kf.StateMinVariance, state_min_variance_pitch, sizeof(state_min_variance_pit
+ 122:application/cmd/robot_cmd.c **** }
+ 123:application/cmd/robot_cmd.c **** 
+ 124:application/cmd/robot_cmd.c **** void RobotCMDInit()
+ 125:application/cmd/robot_cmd.c **** {
+ 126:application/cmd/robot_cmd.c ****     gimbal_cmd_pub = PubRegister("gimbal_cmd", sizeof(Gimbal_Ctrl_Cmd_s));
+ 127:application/cmd/robot_cmd.c ****     gimbal_feed_sub = SubRegister("gimbal_feed", sizeof(Gimbal_Upload_Data_s));
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 4
+
+
+ 128:application/cmd/robot_cmd.c ****     chassis_cmd_pub = PubRegister("chassis_cmd", sizeof(Chassis_Ctrl_Cmd_s));
+ 129:application/cmd/robot_cmd.c ****     chassis_feed_sub = SubRegister("chassis_feed", sizeof(Chassis_Upload_Data_s));
+ 130:application/cmd/robot_cmd.c **** 
+ 131:application/cmd/robot_cmd.c ****     static PID_Init_Config_s yaw_tracking_pid_config = {
+ 132:application/cmd/robot_cmd.c ****         .Kp = 1.5f,
+ 133:application/cmd/robot_cmd.c ****         .Ki = 3.0f,
+ 134:application/cmd/robot_cmd.c ****         .Kd = 0.07f,
+ 135:application/cmd/robot_cmd.c ****         .IntegralLimit = 100.0f,
+ 136:application/cmd/robot_cmd.c ****         .CoefB = 20.0f,
+ 137:application/cmd/robot_cmd.c ****         .CoefA = 20.0f,
+ 138:application/cmd/robot_cmd.c ****         // .Output_LPF_RC = 0.002f, // 100Hz
+ 139:application/cmd/robot_cmd.c ****         .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On_Measurement | P
+ 140:application/cmd/robot_cmd.c ****         .MaxOut = 200.0f,
+ 141:application/cmd/robot_cmd.c ****     };
+ 142:application/cmd/robot_cmd.c ****     static PID_Init_Config_s pitch_tracking_pid_config = {
+ 143:application/cmd/robot_cmd.c ****         .Kp = 1.0f,
+ 144:application/cmd/robot_cmd.c ****         .Ki = 2.0f,
+ 145:application/cmd/robot_cmd.c ****         .Kd = 0.05f,
+ 146:application/cmd/robot_cmd.c ****         .IntegralLimit = 100.0f,
+ 147:application/cmd/robot_cmd.c ****         .CoefB = 10.0f,
+ 148:application/cmd/robot_cmd.c ****         .CoefA = 30.0f,
+ 149:application/cmd/robot_cmd.c ****         // .Output_LPF_RC = 0.002f, // 100Hz
+ 150:application/cmd/robot_cmd.c ****         .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On_Measurement | P
+ 151:application/cmd/robot_cmd.c ****         .MaxOut = 200.0f,
+ 152:application/cmd/robot_cmd.c ****     };
+ 153:application/cmd/robot_cmd.c **** 
+ 154:application/cmd/robot_cmd.c ****     PIDInit(&yaw_tracking_pid, &yaw_tracking_pid_config);
+ 155:application/cmd/robot_cmd.c ****     PIDInit(&pitch_tracking_pid, &pitch_tracking_pid_config);
+ 156:application/cmd/robot_cmd.c ****     VisionKalmanFilterInit();
+ 157:application/cmd/robot_cmd.c **** #if defined(VISION_USE_VCP)
+ 158:application/cmd/robot_cmd.c ****     Vision_USB_Init();
+ 159:application/cmd/robot_cmd.c **** #elif defined(VISION_USE_UART)
+ 160:application/cmd/robot_cmd.c ****     Vision_Uart_Init(&huart1);
+ 161:application/cmd/robot_cmd.c **** #else
+ 162:application/cmd/robot_cmd.c ****     // No vision backend selected.
+ 163:application/cmd/robot_cmd.c **** #endif
+ 164:application/cmd/robot_cmd.c ****     robot_state = ROBOT_READY;                // 启动时机器人进入工作模式,后续加入�
+ 165:application/cmd/robot_cmd.c ****     LOGINFO("[CMD] param pack: %s", PARAM_VERSION_STR);
+ 166:application/cmd/robot_cmd.c **** }
+ 167:application/cmd/robot_cmd.c **** 
+ 168:application/cmd/robot_cmd.c **** void laser_on()
+ 169:application/cmd/robot_cmd.c **** {
+ 170:application/cmd/robot_cmd.c **** #ifdef POWER_5V_GPIO_Port
+ 171:application/cmd/robot_cmd.c ****     HAL_GPIO_WritePin(POWER_5V_GPIO_Port, POWER_5V_Pin, GPIO_PIN_SET);
+ 172:application/cmd/robot_cmd.c **** #endif
+ 173:application/cmd/robot_cmd.c **** }
+ 174:application/cmd/robot_cmd.c **** 
+ 175:application/cmd/robot_cmd.c **** void laser_off()
+ 176:application/cmd/robot_cmd.c **** {
+ 177:application/cmd/robot_cmd.c **** #ifdef POWER_5V_GPIO_Port
+ 178:application/cmd/robot_cmd.c ****     HAL_GPIO_WritePin(POWER_5V_GPIO_Port, POWER_5V_Pin, GPIO_PIN_RESET);
+ 179:application/cmd/robot_cmd.c **** #endif
+ 180:application/cmd/robot_cmd.c **** }
+ 181:application/cmd/robot_cmd.c **** static void AutoSetNoBoardComm()
+ 182:application/cmd/robot_cmd.c **** {
+ 183:application/cmd/robot_cmd.c ****     gimbal_cmd_send.gimbal_mode = GIMBAL_GYRO_MODE;
+ 184:application/cmd/robot_cmd.c ****     chassis_cmd_send.chassis_mode = CHASSIS_ZERO_FORCE;
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 5
+
+
+ 185:application/cmd/robot_cmd.c ****     gimbal_cmd_send.yaw = gimbal_fetch_data.gimbal_imu_data.YawTotalAngle;
+ 186:application/cmd/robot_cmd.c ****     gimbal_cmd_send.pitch = gimbal_fetch_data.gimbal_imu_data.Pitch;
+ 187:application/cmd/robot_cmd.c ****     laser_off();
+ 188:application/cmd/robot_cmd.c **** 
+ 189:application/cmd/robot_cmd.c ****     if (Vison_revc_flag && Vison_Frequency >= 10.0f)
+ 190:application/cmd/robot_cmd.c ****     {
+ 191:application/cmd/robot_cmd.c ****         LIMIT_MIN_MAX(opencv_Vision_data[0], PARAM_VISION_YAW_ERR_MIN, PARAM_VISION_YAW_ERR_MAX);
+ 192:application/cmd/robot_cmd.c ****         LIMIT_MIN_MAX(opencv_Vision_data[1], PARAM_VISION_PITCH_ERR_MIN, PARAM_VISION_PITCH_ERR_MAX
+ 193:application/cmd/robot_cmd.c ****         LIMIT_MIN_MAX(opencv_Vision_data[2], PARAM_VISION_DIST_MIN, PARAM_VISION_DIST_MAX);
+ 194:application/cmd/robot_cmd.c **** 
+ 195:application/cmd/robot_cmd.c ****         yaw_error_kf.MeasuredVector[0] = opencv_Vision_data[0];
+ 196:application/cmd/robot_cmd.c ****         pitch_error_kf.MeasuredVector[0] = opencv_Vision_data[1];
+ 197:application/cmd/robot_cmd.c **** 
+ 198:application/cmd/robot_cmd.c ****         float *yaw_filtered = Kalman_Filter_Update(&yaw_error_kf);
+ 199:application/cmd/robot_cmd.c ****         float *pitch_filtered = Kalman_Filter_Update(&pitch_error_kf);
+ 200:application/cmd/robot_cmd.c **** 
+ 201:application/cmd/robot_cmd.c ****         filtered_yaw_error = yaw_filtered[0];
+ 202:application/cmd/robot_cmd.c ****         filtered_pitch_error = pitch_filtered[0];
+ 203:application/cmd/robot_cmd.c **** 
+ 204:application/cmd/robot_cmd.c ****         yaw_tracking_pid_output = PIDCalculate(&yaw_tracking_pid, filtered_yaw_error, 0);
+ 205:application/cmd/robot_cmd.c ****         pitch_tracking_pid_output = PIDCalculate(&pitch_tracking_pid, filtered_pitch_error, 0);
+ 206:application/cmd/robot_cmd.c **** 
+ 207:application/cmd/robot_cmd.c ****         gimbal_cmd_send.yaw -= 0.001f * yaw_tracking_pid_output;
+ 208:application/cmd/robot_cmd.c ****         gimbal_cmd_send.pitch += 0.001f * pitch_tracking_pid_output;
+ 209:application/cmd/robot_cmd.c **** 
+ 210:application/cmd/robot_cmd.c ****         vofa_debug[0] = filtered_yaw_error;
+ 211:application/cmd/robot_cmd.c ****         vofa_debug[1] = filtered_pitch_error;
+ 212:application/cmd/robot_cmd.c ****         vofa_debug[2] = yaw_tracking_pid.Err;
+ 213:application/cmd/robot_cmd.c ****         vofa_debug[3] = yaw_tracking_pid.Pout;
+ 214:application/cmd/robot_cmd.c ****         vofa_debug[4] = yaw_tracking_pid.Iout;
+ 215:application/cmd/robot_cmd.c ****         vofa_debug[5] = yaw_tracking_pid.Dout;
+ 216:application/cmd/robot_cmd.c ****         vofa_debug[6] = yaw_tracking_pid.Output;
+ 217:application/cmd/robot_cmd.c ****         vofa_justfloat_output(vofa_debug, 7, &huart1);
+ 218:application/cmd/robot_cmd.c ****     }
+ 219:application/cmd/robot_cmd.c **** 
+ 220:application/cmd/robot_cmd.c ****     LIMIT_MIN_MAX(gimbal_cmd_send.pitch, PARAM_PITCH_MIN_ANGLE, PARAM_PITCH_MAX_ANGLE);
+ 221:application/cmd/robot_cmd.c **** }
+ 222:application/cmd/robot_cmd.c **** 
+ 223:application/cmd/robot_cmd.c **** /**
+ 224:application/cmd/robot_cmd.c ****  * @brief Demo 单板模式控制入口
+ 225:application/cmd/robot_cmd.c ****  *
+ 226:application/cmd/robot_cmd.c ****  */
+ 227:application/cmd/robot_cmd.c **** static void AutoSet()
+ 228:application/cmd/robot_cmd.c **** {
+ 229:application/cmd/robot_cmd.c ****     AutoSetNoBoardComm();
+ 230:application/cmd/robot_cmd.c **** }
+ 231:application/cmd/robot_cmd.c **** 
+ 232:application/cmd/robot_cmd.c **** /**
+ 233:application/cmd/robot_cmd.c ****  * @brief  紧急停止,包括遥控器左上侧拨轮打满/重要模块离线/双板通信失效�
+ 234:application/cmd/robot_cmd.c ****  *         停止的阈值'300'待修改成合适的值,或改为开关控制.
+ 235:application/cmd/robot_cmd.c ****  *
+ 236:application/cmd/robot_cmd.c ****  * @todo   后续修改为遥控器离线则电机停止(关闭遥控器急停),通过给遥控器�
+ 237:application/cmd/robot_cmd.c ****  *
+ 238:application/cmd/robot_cmd.c ****  */
+ 239:application/cmd/robot_cmd.c **** static void EmergencyHandler()
+ 240:application/cmd/robot_cmd.c **** {
+  40              		.loc 1 240 1 view -0
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 6
+
+
+  41              		.cfi_startproc
+  42              		@ args = 0, pretend = 0, frame = 0
+  43              		@ frame_needed = 0, uses_anonymous_args = 0
+ 241:application/cmd/robot_cmd.c ****     // 无遥控模式下仅保留软件急停状态锁定
+ 242:application/cmd/robot_cmd.c ****     if (robot_state == ROBOT_STOP)
+  44              		.loc 1 242 5 view .LVU1
+  45              		.loc 1 242 21 is_stmt 0 view .LVU2
+  46 0000 0C4B     		ldr	r3, .L8
+  47 0002 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  48              		.loc 1 242 8 view .LVU3
+  49 0004 03B1     		cbz	r3, .L7
+  50 0006 7047     		bx	lr
+  51              	.L7:
+ 240:application/cmd/robot_cmd.c ****     // 无遥控模式下仅保留软件急停状态锁定
+  52              		.loc 1 240 1 view .LVU4
+  53 0008 00B5     		push	{lr}
+  54              	.LCFI0:
+  55              		.cfi_def_cfa_offset 4
+  56              		.cfi_offset 14, -4
+  57 000a 83B0     		sub	sp, sp, #12
+  58              	.LCFI1:
+  59              		.cfi_def_cfa_offset 16
+ 243:application/cmd/robot_cmd.c ****     {
+ 244:application/cmd/robot_cmd.c ****         gimbal_cmd_send.gimbal_mode = GIMBAL_ZERO_FORCE;
+  60              		.loc 1 244 9 is_stmt 1 view .LVU5
+  61              		.loc 1 244 37 is_stmt 0 view .LVU6
+  62 000c 0A4B     		ldr	r3, .L8+4
+  63 000e 0020     		movs	r0, #0
+  64 0010 1873     		strb	r0, [r3, #12]
+ 245:application/cmd/robot_cmd.c ****         chassis_cmd_send.chassis_mode = CHASSIS_ZERO_FORCE;
+  65              		.loc 1 245 9 is_stmt 1 view .LVU7
+  66              		.loc 1 245 39 is_stmt 0 view .LVU8
+  67 0012 0A4A     		ldr	r2, .L8+8
+  68 0014 1074     		strb	r0, [r2, #16]
+ 246:application/cmd/robot_cmd.c ****         gimbal_cmd_send.yaw = gimbal_fetch_data.gimbal_imu_data.YawTotalAngle;
+  69              		.loc 1 246 9 is_stmt 1 view .LVU9
+  70              		.loc 1 246 64 is_stmt 0 view .LVU10
+  71 0016 0A4A     		ldr	r2, .L8+12
+  72 0018 516A     		ldr	r1, [r2, #36]	@ float
+  73              		.loc 1 246 29 view .LVU11
+  74 001a 1960     		str	r1, [r3]	@ float
+ 247:application/cmd/robot_cmd.c ****         gimbal_cmd_send.pitch = gimbal_fetch_data.gimbal_imu_data.Pitch;
+  75              		.loc 1 247 9 is_stmt 1 view .LVU12
+  76              		.loc 1 247 66 is_stmt 0 view .LVU13
+  77 001c D269     		ldr	r2, [r2, #28]	@ float
+  78              		.loc 1 247 31 view .LVU14
+  79 001e 5A60     		str	r2, [r3, #4]	@ float
+ 248:application/cmd/robot_cmd.c ****         LOGERROR("[CMD] emergency stop!");
+  80              		.loc 1 248 9 is_stmt 1 view .LVU15
+  81 0020 084B     		ldr	r3, .L8+16
+  82 0022 0093     		str	r3, [sp]
+  83 0024 084B     		ldr	r3, .L8+20
+  84 0026 094A     		ldr	r2, .L8+24
+  85 0028 0949     		ldr	r1, .L8+28
+  86 002a FFF7FEFF 		bl	SEGGER_RTT_printf
+  87              	.LVL0:
+ 249:application/cmd/robot_cmd.c ****     }
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 7
+
+
+ 250:application/cmd/robot_cmd.c **** }
+  88              		.loc 1 250 1 is_stmt 0 view .LVU16
+  89 002e 03B0     		add	sp, sp, #12
+  90              	.LCFI2:
+  91              		.cfi_def_cfa_offset 4
+  92              		@ sp needed
+  93 0030 00BD     		pop	{pc}
+  94              	.L9:
+  95 0032 00BF     		.align	2
+  96              	.L8:
+  97 0034 00000000 		.word	robot_state
+  98 0038 00000000 		.word	gimbal_cmd_send
+  99 003c 00000000 		.word	chassis_cmd_send
+ 100 0040 00000000 		.word	gimbal_fetch_data
+ 101 0044 2C000000 		.word	.LC3
+ 102 0048 00000000 		.word	.LC0
+ 103 004c 04000000 		.word	.LC1
+ 104 0050 0C000000 		.word	.LC2
+ 105              		.cfi_endproc
+ 106              	.LFE400:
+ 108              		.section	.text.VisionKalmanFilterInit,"ax",%progbits
+ 109              		.align	1
+ 110              		.syntax unified
+ 111              		.thumb
+ 112              		.thumb_func
+ 114              	VisionKalmanFilterInit:
+ 115              	.LFB394:
+  61:application/cmd/robot_cmd.c ****     // yaw误差卡尔曼滤波器初始化
+ 116              		.loc 1 61 1 is_stmt 1 view -0
+ 117              		.cfi_startproc
+ 118              		@ args = 0, pretend = 0, frame = 0
+ 119              		@ frame_needed = 0, uses_anonymous_args = 0
+ 120 0000 70B5     		push	{r4, r5, r6, lr}
+ 121              	.LCFI3:
+ 122              		.cfi_def_cfa_offset 16
+ 123              		.cfi_offset 4, -16
+ 124              		.cfi_offset 5, -12
+ 125              		.cfi_offset 6, -8
+ 126              		.cfi_offset 14, -4
+  63:application/cmd/robot_cmd.c **** 
+ 127              		.loc 1 63 5 view .LVU18
+ 128 0002 364C     		ldr	r4, .L12
+ 129 0004 0123     		movs	r3, #1
+ 130 0006 0022     		movs	r2, #0
+ 131 0008 0221     		movs	r1, #2
+ 132 000a 2046     		mov	r0, r4
+ 133 000c FFF7FEFF 		bl	Kalman_Filter_Init
+ 134              	.LVL1:
+  65:application/cmd/robot_cmd.c ****         5.0f, 0.0f, // 减小初始不确定性
+ 135              		.loc 1 65 5 view .LVU19
+  68:application/cmd/robot_cmd.c **** 
+ 136              		.loc 1 68 5 view .LVU20
+  68:application/cmd/robot_cmd.c **** 
+ 137              		.loc 1 68 24 is_stmt 0 view .LVU21
+ 138 0010 D4F8F850 		ldr	r5, [r4, #248]
+  68:application/cmd/robot_cmd.c **** 
+ 139              		.loc 1 68 5 view .LVU22
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 8
+
+
+ 140 0014 324E     		ldr	r6, .L12+4
+ 141 0016 0FCE     		ldmia	r6!, {r0, r1, r2, r3}
+ 142 0018 2860     		str	r0, [r5]	@ unaligned
+ 143 001a 6960     		str	r1, [r5, #4]	@ unaligned
+ 144 001c AA60     		str	r2, [r5, #8]	@ unaligned
+ 145 001e EB60     		str	r3, [r5, #12]	@ unaligned
+  71:application/cmd/robot_cmd.c ****         1.0f, 0.005f, // 修正时间步长
+ 146              		.loc 1 71 5 is_stmt 1 view .LVU23
+  74:application/cmd/robot_cmd.c **** 
+ 147              		.loc 1 74 5 view .LVU24
+  74:application/cmd/robot_cmd.c **** 
+ 148              		.loc 1 74 24 is_stmt 0 view .LVU25
+ 149 0020 D4F80051 		ldr	r5, [r4, #256]
+  74:application/cmd/robot_cmd.c **** 
+ 150              		.loc 1 74 5 view .LVU26
+ 151 0024 2F4E     		ldr	r6, .L12+8
+ 152 0026 0FCE     		ldmia	r6!, {r0, r1, r2, r3}
+ 153 0028 2860     		str	r0, [r5]	@ unaligned
+ 154 002a 6960     		str	r1, [r5, #4]	@ unaligned
+ 155 002c AA60     		str	r2, [r5, #8]	@ unaligned
+ 156 002e EB60     		str	r3, [r5, #12]	@ unaligned
+  77:application/cmd/robot_cmd.c ****         0.1f, 0.0f, // 增大位置过程噪声
+ 157              		.loc 1 77 5 is_stmt 1 view .LVU27
+  81:application/cmd/robot_cmd.c **** 
+ 158              		.loc 1 81 5 view .LVU28
+  81:application/cmd/robot_cmd.c **** 
+ 159              		.loc 1 81 24 is_stmt 0 view .LVU29
+ 160 0030 D4F81451 		ldr	r5, [r4, #276]
+  81:application/cmd/robot_cmd.c **** 
+ 161              		.loc 1 81 5 view .LVU30
+ 162 0034 2C4E     		ldr	r6, .L12+12
+ 163 0036 0FCE     		ldmia	r6!, {r0, r1, r2, r3}
+ 164 0038 2860     		str	r0, [r5]	@ unaligned
+ 165 003a 6960     		str	r1, [r5, #4]	@ unaligned
+ 166 003c AA60     		str	r2, [r5, #8]	@ unaligned
+ 167 003e EB60     		str	r3, [r5, #12]	@ unaligned
+  84:application/cmd/robot_cmd.c ****     static float measurement_degree_yaw[1] = {1.0f};
+ 168              		.loc 1 84 5 is_stmt 1 view .LVU31
+  85:application/cmd/robot_cmd.c ****     static float mat_R_diagonal_yaw[1] = {1.0f};               // 减小观测噪声，增加对观
+ 169              		.loc 1 85 5 view .LVU32
+  86:application/cmd/robot_cmd.c ****     static float state_min_variance_yaw[2] = {0.001f, 0.001f}; // 减小最小方差
+ 170              		.loc 1 86 5 view .LVU33
+  87:application/cmd/robot_cmd.c **** 
+ 171              		.loc 1 87 5 view .LVU34
+  89:application/cmd/robot_cmd.c ****     memcpy(yaw_error_kf.MeasurementMap, measurement_map_yaw, sizeof(measurement_map_yaw));
+ 172              		.loc 1 89 5 view .LVU35
+  89:application/cmd/robot_cmd.c ****     memcpy(yaw_error_kf.MeasurementMap, measurement_map_yaw, sizeof(measurement_map_yaw));
+ 173              		.loc 1 89 36 is_stmt 0 view .LVU36
+ 174 0040 0125     		movs	r5, #1
+ 175 0042 E573     		strb	r5, [r4, #15]
+  90:application/cmd/robot_cmd.c ****     memcpy(yaw_error_kf.MeasurementDegree, measurement_degree_yaw, sizeof(measurement_degree_yaw));
+ 176              		.loc 1 90 5 is_stmt 1 view .LVU37
+  90:application/cmd/robot_cmd.c ****     memcpy(yaw_error_kf.MeasurementDegree, measurement_degree_yaw, sizeof(measurement_degree_yaw));
+ 177              		.loc 1 90 24 is_stmt 0 view .LVU38
+ 178 0044 6369     		ldr	r3, [r4, #20]
+  90:application/cmd/robot_cmd.c ****     memcpy(yaw_error_kf.MeasurementDegree, measurement_degree_yaw, sizeof(measurement_degree_yaw));
+ 179              		.loc 1 90 5 view .LVU39
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 9
+
+
+ 180 0046 1D70     		strb	r5, [r3]
+  91:application/cmd/robot_cmd.c ****     memcpy(yaw_error_kf.MatR_DiagonalElements, mat_R_diagonal_yaw, sizeof(mat_R_diagonal_yaw));
+ 181              		.loc 1 91 5 is_stmt 1 view .LVU40
+  91:application/cmd/robot_cmd.c ****     memcpy(yaw_error_kf.MatR_DiagonalElements, mat_R_diagonal_yaw, sizeof(mat_R_diagonal_yaw));
+ 182              		.loc 1 91 24 is_stmt 0 view .LVU41
+ 183 0048 A369     		ldr	r3, [r4, #24]
+  91:application/cmd/robot_cmd.c ****     memcpy(yaw_error_kf.MatR_DiagonalElements, mat_R_diagonal_yaw, sizeof(mat_R_diagonal_yaw));
+ 184              		.loc 1 91 5 view .LVU42
+ 185 004a 4FF07E56 		mov	r6, #1065353216
+ 186 004e 1E60     		str	r6, [r3]	@ unaligned
+  92:application/cmd/robot_cmd.c ****     memcpy(yaw_error_kf.StateMinVariance, state_min_variance_yaw, sizeof(state_min_variance_yaw));
+ 187              		.loc 1 92 5 is_stmt 1 view .LVU43
+  92:application/cmd/robot_cmd.c ****     memcpy(yaw_error_kf.StateMinVariance, state_min_variance_yaw, sizeof(state_min_variance_yaw));
+ 188              		.loc 1 92 24 is_stmt 0 view .LVU44
+ 189 0050 E369     		ldr	r3, [r4, #28]
+  92:application/cmd/robot_cmd.c ****     memcpy(yaw_error_kf.StateMinVariance, state_min_variance_yaw, sizeof(state_min_variance_yaw));
+ 190              		.loc 1 92 5 view .LVU45
+ 191 0052 1E60     		str	r6, [r3]	@ unaligned
+  93:application/cmd/robot_cmd.c **** 
+ 192              		.loc 1 93 5 is_stmt 1 view .LVU46
+  93:application/cmd/robot_cmd.c **** 
+ 193              		.loc 1 93 24 is_stmt 0 view .LVU47
+ 194 0054 226A     		ldr	r2, [r4, #32]
+  93:application/cmd/robot_cmd.c **** 
+ 195              		.loc 1 93 5 view .LVU48
+ 196 0056 254B     		ldr	r3, .L12+16
+ 197 0058 03CB     		ldmia	r3!, {r0, r1}
+ 198 005a 1060     		str	r0, [r2]	@ unaligned
+ 199 005c 5160     		str	r1, [r2, #4]	@ unaligned
+  96:application/cmd/robot_cmd.c ****     static float P_init_pitch[4] = {
+ 200              		.loc 1 96 5 is_stmt 1 view .LVU49
+ 201 005e 244C     		ldr	r4, .L12+20
+ 202 0060 2B46     		mov	r3, r5
+ 203 0062 0022     		movs	r2, #0
+ 204 0064 0221     		movs	r1, #2
+ 205 0066 2046     		mov	r0, r4
+ 206 0068 FFF7FEFF 		bl	Kalman_Filter_Init
+ 207              	.LVL2:
+  97:application/cmd/robot_cmd.c ****         5.0f, 0.0f, // 减小初始不确定性
+ 208              		.loc 1 97 5 view .LVU50
+ 100:application/cmd/robot_cmd.c ****     // 状态转移矩阵F (dt = 1/200 = 0.005s, 200Hz控制频率)
+ 209              		.loc 1 100 5 view .LVU51
+ 100:application/cmd/robot_cmd.c ****     // 状态转移矩阵F (dt = 1/200 = 0.005s, 200Hz控制频率)
+ 210              		.loc 1 100 26 is_stmt 0 view .LVU52
+ 211 006c D4F8F8E0 		ldr	lr, [r4, #248]
+ 100:application/cmd/robot_cmd.c ****     // 状态转移矩阵F (dt = 1/200 = 0.005s, 200Hz控制频率)
+ 212              		.loc 1 100 5 view .LVU53
+ 213 0070 DFF884C0 		ldr	ip, .L12+28
+ 214 0074 BCE80F00 		ldmia	ip!, {r0, r1, r2, r3}
+ 215 0078 CEF80000 		str	r0, [lr]	@ unaligned
+ 216 007c CEF80410 		str	r1, [lr, #4]	@ unaligned
+ 217 0080 CEF80820 		str	r2, [lr, #8]	@ unaligned
+ 218 0084 CEF80C30 		str	r3, [lr, #12]	@ unaligned
+ 102:application/cmd/robot_cmd.c ****         1.0f, 0.005f, // 修正时间步长
+ 219              		.loc 1 102 5 is_stmt 1 view .LVU54
+ 105:application/cmd/robot_cmd.c ****     // 过程噪声协方差矩阵Q
+ 220              		.loc 1 105 5 view .LVU55
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 10
+
+
+ 105:application/cmd/robot_cmd.c ****     // 过程噪声协方差矩阵Q
+ 221              		.loc 1 105 26 is_stmt 0 view .LVU56
+ 222 0088 D4F800E1 		ldr	lr, [r4, #256]
+ 105:application/cmd/robot_cmd.c ****     // 过程噪声协方差矩阵Q
+ 223              		.loc 1 105 5 view .LVU57
+ 224 008c DFF86CC0 		ldr	ip, .L12+32
+ 225 0090 BCE80F00 		ldmia	ip!, {r0, r1, r2, r3}
+ 226 0094 CEF80000 		str	r0, [lr]	@ unaligned
+ 227 0098 CEF80410 		str	r1, [lr, #4]	@ unaligned
+ 228 009c CEF80820 		str	r2, [lr, #8]	@ unaligned
+ 229 00a0 CEF80C30 		str	r3, [lr, #12]	@ unaligned
+ 107:application/cmd/robot_cmd.c ****         0.1f, 0.0f, // 增大位置过程噪声
+ 230              		.loc 1 107 5 is_stmt 1 view .LVU58
+ 111:application/cmd/robot_cmd.c ****     // 观测矩阵H
+ 231              		.loc 1 111 5 view .LVU59
+ 111:application/cmd/robot_cmd.c ****     // 观测矩阵H
+ 232              		.loc 1 111 26 is_stmt 0 view .LVU60
+ 233 00a4 D4F814E1 		ldr	lr, [r4, #276]
+ 111:application/cmd/robot_cmd.c ****     // 观测矩阵H
+ 234              		.loc 1 111 5 view .LVU61
+ 235 00a8 DFF854C0 		ldr	ip, .L12+36
+ 236 00ac BCE80F00 		ldmia	ip!, {r0, r1, r2, r3}
+ 237 00b0 CEF80000 		str	r0, [lr]	@ unaligned
+ 238 00b4 CEF80410 		str	r1, [lr, #4]	@ unaligned
+ 239 00b8 CEF80820 		str	r2, [lr, #8]	@ unaligned
+ 240 00bc CEF80C30 		str	r3, [lr, #12]	@ unaligned
+ 113:application/cmd/robot_cmd.c ****     static float measurement_degree_pitch[1] = {1.0f};
+ 241              		.loc 1 113 5 is_stmt 1 view .LVU62
+ 114:application/cmd/robot_cmd.c ****     static float mat_R_diagonal_pitch[1] = {1.0f};               // 减小观测噪声，增加对�
+ 242              		.loc 1 114 5 view .LVU63
+ 115:application/cmd/robot_cmd.c ****     static float state_min_variance_pitch[2] = {0.001f, 0.001f}; // 减小最小方差
+ 243              		.loc 1 115 5 view .LVU64
+ 116:application/cmd/robot_cmd.c ****     pitch_error_kf.UseAutoAdjustment = 1;
+ 244              		.loc 1 116 5 view .LVU65
+ 117:application/cmd/robot_cmd.c ****     memcpy(pitch_error_kf.MeasurementMap, measurement_map_pitch, sizeof(measurement_map_pitch));
+ 245              		.loc 1 117 5 view .LVU66
+ 117:application/cmd/robot_cmd.c ****     memcpy(pitch_error_kf.MeasurementMap, measurement_map_pitch, sizeof(measurement_map_pitch));
+ 246              		.loc 1 117 38 is_stmt 0 view .LVU67
+ 247 00c0 E573     		strb	r5, [r4, #15]
+ 118:application/cmd/robot_cmd.c ****     memcpy(pitch_error_kf.MeasurementDegree, measurement_degree_pitch, sizeof(measurement_degree_pi
+ 248              		.loc 1 118 5 is_stmt 1 view .LVU68
+ 118:application/cmd/robot_cmd.c ****     memcpy(pitch_error_kf.MeasurementDegree, measurement_degree_pitch, sizeof(measurement_degree_pi
+ 249              		.loc 1 118 26 is_stmt 0 view .LVU69
+ 250 00c2 6369     		ldr	r3, [r4, #20]
+ 118:application/cmd/robot_cmd.c ****     memcpy(pitch_error_kf.MeasurementDegree, measurement_degree_pitch, sizeof(measurement_degree_pi
+ 251              		.loc 1 118 5 view .LVU70
+ 252 00c4 1D70     		strb	r5, [r3]
+ 119:application/cmd/robot_cmd.c ****     memcpy(pitch_error_kf.MatR_DiagonalElements, mat_R_diagonal_pitch, sizeof(mat_R_diagonal_pitch)
+ 253              		.loc 1 119 5 is_stmt 1 view .LVU71
+ 119:application/cmd/robot_cmd.c ****     memcpy(pitch_error_kf.MatR_DiagonalElements, mat_R_diagonal_pitch, sizeof(mat_R_diagonal_pitch)
+ 254              		.loc 1 119 26 is_stmt 0 view .LVU72
+ 255 00c6 A369     		ldr	r3, [r4, #24]
+ 119:application/cmd/robot_cmd.c ****     memcpy(pitch_error_kf.MatR_DiagonalElements, mat_R_diagonal_pitch, sizeof(mat_R_diagonal_pitch)
+ 256              		.loc 1 119 5 view .LVU73
+ 257 00c8 1E60     		str	r6, [r3]	@ unaligned
+ 120:application/cmd/robot_cmd.c ****     memcpy(pitch_error_kf.StateMinVariance, state_min_variance_pitch, sizeof(state_min_variance_pit
+ 258              		.loc 1 120 5 is_stmt 1 view .LVU74
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 11
+
+
+ 120:application/cmd/robot_cmd.c ****     memcpy(pitch_error_kf.StateMinVariance, state_min_variance_pitch, sizeof(state_min_variance_pit
+ 259              		.loc 1 120 26 is_stmt 0 view .LVU75
+ 260 00ca E369     		ldr	r3, [r4, #28]
+ 120:application/cmd/robot_cmd.c ****     memcpy(pitch_error_kf.StateMinVariance, state_min_variance_pitch, sizeof(state_min_variance_pit
+ 261              		.loc 1 120 5 view .LVU76
+ 262 00cc 1E60     		str	r6, [r3]	@ unaligned
+ 121:application/cmd/robot_cmd.c **** }
+ 263              		.loc 1 121 5 is_stmt 1 view .LVU77
+ 121:application/cmd/robot_cmd.c **** }
+ 264              		.loc 1 121 26 is_stmt 0 view .LVU78
+ 265 00ce 226A     		ldr	r2, [r4, #32]
+ 121:application/cmd/robot_cmd.c **** }
+ 266              		.loc 1 121 5 view .LVU79
+ 267 00d0 084B     		ldr	r3, .L12+24
+ 268 00d2 03CB     		ldmia	r3!, {r0, r1}
+ 269 00d4 1060     		str	r0, [r2]	@ unaligned
+ 270 00d6 5160     		str	r1, [r2, #4]	@ unaligned
+ 122:application/cmd/robot_cmd.c **** 
+ 271              		.loc 1 122 1 view .LVU80
+ 272 00d8 70BD     		pop	{r4, r5, r6, pc}
+ 273              	.L13:
+ 274 00da 00BF     		.align	2
+ 275              	.L12:
+ 276 00dc 00000000 		.word	yaw_error_kf
+ 277 00e0 00000000 		.word	P_init_yaw.13
+ 278 00e4 00000000 		.word	F_init_yaw.12
+ 279 00e8 00000000 		.word	Q_init_yaw.11
+ 280 00ec 00000000 		.word	state_min_variance_yaw.7
+ 281 00f0 00000000 		.word	pitch_error_kf
+ 282 00f4 00000000 		.word	state_min_variance_pitch.0
+ 283 00f8 00000000 		.word	P_init_pitch.6
+ 284 00fc 00000000 		.word	F_init_pitch.5
+ 285 0100 00000000 		.word	Q_init_pitch.4
+ 286              		.cfi_endproc
+ 287              	.LFE394:
+ 289              		.section	.text.AutoSetNoBoardComm,"ax",%progbits
+ 290              		.align	1
+ 291              		.syntax unified
+ 292              		.thumb
+ 293              		.thumb_func
+ 295              	AutoSetNoBoardComm:
+ 296              	.LFB398:
+ 182:application/cmd/robot_cmd.c ****     gimbal_cmd_send.gimbal_mode = GIMBAL_GYRO_MODE;
+ 297              		.loc 1 182 1 is_stmt 1 view -0
+ 298              		.cfi_startproc
+ 299              		@ args = 0, pretend = 0, frame = 0
+ 300              		@ frame_needed = 0, uses_anonymous_args = 0
+ 301 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 302              	.LCFI4:
+ 303              		.cfi_def_cfa_offset 24
+ 304              		.cfi_offset 3, -24
+ 305              		.cfi_offset 4, -20
+ 306              		.cfi_offset 5, -16
+ 307              		.cfi_offset 6, -12
+ 308              		.cfi_offset 7, -8
+ 309              		.cfi_offset 14, -4
+ 183:application/cmd/robot_cmd.c ****     chassis_cmd_send.chassis_mode = CHASSIS_ZERO_FORCE;
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 12
+
+
+ 310              		.loc 1 183 5 view .LVU82
+ 183:application/cmd/robot_cmd.c ****     chassis_cmd_send.chassis_mode = CHASSIS_ZERO_FORCE;
+ 311              		.loc 1 183 33 is_stmt 0 view .LVU83
+ 312 0002 674B     		ldr	r3, .L35
+ 313 0004 0222     		movs	r2, #2
+ 314 0006 1A73     		strb	r2, [r3, #12]
+ 184:application/cmd/robot_cmd.c ****     gimbal_cmd_send.yaw = gimbal_fetch_data.gimbal_imu_data.YawTotalAngle;
+ 315              		.loc 1 184 5 is_stmt 1 view .LVU84
+ 184:application/cmd/robot_cmd.c ****     gimbal_cmd_send.yaw = gimbal_fetch_data.gimbal_imu_data.YawTotalAngle;
+ 316              		.loc 1 184 35 is_stmt 0 view .LVU85
+ 317 0008 664A     		ldr	r2, .L35+4
+ 318 000a 0021     		movs	r1, #0
+ 319 000c 1174     		strb	r1, [r2, #16]
+ 185:application/cmd/robot_cmd.c ****     gimbal_cmd_send.pitch = gimbal_fetch_data.gimbal_imu_data.Pitch;
+ 320              		.loc 1 185 5 is_stmt 1 view .LVU86
+ 185:application/cmd/robot_cmd.c ****     gimbal_cmd_send.pitch = gimbal_fetch_data.gimbal_imu_data.Pitch;
+ 321              		.loc 1 185 60 is_stmt 0 view .LVU87
+ 322 000e 664A     		ldr	r2, .L35+8
+ 323 0010 516A     		ldr	r1, [r2, #36]	@ float
+ 185:application/cmd/robot_cmd.c ****     gimbal_cmd_send.pitch = gimbal_fetch_data.gimbal_imu_data.Pitch;
+ 324              		.loc 1 185 25 view .LVU88
+ 325 0012 1960     		str	r1, [r3]	@ float
+ 186:application/cmd/robot_cmd.c ****     laser_off();
+ 326              		.loc 1 186 5 is_stmt 1 view .LVU89
+ 186:application/cmd/robot_cmd.c ****     laser_off();
+ 327              		.loc 1 186 62 is_stmt 0 view .LVU90
+ 328 0014 D269     		ldr	r2, [r2, #28]	@ float
+ 186:application/cmd/robot_cmd.c ****     laser_off();
+ 329              		.loc 1 186 27 view .LVU91
+ 330 0016 5A60     		str	r2, [r3, #4]	@ float
+ 187:application/cmd/robot_cmd.c **** 
+ 331              		.loc 1 187 5 is_stmt 1 view .LVU92
+ 189:application/cmd/robot_cmd.c ****     {
+ 332              		.loc 1 189 5 view .LVU93
+ 189:application/cmd/robot_cmd.c ****     {
+ 333              		.loc 1 189 9 is_stmt 0 view .LVU94
+ 334 0018 644B     		ldr	r3, .L35+12
+ 335 001a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 189:application/cmd/robot_cmd.c ****     {
+ 336              		.loc 1 189 8 view .LVU95
+ 337 001c 002B     		cmp	r3, #0
+ 338 001e 00F0A580 		beq	.L15
+ 189:application/cmd/robot_cmd.c ****     {
+ 339              		.loc 1 189 44 discriminator 1 view .LVU96
+ 340 0022 634B     		ldr	r3, .L35+16
+ 341 0024 93ED007A 		vldr.32	s14, [r3]
+ 189:application/cmd/robot_cmd.c ****     {
+ 342              		.loc 1 189 25 discriminator 1 view .LVU97
+ 343 0028 F2EE047A 		vmov.f32	s15, #1.0e+1
+ 344 002c B4EEE77A 		vcmpe.f32	s14, s15
+ 345 0030 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 346 0034 C0F29A80 		blt	.L15
+ 347              	.LBB2:
+ 191:application/cmd/robot_cmd.c ****         LIMIT_MIN_MAX(opencv_Vision_data[1], PARAM_VISION_PITCH_ERR_MIN, PARAM_VISION_PITCH_ERR_MAX
+ 348              		.loc 1 191 9 is_stmt 1 view .LVU98
+ 349 0038 5E4B     		ldr	r3, .L35+20
+ 350 003a D3ED007A 		vldr.32	s15, [r3]
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 13
+
+
+ 351 003e 9FED5E7A 		vldr.32	s14, .L35+24
+ 352 0042 F4EEC77A 		vcmpe.f32	s15, s14
+ 353 0046 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 354 004a 09D9     		bls	.L25
+ 191:application/cmd/robot_cmd.c ****         LIMIT_MIN_MAX(opencv_Vision_data[1], PARAM_VISION_PITCH_ERR_MIN, PARAM_VISION_PITCH_ERR_MAX
+ 355              		.loc 1 191 9 is_stmt 0 discriminator 2 view .LVU99
+ 356 004c 9FED5B7A 		vldr.32	s14, .L35+28
+ 357 0050 F4EEC77A 		vcmpe.f32	s15, s14
+ 358 0054 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 359 0058 04DB     		blt	.L17
+ 191:application/cmd/robot_cmd.c ****         LIMIT_MIN_MAX(opencv_Vision_data[1], PARAM_VISION_PITCH_ERR_MIN, PARAM_VISION_PITCH_ERR_MAX
+ 360              		.loc 1 191 9 discriminator 4 view .LVU100
+ 361 005a F0EE477A 		vmov.f32	s15, s14
+ 362 005e 01E0     		b	.L17
+ 363              	.L25:
+ 191:application/cmd/robot_cmd.c ****         LIMIT_MIN_MAX(opencv_Vision_data[1], PARAM_VISION_PITCH_ERR_MIN, PARAM_VISION_PITCH_ERR_MAX
+ 364              		.loc 1 191 9 discriminator 1 view .LVU101
+ 365 0060 DFED557A 		vldr.32	s15, .L35+24
+ 366              	.L17:
+ 191:application/cmd/robot_cmd.c ****         LIMIT_MIN_MAX(opencv_Vision_data[1], PARAM_VISION_PITCH_ERR_MIN, PARAM_VISION_PITCH_ERR_MAX
+ 367              		.loc 1 191 9 discriminator 7 view .LVU102
+ 368 0064 534B     		ldr	r3, .L35+20
+ 369 0066 C3ED007A 		vstr.32	s15, [r3]
+ 192:application/cmd/robot_cmd.c ****         LIMIT_MIN_MAX(opencv_Vision_data[2], PARAM_VISION_DIST_MIN, PARAM_VISION_DIST_MAX);
+ 370              		.loc 1 192 9 is_stmt 1 view .LVU103
+ 371 006a 93ED017A 		vldr.32	s14, [r3, #4]
+ 372 006e DFED526A 		vldr.32	s13, .L35+24
+ 373 0072 B4EEE67A 		vcmpe.f32	s14, s13
+ 374 0076 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 375 007a 09D9     		bls	.L26
+ 192:application/cmd/robot_cmd.c ****         LIMIT_MIN_MAX(opencv_Vision_data[2], PARAM_VISION_DIST_MIN, PARAM_VISION_DIST_MAX);
+ 376              		.loc 1 192 9 is_stmt 0 discriminator 2 view .LVU104
+ 377 007c DFED4F6A 		vldr.32	s13, .L35+28
+ 378 0080 B4EEE67A 		vcmpe.f32	s14, s13
+ 379 0084 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 380 0088 04DB     		blt	.L19
+ 192:application/cmd/robot_cmd.c ****         LIMIT_MIN_MAX(opencv_Vision_data[2], PARAM_VISION_DIST_MIN, PARAM_VISION_DIST_MAX);
+ 381              		.loc 1 192 9 discriminator 4 view .LVU105
+ 382 008a B0EE667A 		vmov.f32	s14, s13
+ 383 008e 01E0     		b	.L19
+ 384              	.L26:
+ 192:application/cmd/robot_cmd.c ****         LIMIT_MIN_MAX(opencv_Vision_data[2], PARAM_VISION_DIST_MIN, PARAM_VISION_DIST_MAX);
+ 385              		.loc 1 192 9 discriminator 1 view .LVU106
+ 386 0090 9FED497A 		vldr.32	s14, .L35+24
+ 387              	.L19:
+ 192:application/cmd/robot_cmd.c ****         LIMIT_MIN_MAX(opencv_Vision_data[2], PARAM_VISION_DIST_MIN, PARAM_VISION_DIST_MAX);
+ 388              		.loc 1 192 9 discriminator 7 view .LVU107
+ 389 0094 474B     		ldr	r3, .L35+20
+ 390 0096 83ED017A 		vstr.32	s14, [r3, #4]
+ 193:application/cmd/robot_cmd.c **** 
+ 391              		.loc 1 193 9 is_stmt 1 view .LVU108
+ 392 009a 93ED027A 		vldr.32	s14, [r3, #8]
+ 393 009e DFED486A 		vldr.32	s13, .L35+32
+ 394 00a2 B4EEE67A 		vcmpe.f32	s14, s13
+ 395 00a6 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 396 00aa 09D9     		bls	.L27
+ 193:application/cmd/robot_cmd.c **** 
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 14
+
+
+ 397              		.loc 1 193 9 is_stmt 0 discriminator 2 view .LVU109
+ 398 00ac DFED456A 		vldr.32	s13, .L35+36
+ 399 00b0 B4EEE67A 		vcmpe.f32	s14, s13
+ 400 00b4 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 401 00b8 04DB     		blt	.L21
+ 193:application/cmd/robot_cmd.c **** 
+ 402              		.loc 1 193 9 discriminator 4 view .LVU110
+ 403 00ba B0EE667A 		vmov.f32	s14, s13
+ 404 00be 01E0     		b	.L21
+ 405              	.L27:
+ 193:application/cmd/robot_cmd.c **** 
+ 406              		.loc 1 193 9 discriminator 1 view .LVU111
+ 407 00c0 9FED3F7A 		vldr.32	s14, .L35+32
+ 408              	.L21:
+ 193:application/cmd/robot_cmd.c **** 
+ 409              		.loc 1 193 9 discriminator 7 view .LVU112
+ 410 00c4 3B4B     		ldr	r3, .L35+20
+ 411 00c6 83ED027A 		vstr.32	s14, [r3, #8]
+ 195:application/cmd/robot_cmd.c ****         pitch_error_kf.MeasuredVector[0] = opencv_Vision_data[1];
+ 412              		.loc 1 195 9 is_stmt 1 view .LVU113
+ 195:application/cmd/robot_cmd.c ****         pitch_error_kf.MeasuredVector[0] = opencv_Vision_data[1];
+ 413              		.loc 1 195 21 is_stmt 0 view .LVU114
+ 414 00ca 3F48     		ldr	r0, .L35+40
+ 415 00cc 4268     		ldr	r2, [r0, #4]
+ 195:application/cmd/robot_cmd.c ****         pitch_error_kf.MeasuredVector[0] = opencv_Vision_data[1];
+ 416              		.loc 1 195 40 view .LVU115
+ 417 00ce C2ED007A 		vstr.32	s15, [r2]
+ 196:application/cmd/robot_cmd.c **** 
+ 418              		.loc 1 196 9 is_stmt 1 view .LVU116
+ 196:application/cmd/robot_cmd.c **** 
+ 419              		.loc 1 196 23 is_stmt 0 view .LVU117
+ 420 00d2 3E4C     		ldr	r4, .L35+44
+ 421 00d4 6268     		ldr	r2, [r4, #4]
+ 196:application/cmd/robot_cmd.c **** 
+ 422              		.loc 1 196 62 view .LVU118
+ 423 00d6 5B68     		ldr	r3, [r3, #4]	@ float
+ 196:application/cmd/robot_cmd.c **** 
+ 424              		.loc 1 196 42 view .LVU119
+ 425 00d8 1360     		str	r3, [r2]	@ float
+ 198:application/cmd/robot_cmd.c ****         float *pitch_filtered = Kalman_Filter_Update(&pitch_error_kf);
+ 426              		.loc 1 198 9 is_stmt 1 view .LVU120
+ 198:application/cmd/robot_cmd.c ****         float *pitch_filtered = Kalman_Filter_Update(&pitch_error_kf);
+ 427              		.loc 1 198 31 is_stmt 0 view .LVU121
+ 428 00da FFF7FEFF 		bl	Kalman_Filter_Update
+ 429              	.LVL3:
+ 430 00de 0546     		mov	r5, r0
+ 431              	.LVL4:
+ 199:application/cmd/robot_cmd.c **** 
+ 432              		.loc 1 199 9 is_stmt 1 view .LVU122
+ 199:application/cmd/robot_cmd.c **** 
+ 433              		.loc 1 199 33 is_stmt 0 view .LVU123
+ 434 00e0 2046     		mov	r0, r4
+ 435              	.LVL5:
+ 199:application/cmd/robot_cmd.c **** 
+ 436              		.loc 1 199 33 view .LVU124
+ 437 00e2 FFF7FEFF 		bl	Kalman_Filter_Update
+ 438              	.LVL6:
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 15
+
+
+ 201:application/cmd/robot_cmd.c ****         filtered_pitch_error = pitch_filtered[0];
+ 439              		.loc 1 201 9 is_stmt 1 view .LVU125
+ 201:application/cmd/robot_cmd.c ****         filtered_pitch_error = pitch_filtered[0];
+ 440              		.loc 1 201 42 is_stmt 0 view .LVU126
+ 441 00e6 95ED000A 		vldr.32	s0, [r5]
+ 201:application/cmd/robot_cmd.c ****         filtered_pitch_error = pitch_filtered[0];
+ 442              		.loc 1 201 28 view .LVU127
+ 443 00ea 394E     		ldr	r6, .L35+48
+ 444 00ec 86ED000A 		vstr.32	s0, [r6]
+ 202:application/cmd/robot_cmd.c **** 
+ 445              		.loc 1 202 9 is_stmt 1 view .LVU128
+ 202:application/cmd/robot_cmd.c **** 
+ 446              		.loc 1 202 46 is_stmt 0 view .LVU129
+ 447 00f0 0368     		ldr	r3, [r0]	@ float
+ 202:application/cmd/robot_cmd.c **** 
+ 448              		.loc 1 202 30 view .LVU130
+ 449 00f2 384D     		ldr	r5, .L35+52
+ 450              	.LVL7:
+ 202:application/cmd/robot_cmd.c **** 
+ 451              		.loc 1 202 30 view .LVU131
+ 452 00f4 2B60     		str	r3, [r5]	@ float
+ 204:application/cmd/robot_cmd.c ****         pitch_tracking_pid_output = PIDCalculate(&pitch_tracking_pid, filtered_pitch_error, 0);
+ 453              		.loc 1 204 9 is_stmt 1 view .LVU132
+ 204:application/cmd/robot_cmd.c ****         pitch_tracking_pid_output = PIDCalculate(&pitch_tracking_pid, filtered_pitch_error, 0);
+ 454              		.loc 1 204 35 is_stmt 0 view .LVU133
+ 455 00f6 384C     		ldr	r4, .L35+56
+ 456 00f8 DFED380A 		vldr.32	s1, .L35+60
+ 457 00fc 2046     		mov	r0, r4
+ 458              	.LVL8:
+ 204:application/cmd/robot_cmd.c ****         pitch_tracking_pid_output = PIDCalculate(&pitch_tracking_pid, filtered_pitch_error, 0);
+ 459              		.loc 1 204 35 view .LVU134
+ 460 00fe FFF7FEFF 		bl	PIDCalculate
+ 461              	.LVL9:
+ 204:application/cmd/robot_cmd.c ****         pitch_tracking_pid_output = PIDCalculate(&pitch_tracking_pid, filtered_pitch_error, 0);
+ 462              		.loc 1 204 33 discriminator 1 view .LVU135
+ 463 0102 374F     		ldr	r7, .L35+64
+ 464 0104 87ED000A 		vstr.32	s0, [r7]
+ 205:application/cmd/robot_cmd.c **** 
+ 465              		.loc 1 205 9 is_stmt 1 view .LVU136
+ 205:application/cmd/robot_cmd.c **** 
+ 466              		.loc 1 205 37 is_stmt 0 view .LVU137
+ 467 0108 DFED340A 		vldr.32	s1, .L35+60
+ 468 010c 95ED000A 		vldr.32	s0, [r5]
+ 469 0110 3448     		ldr	r0, .L35+68
+ 470 0112 FFF7FEFF 		bl	PIDCalculate
+ 471              	.LVL10:
+ 205:application/cmd/robot_cmd.c **** 
+ 472              		.loc 1 205 35 discriminator 1 view .LVU138
+ 473 0116 344B     		ldr	r3, .L35+72
+ 474 0118 83ED000A 		vstr.32	s0, [r3]
+ 207:application/cmd/robot_cmd.c ****         gimbal_cmd_send.pitch += 0.001f * pitch_tracking_pid_output;
+ 475              		.loc 1 207 9 is_stmt 1 view .LVU139
+ 207:application/cmd/robot_cmd.c ****         gimbal_cmd_send.pitch += 0.001f * pitch_tracking_pid_output;
+ 476              		.loc 1 207 24 is_stmt 0 view .LVU140
+ 477 011c 204B     		ldr	r3, .L35
+ 478 011e D3ED007A 		vldr.32	s15, [r3]
+ 207:application/cmd/robot_cmd.c ****         gimbal_cmd_send.pitch += 0.001f * pitch_tracking_pid_output;
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 16
+
+
+ 479              		.loc 1 207 39 view .LVU141
+ 480 0122 97ED007A 		vldr.32	s14, [r7]
+ 481 0126 DFED316A 		vldr.32	s13, .L35+76
+ 482 012a 27EE267A 		vmul.f32	s14, s14, s13
+ 207:application/cmd/robot_cmd.c ****         gimbal_cmd_send.pitch += 0.001f * pitch_tracking_pid_output;
+ 483              		.loc 1 207 29 view .LVU142
+ 484 012e 77EEC77A 		vsub.f32	s15, s15, s14
+ 485 0132 C3ED007A 		vstr.32	s15, [r3]
+ 208:application/cmd/robot_cmd.c **** 
+ 486              		.loc 1 208 9 is_stmt 1 view .LVU143
+ 208:application/cmd/robot_cmd.c **** 
+ 487              		.loc 1 208 24 is_stmt 0 view .LVU144
+ 488 0136 D3ED017A 		vldr.32	s15, [r3, #4]
+ 208:application/cmd/robot_cmd.c **** 
+ 489              		.loc 1 208 41 view .LVU145
+ 490 013a 20EE260A 		vmul.f32	s0, s0, s13
+ 208:application/cmd/robot_cmd.c **** 
+ 491              		.loc 1 208 31 view .LVU146
+ 492 013e 77EE807A 		vadd.f32	s15, s15, s0
+ 493 0142 C3ED017A 		vstr.32	s15, [r3, #4]
+ 210:application/cmd/robot_cmd.c ****         vofa_debug[1] = filtered_pitch_error;
+ 494              		.loc 1 210 9 is_stmt 1 view .LVU147
+ 210:application/cmd/robot_cmd.c ****         vofa_debug[1] = filtered_pitch_error;
+ 495              		.loc 1 210 23 is_stmt 0 view .LVU148
+ 496 0146 2A48     		ldr	r0, .L35+80
+ 497 0148 3368     		ldr	r3, [r6]	@ float
+ 498 014a 0360     		str	r3, [r0]	@ float
+ 211:application/cmd/robot_cmd.c ****         vofa_debug[2] = yaw_tracking_pid.Err;
+ 499              		.loc 1 211 9 is_stmt 1 view .LVU149
+ 211:application/cmd/robot_cmd.c ****         vofa_debug[2] = yaw_tracking_pid.Err;
+ 500              		.loc 1 211 23 is_stmt 0 view .LVU150
+ 501 014c 2B68     		ldr	r3, [r5]	@ float
+ 502 014e 4360     		str	r3, [r0, #4]	@ float
+ 212:application/cmd/robot_cmd.c ****         vofa_debug[3] = yaw_tracking_pid.Pout;
+ 503              		.loc 1 212 9 is_stmt 1 view .LVU151
+ 212:application/cmd/robot_cmd.c ****         vofa_debug[3] = yaw_tracking_pid.Pout;
+ 504              		.loc 1 212 41 is_stmt 0 view .LVU152
+ 505 0150 636B     		ldr	r3, [r4, #52]	@ float
+ 212:application/cmd/robot_cmd.c ****         vofa_debug[3] = yaw_tracking_pid.Pout;
+ 506              		.loc 1 212 23 view .LVU153
+ 507 0152 8360     		str	r3, [r0, #8]	@ float
+ 213:application/cmd/robot_cmd.c ****         vofa_debug[4] = yaw_tracking_pid.Iout;
+ 508              		.loc 1 213 9 is_stmt 1 view .LVU154
+ 213:application/cmd/robot_cmd.c ****         vofa_debug[4] = yaw_tracking_pid.Iout;
+ 509              		.loc 1 213 41 is_stmt 0 view .LVU155
+ 510 0154 236C     		ldr	r3, [r4, #64]	@ float
+ 213:application/cmd/robot_cmd.c ****         vofa_debug[4] = yaw_tracking_pid.Iout;
+ 511              		.loc 1 213 23 view .LVU156
+ 512 0156 C360     		str	r3, [r0, #12]	@ float
+ 214:application/cmd/robot_cmd.c ****         vofa_debug[5] = yaw_tracking_pid.Dout;
+ 513              		.loc 1 214 9 is_stmt 1 view .LVU157
+ 214:application/cmd/robot_cmd.c ****         vofa_debug[5] = yaw_tracking_pid.Dout;
+ 514              		.loc 1 214 41 is_stmt 0 view .LVU158
+ 515 0158 636C     		ldr	r3, [r4, #68]	@ float
+ 214:application/cmd/robot_cmd.c ****         vofa_debug[5] = yaw_tracking_pid.Dout;
+ 516              		.loc 1 214 23 view .LVU159
+ 517 015a 0361     		str	r3, [r0, #16]	@ float
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 17
+
+
+ 215:application/cmd/robot_cmd.c ****         vofa_debug[6] = yaw_tracking_pid.Output;
+ 518              		.loc 1 215 9 is_stmt 1 view .LVU160
+ 215:application/cmd/robot_cmd.c ****         vofa_debug[6] = yaw_tracking_pid.Output;
+ 519              		.loc 1 215 41 is_stmt 0 view .LVU161
+ 520 015c A36C     		ldr	r3, [r4, #72]	@ float
+ 215:application/cmd/robot_cmd.c ****         vofa_debug[6] = yaw_tracking_pid.Output;
+ 521              		.loc 1 215 23 view .LVU162
+ 522 015e 4361     		str	r3, [r0, #20]	@ float
+ 216:application/cmd/robot_cmd.c ****         vofa_justfloat_output(vofa_debug, 7, &huart1);
+ 523              		.loc 1 216 9 is_stmt 1 view .LVU163
+ 216:application/cmd/robot_cmd.c ****         vofa_justfloat_output(vofa_debug, 7, &huart1);
+ 524              		.loc 1 216 41 is_stmt 0 view .LVU164
+ 525 0160 236D     		ldr	r3, [r4, #80]	@ float
+ 216:application/cmd/robot_cmd.c ****         vofa_justfloat_output(vofa_debug, 7, &huart1);
+ 526              		.loc 1 216 23 view .LVU165
+ 527 0162 8361     		str	r3, [r0, #24]	@ float
+ 217:application/cmd/robot_cmd.c ****     }
+ 528              		.loc 1 217 9 is_stmt 1 view .LVU166
+ 529 0164 234A     		ldr	r2, .L35+84
+ 530 0166 0721     		movs	r1, #7
+ 531 0168 FFF7FEFF 		bl	vofa_justfloat_output
+ 532              	.LVL11:
+ 533              	.L15:
+ 217:application/cmd/robot_cmd.c ****     }
+ 534              		.loc 1 217 9 is_stmt 0 view .LVU167
+ 535              	.LBE2:
+ 220:application/cmd/robot_cmd.c **** }
+ 536              		.loc 1 220 5 is_stmt 1 view .LVU168
+ 537 016c 0C4B     		ldr	r3, .L35
+ 538 016e D3ED017A 		vldr.32	s15, [r3, #4]
+ 539 0172 BBEE0E7A 		vmov.f32	s14, #-3.0e+1
+ 540 0176 F4EEC77A 		vcmpe.f32	s15, s14
+ 541 017a F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 542 017e 09D9     		bls	.L28
+ 220:application/cmd/robot_cmd.c **** }
+ 543              		.loc 1 220 5 is_stmt 0 discriminator 2 view .LVU169
+ 544 0180 B3EE0E7A 		vmov.f32	s14, #3.0e+1
+ 545 0184 F4EEC77A 		vcmpe.f32	s15, s14
+ 546 0188 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 547 018c 04DB     		blt	.L23
+ 220:application/cmd/robot_cmd.c **** }
+ 548              		.loc 1 220 5 discriminator 4 view .LVU170
+ 549 018e F0EE477A 		vmov.f32	s15, s14
+ 550 0192 01E0     		b	.L23
+ 551              	.L28:
+ 220:application/cmd/robot_cmd.c **** }
+ 552              		.loc 1 220 5 discriminator 1 view .LVU171
+ 553 0194 FBEE0E7A 		vmov.f32	s15, #-3.0e+1
+ 554              	.L23:
+ 220:application/cmd/robot_cmd.c **** }
+ 555              		.loc 1 220 5 discriminator 7 view .LVU172
+ 556 0198 014B     		ldr	r3, .L35
+ 557 019a C3ED017A 		vstr.32	s15, [r3, #4]
+ 221:application/cmd/robot_cmd.c **** 
+ 558              		.loc 1 221 1 view .LVU173
+ 559 019e F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 560              	.L36:
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 18
+
+
+ 561              		.align	2
+ 562              	.L35:
+ 563 01a0 00000000 		.word	gimbal_cmd_send
+ 564 01a4 00000000 		.word	chassis_cmd_send
+ 565 01a8 00000000 		.word	gimbal_fetch_data
+ 566 01ac 00000000 		.word	Vison_revc_flag
+ 567 01b0 00000000 		.word	Vison_Frequency
+ 568 01b4 00000000 		.word	opencv_Vision_data
+ 569 01b8 0000C8C2 		.word	-1027080192
+ 570 01bc 0000C842 		.word	1120403456
+ 571 01c0 0000FA43 		.word	1140457472
+ 572 01c4 0000C344 		.word	1153630208
+ 573 01c8 00000000 		.word	yaw_error_kf
+ 574 01cc 00000000 		.word	pitch_error_kf
+ 575 01d0 00000000 		.word	filtered_yaw_error
+ 576 01d4 00000000 		.word	filtered_pitch_error
+ 577 01d8 00000000 		.word	yaw_tracking_pid
+ 578 01dc 00000000 		.word	0
+ 579 01e0 00000000 		.word	yaw_tracking_pid_output
+ 580 01e4 00000000 		.word	pitch_tracking_pid
+ 581 01e8 00000000 		.word	pitch_tracking_pid_output
+ 582 01ec 6F12833A 		.word	981668463
+ 583 01f0 00000000 		.word	vofa_debug
+ 584 01f4 00000000 		.word	huart1
+ 585              		.cfi_endproc
+ 586              	.LFE398:
+ 588              		.section	.text.AutoSet,"ax",%progbits
+ 589              		.align	1
+ 590              		.syntax unified
+ 591              		.thumb
+ 592              		.thumb_func
+ 594              	AutoSet:
+ 595              	.LFB399:
+ 228:application/cmd/robot_cmd.c ****     AutoSetNoBoardComm();
+ 596              		.loc 1 228 1 is_stmt 1 view -0
+ 597              		.cfi_startproc
+ 598              		@ args = 0, pretend = 0, frame = 0
+ 599              		@ frame_needed = 0, uses_anonymous_args = 0
+ 600 0000 08B5     		push	{r3, lr}
+ 601              	.LCFI5:
+ 602              		.cfi_def_cfa_offset 8
+ 603              		.cfi_offset 3, -8
+ 604              		.cfi_offset 14, -4
+ 229:application/cmd/robot_cmd.c **** }
+ 605              		.loc 1 229 5 view .LVU175
+ 606 0002 FFF7FEFF 		bl	AutoSetNoBoardComm
+ 607              	.LVL12:
+ 230:application/cmd/robot_cmd.c **** 
+ 608              		.loc 1 230 1 is_stmt 0 view .LVU176
+ 609 0006 08BD     		pop	{r3, pc}
+ 610              		.cfi_endproc
+ 611              	.LFE399:
+ 613              		.section	.rodata.RobotCMDInit.str1.4,"aMS",%progbits,1
+ 614              		.align	2
+ 615              	.LC4:
+ 616 0000 67696D62 		.ascii	"gimbal_cmd\000"
+ 616      616C5F63 
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 19
+
+
+ 616      6D6400
+ 617 000b 00       		.align	2
+ 618              	.LC5:
+ 619 000c 67696D62 		.ascii	"gimbal_feed\000"
+ 619      616C5F66 
+ 619      65656400 
+ 620              		.align	2
+ 621              	.LC6:
+ 622 0018 63686173 		.ascii	"chassis_cmd\000"
+ 622      7369735F 
+ 622      636D6400 
+ 623              		.align	2
+ 624              	.LC7:
+ 625 0024 63686173 		.ascii	"chassis_feed\000"
+ 625      7369735F 
+ 625      66656564 
+ 625      00
+ 626 0031 000000   		.align	2
+ 627              	.LC8:
+ 628 0034 493A00   		.ascii	"I:\000"
+ 629 0037 00       		.align	2
+ 630              	.LC9:
+ 631 0038 1B5B313B 		.ascii	"\033[1;32m\000"
+ 631      33326D00 
+ 632              		.align	2
+ 633              	.LC10:
+ 634 0040 20202573 		.ascii	"  %s%s[CMD] param pack: %s\015\012%s\000"
+ 634      25735B43 
+ 634      4D445D20 
+ 634      70617261 
+ 634      6D207061 
+ 635 005f 00       		.align	2
+ 636              	.LC11:
+ 637 0060 64656D6F 		.ascii	"demo_v0.1_baseline\000"
+ 637      5F76302E 
+ 637      315F6261 
+ 637      73656C69 
+ 637      6E6500
+ 638              		.section	.text.RobotCMDInit,"ax",%progbits
+ 639              		.align	1
+ 640              		.global	RobotCMDInit
+ 641              		.syntax unified
+ 642              		.thumb
+ 643              		.thumb_func
+ 645              	RobotCMDInit:
+ 646              	.LFB395:
+ 125:application/cmd/robot_cmd.c ****     gimbal_cmd_pub = PubRegister("gimbal_cmd", sizeof(Gimbal_Ctrl_Cmd_s));
+ 647              		.loc 1 125 1 is_stmt 1 view -0
+ 648              		.cfi_startproc
+ 649              		@ args = 0, pretend = 0, frame = 0
+ 650              		@ frame_needed = 0, uses_anonymous_args = 0
+ 651 0000 00B5     		push	{lr}
+ 652              	.LCFI6:
+ 653              		.cfi_def_cfa_offset 4
+ 654              		.cfi_offset 14, -4
+ 655 0002 83B0     		sub	sp, sp, #12
+ 656              	.LCFI7:
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 20
+
+
+ 657              		.cfi_def_cfa_offset 16
+ 126:application/cmd/robot_cmd.c ****     gimbal_feed_sub = SubRegister("gimbal_feed", sizeof(Gimbal_Upload_Data_s));
+ 658              		.loc 1 126 5 view .LVU178
+ 126:application/cmd/robot_cmd.c ****     gimbal_feed_sub = SubRegister("gimbal_feed", sizeof(Gimbal_Upload_Data_s));
+ 659              		.loc 1 126 22 is_stmt 0 view .LVU179
+ 660 0004 0D21     		movs	r1, #13
+ 661 0006 1948     		ldr	r0, .L41
+ 662 0008 FFF7FEFF 		bl	PubRegister
+ 663              	.LVL13:
+ 126:application/cmd/robot_cmd.c ****     gimbal_feed_sub = SubRegister("gimbal_feed", sizeof(Gimbal_Upload_Data_s));
+ 664              		.loc 1 126 20 discriminator 1 view .LVU180
+ 665 000c 184B     		ldr	r3, .L41+4
+ 666 000e 1860     		str	r0, [r3]
+ 127:application/cmd/robot_cmd.c ****     chassis_cmd_pub = PubRegister("chassis_cmd", sizeof(Chassis_Ctrl_Cmd_s));
+ 667              		.loc 1 127 5 is_stmt 1 view .LVU181
+ 127:application/cmd/robot_cmd.c ****     chassis_cmd_pub = PubRegister("chassis_cmd", sizeof(Chassis_Ctrl_Cmd_s));
+ 668              		.loc 1 127 23 is_stmt 0 view .LVU182
+ 669 0010 2B21     		movs	r1, #43
+ 670 0012 1848     		ldr	r0, .L41+8
+ 671 0014 FFF7FEFF 		bl	SubRegister
+ 672              	.LVL14:
+ 127:application/cmd/robot_cmd.c ****     chassis_cmd_pub = PubRegister("chassis_cmd", sizeof(Chassis_Ctrl_Cmd_s));
+ 673              		.loc 1 127 21 discriminator 1 view .LVU183
+ 674 0018 174B     		ldr	r3, .L41+12
+ 675 001a 1860     		str	r0, [r3]
+ 128:application/cmd/robot_cmd.c ****     chassis_feed_sub = SubRegister("chassis_feed", sizeof(Chassis_Upload_Data_s));
+ 676              		.loc 1 128 5 is_stmt 1 view .LVU184
+ 128:application/cmd/robot_cmd.c ****     chassis_feed_sub = SubRegister("chassis_feed", sizeof(Chassis_Upload_Data_s));
+ 677              		.loc 1 128 23 is_stmt 0 view .LVU185
+ 678 001c 1521     		movs	r1, #21
+ 679 001e 1748     		ldr	r0, .L41+16
+ 680 0020 FFF7FEFF 		bl	PubRegister
+ 681              	.LVL15:
+ 128:application/cmd/robot_cmd.c ****     chassis_feed_sub = SubRegister("chassis_feed", sizeof(Chassis_Upload_Data_s));
+ 682              		.loc 1 128 21 discriminator 1 view .LVU186
+ 683 0024 164B     		ldr	r3, .L41+20
+ 684 0026 1860     		str	r0, [r3]
+ 129:application/cmd/robot_cmd.c **** 
+ 685              		.loc 1 129 5 is_stmt 1 view .LVU187
+ 129:application/cmd/robot_cmd.c **** 
+ 686              		.loc 1 129 24 is_stmt 0 view .LVU188
+ 687 0028 0321     		movs	r1, #3
+ 688 002a 1648     		ldr	r0, .L41+24
+ 689 002c FFF7FEFF 		bl	SubRegister
+ 690              	.LVL16:
+ 129:application/cmd/robot_cmd.c **** 
+ 691              		.loc 1 129 22 discriminator 1 view .LVU189
+ 692 0030 154B     		ldr	r3, .L41+28
+ 693 0032 1860     		str	r0, [r3]
+ 131:application/cmd/robot_cmd.c ****         .Kp = 1.5f,
+ 694              		.loc 1 131 5 is_stmt 1 view .LVU190
+ 142:application/cmd/robot_cmd.c ****         .Kp = 1.0f,
+ 695              		.loc 1 142 5 view .LVU191
+ 154:application/cmd/robot_cmd.c ****     PIDInit(&pitch_tracking_pid, &pitch_tracking_pid_config);
+ 696              		.loc 1 154 5 view .LVU192
+ 697 0034 1549     		ldr	r1, .L41+32
+ 698 0036 1648     		ldr	r0, .L41+36
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 21
+
+
+ 699 0038 FFF7FEFF 		bl	PIDInit
+ 700              	.LVL17:
+ 155:application/cmd/robot_cmd.c ****     VisionKalmanFilterInit();
+ 701              		.loc 1 155 5 view .LVU193
+ 702 003c 1549     		ldr	r1, .L41+40
+ 703 003e 1648     		ldr	r0, .L41+44
+ 704 0040 FFF7FEFF 		bl	PIDInit
+ 705              	.LVL18:
+ 156:application/cmd/robot_cmd.c **** #if defined(VISION_USE_VCP)
+ 706              		.loc 1 156 5 view .LVU194
+ 707 0044 FFF7FEFF 		bl	VisionKalmanFilterInit
+ 708              	.LVL19:
+ 158:application/cmd/robot_cmd.c **** #elif defined(VISION_USE_UART)
+ 709              		.loc 1 158 5 view .LVU195
+ 710 0048 FFF7FEFF 		bl	Vision_USB_Init
+ 711              	.LVL20:
+ 164:application/cmd/robot_cmd.c ****     LOGINFO("[CMD] param pack: %s", PARAM_VERSION_STR);
+ 712              		.loc 1 164 5 view .LVU196
+ 164:application/cmd/robot_cmd.c ****     LOGINFO("[CMD] param pack: %s", PARAM_VERSION_STR);
+ 713              		.loc 1 164 17 is_stmt 0 view .LVU197
+ 714 004c 134B     		ldr	r3, .L41+48
+ 715 004e 0122     		movs	r2, #1
+ 716 0050 1A70     		strb	r2, [r3]
+ 165:application/cmd/robot_cmd.c **** }
+ 717              		.loc 1 165 5 is_stmt 1 view .LVU198
+ 718 0052 134B     		ldr	r3, .L41+52
+ 719 0054 0193     		str	r3, [sp, #4]
+ 720 0056 134B     		ldr	r3, .L41+56
+ 721 0058 0093     		str	r3, [sp]
+ 722 005a 134B     		ldr	r3, .L41+60
+ 723 005c 134A     		ldr	r2, .L41+64
+ 724 005e 1449     		ldr	r1, .L41+68
+ 725 0060 0020     		movs	r0, #0
+ 726 0062 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 727              	.LVL21:
+ 166:application/cmd/robot_cmd.c **** 
+ 728              		.loc 1 166 1 is_stmt 0 view .LVU199
+ 729 0066 03B0     		add	sp, sp, #12
+ 730              	.LCFI8:
+ 731              		.cfi_def_cfa_offset 4
+ 732              		@ sp needed
+ 733 0068 00BD     		pop	{pc}
+ 734              	.L42:
+ 735 006a 00BF     		.align	2
+ 736              	.L41:
+ 737 006c 00000000 		.word	.LC4
+ 738 0070 00000000 		.word	gimbal_cmd_pub
+ 739 0074 0C000000 		.word	.LC5
+ 740 0078 00000000 		.word	gimbal_feed_sub
+ 741 007c 18000000 		.word	.LC6
+ 742 0080 00000000 		.word	chassis_cmd_pub
+ 743 0084 24000000 		.word	.LC7
+ 744 0088 00000000 		.word	chassis_feed_sub
+ 745 008c 00000000 		.word	yaw_tracking_pid_config.15
+ 746 0090 00000000 		.word	yaw_tracking_pid
+ 747 0094 00000000 		.word	pitch_tracking_pid_config.14
+ 748 0098 00000000 		.word	pitch_tracking_pid
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 22
+
+
+ 749 009c 00000000 		.word	robot_state
+ 750 00a0 2C000000 		.word	.LC3
+ 751 00a4 60000000 		.word	.LC11
+ 752 00a8 34000000 		.word	.LC8
+ 753 00ac 38000000 		.word	.LC9
+ 754 00b0 40000000 		.word	.LC10
+ 755              		.cfi_endproc
+ 756              	.LFE395:
+ 758              		.section	.text.laser_on,"ax",%progbits
+ 759              		.align	1
+ 760              		.global	laser_on
+ 761              		.syntax unified
+ 762              		.thumb
+ 763              		.thumb_func
+ 765              	laser_on:
+ 766              	.LFB396:
+ 169:application/cmd/robot_cmd.c **** #ifdef POWER_5V_GPIO_Port
+ 767              		.loc 1 169 1 is_stmt 1 view -0
+ 768              		.cfi_startproc
+ 769              		@ args = 0, pretend = 0, frame = 0
+ 770              		@ frame_needed = 0, uses_anonymous_args = 0
+ 771              		@ link register save eliminated.
+ 173:application/cmd/robot_cmd.c **** 
+ 772              		.loc 1 173 1 view .LVU201
+ 773 0000 7047     		bx	lr
+ 774              		.cfi_endproc
+ 775              	.LFE396:
+ 777              		.section	.text.laser_off,"ax",%progbits
+ 778              		.align	1
+ 779              		.global	laser_off
+ 780              		.syntax unified
+ 781              		.thumb
+ 782              		.thumb_func
+ 784              	laser_off:
+ 785              	.LFB397:
+ 176:application/cmd/robot_cmd.c **** #ifdef POWER_5V_GPIO_Port
+ 786              		.loc 1 176 1 view -0
+ 787              		.cfi_startproc
+ 788              		@ args = 0, pretend = 0, frame = 0
+ 789              		@ frame_needed = 0, uses_anonymous_args = 0
+ 790              		@ link register save eliminated.
+ 180:application/cmd/robot_cmd.c **** static void AutoSetNoBoardComm()
+ 791              		.loc 1 180 1 view .LVU203
+ 792 0000 7047     		bx	lr
+ 793              		.cfi_endproc
+ 794              	.LFE397:
+ 796              		.section	.text.RobotCMDTask,"ax",%progbits
+ 797              		.align	1
+ 798              		.global	RobotCMDTask
+ 799              		.syntax unified
+ 800              		.thumb
+ 801              		.thumb_func
+ 803              	RobotCMDTask:
+ 804              	.LFB401:
+ 251:application/cmd/robot_cmd.c **** 
+ 252:application/cmd/robot_cmd.c **** /* 机器人核心控制任务,200Hz频率运行(必须高于视觉发送频率) */
+ 253:application/cmd/robot_cmd.c **** void RobotCMDTask()
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 23
+
+
+ 254:application/cmd/robot_cmd.c **** {
+ 805              		.loc 1 254 1 view -0
+ 806              		.cfi_startproc
+ 807              		@ args = 0, pretend = 0, frame = 0
+ 808              		@ frame_needed = 0, uses_anonymous_args = 0
+ 809 0000 08B5     		push	{r3, lr}
+ 810              	.LCFI9:
+ 811              		.cfi_def_cfa_offset 8
+ 812              		.cfi_offset 3, -8
+ 813              		.cfi_offset 14, -4
+ 255:application/cmd/robot_cmd.c ****     // 从其他应用获取回传数据
+ 256:application/cmd/robot_cmd.c **** #ifdef ONE_BOARD
+ 257:application/cmd/robot_cmd.c ****     SubGetMessage(chassis_feed_sub, (void *)&chassis_fetch_data);
+ 814              		.loc 1 257 5 view .LVU205
+ 815 0002 0C49     		ldr	r1, .L47
+ 816 0004 0C4B     		ldr	r3, .L47+4
+ 817 0006 1868     		ldr	r0, [r3]
+ 818 0008 FFF7FEFF 		bl	SubGetMessage
+ 819              	.LVL22:
+ 258:application/cmd/robot_cmd.c **** #endif // ONE_BOARD
+ 259:application/cmd/robot_cmd.c **** #ifdef GIMBAL_BOARD
+ 260:application/cmd/robot_cmd.c ****     chassis_fetch_data = *(Chassis_Upload_Data_s *)CANCommGet(cmd_can_comm);
+ 261:application/cmd/robot_cmd.c **** #endif // GIMBAL_BOARD
+ 262:application/cmd/robot_cmd.c ****     SubGetMessage(gimbal_feed_sub, &gimbal_fetch_data);
+ 820              		.loc 1 262 5 view .LVU206
+ 821 000c 0B49     		ldr	r1, .L47+8
+ 822 000e 0C4B     		ldr	r3, .L47+12
+ 823 0010 1868     		ldr	r0, [r3]
+ 824 0012 FFF7FEFF 		bl	SubGetMessage
+ 825              	.LVL23:
+ 263:application/cmd/robot_cmd.c ****     AutoSet();
+ 826              		.loc 1 263 5 view .LVU207
+ 827 0016 FFF7FEFF 		bl	AutoSet
+ 828              	.LVL24:
+ 264:application/cmd/robot_cmd.c **** 
+ 265:application/cmd/robot_cmd.c ****     EmergencyHandler(); // 处理模块离线和遥控器急停等紧急情况
+ 829              		.loc 1 265 5 view .LVU208
+ 830 001a FFF7FEFF 		bl	EmergencyHandler
+ 831              	.LVL25:
+ 266:application/cmd/robot_cmd.c **** #ifdef ONE_BOARD
+ 267:application/cmd/robot_cmd.c ****     PubPushMessage(chassis_cmd_pub, (void *)&chassis_cmd_send);
+ 832              		.loc 1 267 5 view .LVU209
+ 833 001e 0949     		ldr	r1, .L47+16
+ 834 0020 094B     		ldr	r3, .L47+20
+ 835 0022 1868     		ldr	r0, [r3]
+ 836 0024 FFF7FEFF 		bl	PubPushMessage
+ 837              	.LVL26:
+ 268:application/cmd/robot_cmd.c **** #endif // ONE_BOARD
+ 269:application/cmd/robot_cmd.c **** #ifdef GIMBAL_BOARD
+ 270:application/cmd/robot_cmd.c ****     CANCommSend(cmd_can_comm, (void *)&chassis_cmd_send);
+ 271:application/cmd/robot_cmd.c **** #endif // GIMBAL_BOARD
+ 272:application/cmd/robot_cmd.c ****     PubPushMessage(gimbal_cmd_pub, (void *)&gimbal_cmd_send);
+ 838              		.loc 1 272 5 view .LVU210
+ 839 0028 0849     		ldr	r1, .L47+24
+ 840 002a 094B     		ldr	r3, .L47+28
+ 841 002c 1868     		ldr	r0, [r3]
+ 842 002e FFF7FEFF 		bl	PubPushMessage
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 24
+
+
+ 843              	.LVL27:
+ 273:application/cmd/robot_cmd.c **** }
+ 844              		.loc 1 273 1 is_stmt 0 view .LVU211
+ 845 0032 08BD     		pop	{r3, pc}
+ 846              	.L48:
+ 847              		.align	2
+ 848              	.L47:
+ 849 0034 00000000 		.word	chassis_fetch_data
+ 850 0038 00000000 		.word	chassis_feed_sub
+ 851 003c 00000000 		.word	gimbal_fetch_data
+ 852 0040 00000000 		.word	gimbal_feed_sub
+ 853 0044 00000000 		.word	chassis_cmd_send
+ 854 0048 00000000 		.word	chassis_cmd_pub
+ 855 004c 00000000 		.word	gimbal_cmd_send
+ 856 0050 00000000 		.word	gimbal_cmd_pub
+ 857              		.cfi_endproc
+ 858              	.LFE401:
+ 860              		.section	.data.state_min_variance_pitch.0,"aw"
+ 861              		.align	2
+ 864              	state_min_variance_pitch.0:
+ 865 0000 6F12833A 		.word	981668463
+ 866 0004 6F12833A 		.word	981668463
+ 867              		.section	.data.Q_init_pitch.4,"aw"
+ 868              		.align	2
+ 871              	Q_init_pitch.4:
+ 872 0000 CDCCCC3D 		.word	1036831949
+ 873 0004 00000000 		.word	0
+ 874 0008 00000000 		.word	0
+ 875 000c 0000803F 		.word	1065353216
+ 876              		.section	.data.F_init_pitch.5,"aw"
+ 877              		.align	2
+ 880              	F_init_pitch.5:
+ 881 0000 0000803F 		.word	1065353216
+ 882 0004 0AD7A33B 		.word	1000593162
+ 883 0008 00000000 		.word	0
+ 884 000c 0000803F 		.word	1065353216
+ 885              		.section	.data.P_init_pitch.6,"aw"
+ 886              		.align	2
+ 889              	P_init_pitch.6:
+ 890 0000 0000A040 		.word	1084227584
+ 891 0004 00000000 		.word	0
+ 892 0008 00000000 		.word	0
+ 893 000c 0000A040 		.word	1084227584
+ 894              		.section	.data.state_min_variance_yaw.7,"aw"
+ 895              		.align	2
+ 898              	state_min_variance_yaw.7:
+ 899 0000 6F12833A 		.word	981668463
+ 900 0004 6F12833A 		.word	981668463
+ 901              		.section	.data.Q_init_yaw.11,"aw"
+ 902              		.align	2
+ 905              	Q_init_yaw.11:
+ 906 0000 CDCCCC3D 		.word	1036831949
+ 907 0004 00000000 		.word	0
+ 908 0008 00000000 		.word	0
+ 909 000c 0000803F 		.word	1065353216
+ 910              		.section	.data.F_init_yaw.12,"aw"
+ 911              		.align	2
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 25
+
+
+ 914              	F_init_yaw.12:
+ 915 0000 0000803F 		.word	1065353216
+ 916 0004 0AD7A33B 		.word	1000593162
+ 917 0008 00000000 		.word	0
+ 918 000c 0000803F 		.word	1065353216
+ 919              		.section	.data.P_init_yaw.13,"aw"
+ 920              		.align	2
+ 923              	P_init_yaw.13:
+ 924 0000 0000A040 		.word	1084227584
+ 925 0004 00000000 		.word	0
+ 926 0008 00000000 		.word	0
+ 927 000c 0000A040 		.word	1084227584
+ 928              		.section	.data.pitch_tracking_pid_config.14,"aw"
+ 929              		.align	2
+ 932              	pitch_tracking_pid_config.14:
+ 933 0000 0000803F 		.word	1065353216
+ 934 0004 00000040 		.word	1073741824
+ 935 0008 CDCC4C3D 		.word	1028443341
+ 936 000c 00004843 		.word	1128792064
+ 937 0010 00000000 		.space	4
+ 938 0014 27       		.byte	39
+ 939 0015 000000   		.space	3
+ 940 0018 0000C842 		.word	1120403456
+ 941 001c 0000F041 		.word	1106247680
+ 942 0020 00002041 		.word	1092616192
+ 943 0024 00000000 		.space	8
+ 943      00000000 
+ 944              		.section	.data.yaw_tracking_pid_config.15,"aw"
+ 945              		.align	2
+ 948              	yaw_tracking_pid_config.15:
+ 949 0000 0000C03F 		.word	1069547520
+ 950 0004 00004040 		.word	1077936128
+ 951 0008 295C8F3D 		.word	1032805417
+ 952 000c 00004843 		.word	1128792064
+ 953 0010 00000000 		.space	4
+ 954 0014 27       		.byte	39
+ 955 0015 000000   		.space	3
+ 956 0018 0000C842 		.word	1120403456
+ 957 001c 0000A041 		.word	1101004800
+ 958 0020 0000A041 		.word	1101004800
+ 959 0024 00000000 		.space	8
+ 959      00000000 
+ 960              		.section	.bss.vofa_debug,"aw",%nobits
+ 961              		.align	2
+ 964              	vofa_debug:
+ 965 0000 00000000 		.space	28
+ 965      00000000 
+ 965      00000000 
+ 965      00000000 
+ 965      00000000 
+ 966              		.section	.bss.pitch_tracking_pid_output,"aw",%nobits
+ 967              		.align	2
+ 970              	pitch_tracking_pid_output:
+ 971 0000 00000000 		.space	4
+ 972              		.section	.bss.yaw_tracking_pid_output,"aw",%nobits
+ 973              		.align	2
+ 976              	yaw_tracking_pid_output:
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 26
+
+
+ 977 0000 00000000 		.space	4
+ 978              		.global	pitch_tracking_pid
+ 979              		.section	.bss.pitch_tracking_pid,"aw",%nobits
+ 980              		.align	3
+ 983              	pitch_tracking_pid:
+ 984 0000 00000000 		.space	120
+ 984      00000000 
+ 984      00000000 
+ 984      00000000 
+ 984      00000000 
+ 985              		.global	yaw_tracking_pid
+ 986              		.section	.bss.yaw_tracking_pid,"aw",%nobits
+ 987              		.align	3
+ 990              	yaw_tracking_pid:
+ 991 0000 00000000 		.space	120
+ 991      00000000 
+ 991      00000000 
+ 991      00000000 
+ 991      00000000 
+ 992              		.section	.bss.robot_state,"aw",%nobits
+ 995              	robot_state:
+ 996 0000 00       		.space	1
+ 997              		.section	.bss.gimbal_fetch_data,"aw",%nobits
+ 998              		.align	2
+ 1001              	gimbal_fetch_data:
+ 1002 0000 00000000 		.space	43
+ 1002      00000000 
+ 1002      00000000 
+ 1002      00000000 
+ 1002      00000000 
+ 1003              		.section	.bss.gimbal_cmd_send,"aw",%nobits
+ 1004              		.align	2
+ 1007              	gimbal_cmd_send:
+ 1008 0000 00000000 		.space	13
+ 1008      00000000 
+ 1008      00000000 
+ 1008      00
+ 1009              		.section	.bss.gimbal_feed_sub,"aw",%nobits
+ 1010              		.align	2
+ 1013              	gimbal_feed_sub:
+ 1014 0000 00000000 		.space	4
+ 1015              		.section	.bss.gimbal_cmd_pub,"aw",%nobits
+ 1016              		.align	2
+ 1019              	gimbal_cmd_pub:
+ 1020 0000 00000000 		.space	4
+ 1021              		.section	.bss.chassis_fetch_data,"aw",%nobits
+ 1022              		.align	2
+ 1025              	chassis_fetch_data:
+ 1026 0000 000000   		.space	3
+ 1027              		.section	.bss.chassis_cmd_send,"aw",%nobits
+ 1028              		.align	2
+ 1031              	chassis_cmd_send:
+ 1032 0000 00000000 		.space	21
+ 1032      00000000 
+ 1032      00000000 
+ 1032      00000000 
+ 1032      00000000 
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 27
+
+
+ 1033              		.section	.bss.chassis_feed_sub,"aw",%nobits
+ 1034              		.align	2
+ 1037              	chassis_feed_sub:
+ 1038 0000 00000000 		.space	4
+ 1039              		.section	.bss.chassis_cmd_pub,"aw",%nobits
+ 1040              		.align	2
+ 1043              	chassis_cmd_pub:
+ 1044 0000 00000000 		.space	4
+ 1045              		.section	.bss.filtered_pitch_error,"aw",%nobits
+ 1046              		.align	2
+ 1049              	filtered_pitch_error:
+ 1050 0000 00000000 		.space	4
+ 1051              		.section	.bss.filtered_yaw_error,"aw",%nobits
+ 1052              		.align	2
+ 1055              	filtered_yaw_error:
+ 1056 0000 00000000 		.space	4
+ 1057              		.section	.bss.pitch_error_kf,"aw",%nobits
+ 1058              		.align	2
+ 1061              	pitch_error_kf:
+ 1062 0000 00000000 		.space	308
+ 1062      00000000 
+ 1062      00000000 
+ 1062      00000000 
+ 1062      00000000 
+ 1063              		.section	.bss.yaw_error_kf,"aw",%nobits
+ 1064              		.align	2
+ 1067              	yaw_error_kf:
+ 1068 0000 00000000 		.space	308
+ 1068      00000000 
+ 1068      00000000 
+ 1068      00000000 
+ 1068      00000000 
+ 1069              		.text
+ 1070              	.Letext0:
+ 1071              		.file 2 "D:/14.3 rel1/arm-none-eabi/include/machine/_default_types.h"
+ 1072              		.file 3 "D:/14.3 rel1/arm-none-eabi/include/sys/_stdint.h"
+ 1073              		.file 4 "Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h723xx.h"
+ 1074              		.file 5 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_def.h"
+ 1075              		.file 6 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_dma.h"
+ 1076              		.file 7 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart.h"
+ 1077              		.file 8 "Drivers/CMSIS/DSP/Include/arm_math.h"
+ 1078              		.file 9 "modules/algorithm/kalman_filter.h"
+ 1079              		.file 10 "modules/imu/ins_task.h"
+ 1080              		.file 11 "modules/master_machine/master_process.h"
+ 1081              		.file 12 "application/robot_def.h"
+ 1082              		.file 13 "modules/algorithm/controller.h"
+ 1083              		.file 14 "modules/message_center/message_center.h"
+ 1084              		.file 15 "Core/Inc/usart.h"
+ 1085              		.file 16 "application/cmd/opencv.h"
+ 1086              		.file 17 "D:/14.3 rel1/arm-none-eabi/include/string.h"
+ 1087              		.file 18 "modules/vofa/vofa.h"
+ 1088              		.file 19 "Middlewares/Third_Party/SEGGER/RTT/SEGGER_RTT.h"
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 28
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 robot_cmd.c
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:20     .rodata.EmergencyHandler.str1.4:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:33     .text.EmergencyHandler:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:38     .text.EmergencyHandler:00000000 EmergencyHandler
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:97     .text.EmergencyHandler:00000034 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:995    .bss.robot_state:00000000 robot_state
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:1007   .bss.gimbal_cmd_send:00000000 gimbal_cmd_send
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:1031   .bss.chassis_cmd_send:00000000 chassis_cmd_send
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:1001   .bss.gimbal_fetch_data:00000000 gimbal_fetch_data
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:109    .text.VisionKalmanFilterInit:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:114    .text.VisionKalmanFilterInit:00000000 VisionKalmanFilterInit
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:276    .text.VisionKalmanFilterInit:000000dc $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:1067   .bss.yaw_error_kf:00000000 yaw_error_kf
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:923    .data.P_init_yaw.13:00000000 P_init_yaw.13
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:914    .data.F_init_yaw.12:00000000 F_init_yaw.12
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:905    .data.Q_init_yaw.11:00000000 Q_init_yaw.11
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:898    .data.state_min_variance_yaw.7:00000000 state_min_variance_yaw.7
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:1061   .bss.pitch_error_kf:00000000 pitch_error_kf
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:864    .data.state_min_variance_pitch.0:00000000 state_min_variance_pitch.0
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:889    .data.P_init_pitch.6:00000000 P_init_pitch.6
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:880    .data.F_init_pitch.5:00000000 F_init_pitch.5
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:871    .data.Q_init_pitch.4:00000000 Q_init_pitch.4
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:290    .text.AutoSetNoBoardComm:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:295    .text.AutoSetNoBoardComm:00000000 AutoSetNoBoardComm
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:563    .text.AutoSetNoBoardComm:000001a0 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:1055   .bss.filtered_yaw_error:00000000 filtered_yaw_error
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:1049   .bss.filtered_pitch_error:00000000 filtered_pitch_error
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:990    .bss.yaw_tracking_pid:00000000 yaw_tracking_pid
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:976    .bss.yaw_tracking_pid_output:00000000 yaw_tracking_pid_output
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:983    .bss.pitch_tracking_pid:00000000 pitch_tracking_pid
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:970    .bss.pitch_tracking_pid_output:00000000 pitch_tracking_pid_output
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:964    .bss.vofa_debug:00000000 vofa_debug
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:589    .text.AutoSet:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:594    .text.AutoSet:00000000 AutoSet
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:614    .rodata.RobotCMDInit.str1.4:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:639    .text.RobotCMDInit:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:645    .text.RobotCMDInit:00000000 RobotCMDInit
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:737    .text.RobotCMDInit:0000006c $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:1019   .bss.gimbal_cmd_pub:00000000 gimbal_cmd_pub
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:1013   .bss.gimbal_feed_sub:00000000 gimbal_feed_sub
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:1043   .bss.chassis_cmd_pub:00000000 chassis_cmd_pub
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:1037   .bss.chassis_feed_sub:00000000 chassis_feed_sub
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:948    .data.yaw_tracking_pid_config.15:00000000 yaw_tracking_pid_config.15
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:932    .data.pitch_tracking_pid_config.14:00000000 pitch_tracking_pid_config.14
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:759    .text.laser_on:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:765    .text.laser_on:00000000 laser_on
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:778    .text.laser_off:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:784    .text.laser_off:00000000 laser_off
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:797    .text.RobotCMDTask:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:803    .text.RobotCMDTask:00000000 RobotCMDTask
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:849    .text.RobotCMDTask:00000034 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:1025   .bss.chassis_fetch_data:00000000 chassis_fetch_data
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:861    .data.state_min_variance_pitch.0:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:868    .data.Q_init_pitch.4:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:877    .data.F_init_pitch.5:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:886    .data.P_init_pitch.6:00000000 $d
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s 			page 29
+
+
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:895    .data.state_min_variance_yaw.7:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:902    .data.Q_init_yaw.11:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:911    .data.F_init_yaw.12:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:920    .data.P_init_yaw.13:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:929    .data.pitch_tracking_pid_config.14:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:945    .data.yaw_tracking_pid_config.15:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:961    .bss.vofa_debug:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:967    .bss.pitch_tracking_pid_output:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:973    .bss.yaw_tracking_pid_output:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:980    .bss.pitch_tracking_pid:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:987    .bss.yaw_tracking_pid:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:996    .bss.robot_state:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:998    .bss.gimbal_fetch_data:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:1004   .bss.gimbal_cmd_send:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:1010   .bss.gimbal_feed_sub:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:1016   .bss.gimbal_cmd_pub:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:1022   .bss.chassis_fetch_data:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:1028   .bss.chassis_cmd_send:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:1034   .bss.chassis_feed_sub:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:1040   .bss.chassis_cmd_pub:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:1046   .bss.filtered_pitch_error:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:1052   .bss.filtered_yaw_error:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:1058   .bss.pitch_error_kf:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLhASuh.s:1064   .bss.yaw_error_kf:00000000 $d
+
+UNDEFINED SYMBOLS
+SEGGER_RTT_printf
+Kalman_Filter_Init
+Kalman_Filter_Update
+PIDCalculate
+vofa_justfloat_output
+Vison_revc_flag
+Vison_Frequency
+opencv_Vision_data
+huart1
+PubRegister
+SubRegister
+PIDInit
+Vision_USB_Init
+SubGetMessage
+PubPushMessage

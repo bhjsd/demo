@@ -1,0 +1,1097 @@
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 1
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"galvanometer.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.file 1 "application/laser_ctrl/galvanometer.c"
+  19              		.section	.text.Galvo_Parity,"ax",%progbits
+  20              		.align	1
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  25              	Galvo_Parity:
+  26              	.LVL0:
+  27              	.LFB350:
+   1:application/laser_ctrl/galvanometer.c **** #include <stdint.h>
+   2:application/laser_ctrl/galvanometer.c **** 
+   3:application/laser_ctrl/galvanometer.c **** #include "galvanometer.h"
+   4:application/laser_ctrl/galvanometer.c **** #include "main.h"
+   5:application/laser_ctrl/galvanometer.c **** #include "stm32h7xx_hal.h"
+   6:application/laser_ctrl/galvanometer.c **** #include "tim.h"
+   7:application/laser_ctrl/galvanometer.c **** 
+   8:application/laser_ctrl/galvanometer.c **** extern DMA_HandleTypeDef hdma_tim7_up;
+   9:application/laser_ctrl/galvanometer.c **** 
+  10:application/laser_ctrl/galvanometer.c **** // XY2-100: 20 bit * 2 half-cycles + 1 tail = 41, 预留到 42
+  11:application/laser_ctrl/galvanometer.c **** #define XY2_DMA_BUF_LEN 42u
+  12:application/laser_ctrl/galvanometer.c **** 
+  13:application/laser_ctrl/galvanometer.c **** #define PIN_SET(pin)   ((uint32_t)(pin))
+  14:application/laser_ctrl/galvanometer.c **** #define PIN_RESET(pin) ((uint32_t)(pin) << 16u)
+  15:application/laser_ctrl/galvanometer.c **** 
+  16:application/laser_ctrl/galvanometer.c **** static uint32_t g_dma_buf[XY2_DMA_BUF_LEN];
+  17:application/laser_ctrl/galvanometer.c **** static volatile uint8_t g_dma_busy = 0u;
+  18:application/laser_ctrl/galvanometer.c **** static volatile uint8_t g_pending_valid = 0u;
+  19:application/laser_ctrl/galvanometer.c **** static volatile float g_pending_x = 0.0f;
+  20:application/laser_ctrl/galvanometer.c **** static volatile float g_pending_y = 0.0f;
+  21:application/laser_ctrl/galvanometer.c **** 
+  22:application/laser_ctrl/galvanometer.c **** static uint8_t Galvo_Parity(uint32_t v)
+  23:application/laser_ctrl/galvanometer.c **** {
+  28              		.loc 1 23 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  24:application/laser_ctrl/galvanometer.c ****     v ^= v >> 16u;
+  33              		.loc 1 24 5 view .LVU1
+  34              		.loc 1 24 7 is_stmt 0 view .LVU2
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s 			page 2
+
+
+  35 0000 80EA1040 		eor	r0, r0, r0, lsr #16
+  36              	.LVL1:
+  25:application/laser_ctrl/galvanometer.c ****     v ^= v >> 8u;
+  37              		.loc 1 25 5 is_stmt 1 view .LVU3
+  38              		.loc 1 25 7 is_stmt 0 view .LVU4
+  39 0004 80EA1020 		eor	r0, r0, r0, lsr #8
+  40              	.LVL2:
+  26:application/laser_ctrl/galvanometer.c ****     v ^= v >> 4u;
+  41              		.loc 1 26 5 is_stmt 1 view .LVU5
+  42              		.loc 1 26 7 is_stmt 0 view .LVU6
+  43 0008 80EA1010 		eor	r0, r0, r0, lsr #4
+  44              	.LVL3:
+  27:application/laser_ctrl/galvanometer.c ****     v ^= v >> 2u;
+  45              		.loc 1 27 5 is_stmt 1 view .LVU7
+  46              		.loc 1 27 7 is_stmt 0 view .LVU8
+  47 000c 80EA9000 		eor	r0, r0, r0, lsr #2
+  48              	.LVL4:
+  28:application/laser_ctrl/galvanometer.c ****     v ^= v >> 1u;
+  49              		.loc 1 28 5 is_stmt 1 view .LVU9
+  50              		.loc 1 28 7 is_stmt 0 view .LVU10
+  51 0010 80EA5000 		eor	r0, r0, r0, lsr #1
+  52              	.LVL5:
+  29:application/laser_ctrl/galvanometer.c ****     return (uint8_t)(v & 1u);
+  53              		.loc 1 29 5 is_stmt 1 view .LVU11
+  30:application/laser_ctrl/galvanometer.c **** }
+  54              		.loc 1 30 1 is_stmt 0 view .LVU12
+  55 0014 00F00100 		and	r0, r0, #1
+  56              	.LVL6:
+  57              		.loc 1 30 1 view .LVU13
+  58 0018 7047     		bx	lr
+  59              		.cfi_endproc
+  60              	.LFE350:
+  62              		.section	.text.Galvo_CoordToRaw,"ax",%progbits
+  63              		.align	1
+  64              		.syntax unified
+  65              		.thumb
+  66              		.thumb_func
+  68              	Galvo_CoordToRaw:
+  69              	.LVL7:
+  70              	.LFB351:
+  31:application/laser_ctrl/galvanometer.c **** 
+  32:application/laser_ctrl/galvanometer.c **** static uint16_t Galvo_CoordToRaw(float coord)
+  33:application/laser_ctrl/galvanometer.c **** {
+  71              		.loc 1 33 1 is_stmt 1 view -0
+  72              		.cfi_startproc
+  73              		@ args = 0, pretend = 0, frame = 0
+  74              		@ frame_needed = 0, uses_anonymous_args = 0
+  75              		@ link register save eliminated.
+  34:application/laser_ctrl/galvanometer.c ****     if (coord < -1000.0f)
+  76              		.loc 1 34 5 view .LVU15
+  77              		.loc 1 34 8 is_stmt 0 view .LVU16
+  78 0000 DFED147A 		vldr.32	s15, .L6
+  79 0004 B4EEE70A 		vcmpe.f32	s0, s15
+  80 0008 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+  81 000c 09D4     		bmi	.L4
+  35:application/laser_ctrl/galvanometer.c ****     {
+  36:application/laser_ctrl/galvanometer.c ****         coord = -1000.0f;
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s 			page 3
+
+
+  37:application/laser_ctrl/galvanometer.c ****     }
+  38:application/laser_ctrl/galvanometer.c ****     if (coord > 1000.0f)
+  82              		.loc 1 38 5 is_stmt 1 view .LVU17
+  83              		.loc 1 38 8 is_stmt 0 view .LVU18
+  84 000e DFED127A 		vldr.32	s15, .L6+4
+  85 0012 B4EEE70A 		vcmpe.f32	s0, s15
+  86 0016 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+  87 001a 04DD     		ble	.L3
+  39:application/laser_ctrl/galvanometer.c ****     {
+  40:application/laser_ctrl/galvanometer.c ****         coord = 1000.0f;
+  88              		.loc 1 40 15 view .LVU19
+  89 001c 9FED0E0A 		vldr.32	s0, .L6+4
+  90              	.LVL8:
+  91              		.loc 1 40 15 view .LVU20
+  92 0020 01E0     		b	.L3
+  93              	.LVL9:
+  94              	.L4:
+  36:application/laser_ctrl/galvanometer.c ****     }
+  95              		.loc 1 36 15 view .LVU21
+  96 0022 9FED0C0A 		vldr.32	s0, .L6
+  97              	.LVL10:
+  98              	.L3:
+  41:application/laser_ctrl/galvanometer.c ****     }
+  42:application/laser_ctrl/galvanometer.c **** 
+  43:application/laser_ctrl/galvanometer.c ****     // 线性映射: -1000 -> 0, +1000 -> 65535
+  44:application/laser_ctrl/galvanometer.c ****     float normalized = (coord + 1000.0f) / 2000.0f;
+  99              		.loc 1 44 5 is_stmt 1 view .LVU22
+ 100              		.loc 1 44 31 is_stmt 0 view .LVU23
+ 101 0026 DFED0C7A 		vldr.32	s15, .L6+4
+ 102 002a 30EE270A 		vadd.f32	s0, s0, s15
+ 103              	.LVL11:
+ 104              		.loc 1 44 11 view .LVU24
+ 105 002e 9FED0B7A 		vldr.32	s14, .L6+8
+ 106 0032 C0EE077A 		vdiv.f32	s15, s0, s14
+ 107              	.LVL12:
+  45:application/laser_ctrl/galvanometer.c ****     return (uint16_t)(normalized * 65535.0f + 0.5f);
+ 108              		.loc 1 45 5 is_stmt 1 view .LVU25
+ 109              		.loc 1 45 34 is_stmt 0 view .LVU26
+ 110 0036 9FED0A7A 		vldr.32	s14, .L6+12
+ 111 003a 67EE877A 		vmul.f32	s15, s15, s14
+ 112              	.LVL13:
+ 113              		.loc 1 45 45 view .LVU27
+ 114 003e B6EE007A 		vmov.f32	s14, #5.0e-1
+ 115 0042 77EE877A 		vadd.f32	s15, s15, s14
+ 116              		.loc 1 45 12 view .LVU28
+ 117 0046 FCEEE77A 		vcvt.u32.f32	s15, s15
+  46:application/laser_ctrl/galvanometer.c **** }
+ 118              		.loc 1 46 1 view .LVU29
+ 119 004a 17EE903A 		vmov	r3, s15	@ int
+ 120 004e 98B2     		uxth	r0, r3
+ 121 0050 7047     		bx	lr
+ 122              	.L7:
+ 123 0052 00BF     		.align	2
+ 124              	.L6:
+ 125 0054 00007AC4 		.word	-998637568
+ 126 0058 00007A44 		.word	1148846080
+ 127 005c 0000FA44 		.word	1157234688
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s 			page 4
+
+
+ 128 0060 00FF7F47 		.word	1199570688
+ 129              		.cfi_endproc
+ 130              	.LFE351:
+ 132              		.section	.text.Galvo_BuildFrame,"ax",%progbits
+ 133              		.align	1
+ 134              		.syntax unified
+ 135              		.thumb
+ 136              		.thumb_func
+ 138              	Galvo_BuildFrame:
+ 139              	.LVL14:
+ 140              	.LFB352:
+  47:application/laser_ctrl/galvanometer.c **** 
+  48:application/laser_ctrl/galvanometer.c **** static uint32_t Galvo_BuildFrame(uint16_t raw_data)
+  49:application/laser_ctrl/galvanometer.c **** {
+ 141              		.loc 1 49 1 is_stmt 1 view -0
+ 142              		.cfi_startproc
+ 143              		@ args = 0, pretend = 0, frame = 0
+ 144              		@ frame_needed = 0, uses_anonymous_args = 0
+ 145              		.loc 1 49 1 is_stmt 0 view .LVU31
+ 146 0000 10B5     		push	{r4, lr}
+ 147              	.LCFI0:
+ 148              		.cfi_def_cfa_offset 8
+ 149              		.cfi_offset 4, -8
+ 150              		.cfi_offset 14, -4
+  50:application/laser_ctrl/galvanometer.c ****     uint32_t frame = 0u;
+ 151              		.loc 1 50 5 is_stmt 1 view .LVU32
+  51:application/laser_ctrl/galvanometer.c ****     frame |= (0x01u << 17u);            // 控制位 001
+ 152              		.loc 1 51 5 view .LVU33
+ 153              	.LVL15:
+  52:application/laser_ctrl/galvanometer.c ****     frame |= ((uint32_t)raw_data << 1u);
+ 154              		.loc 1 52 5 view .LVU34
+ 155              		.loc 1 52 34 is_stmt 0 view .LVU35
+ 156 0002 4400     		lsls	r4, r0, #1
+ 157              		.loc 1 52 11 view .LVU36
+ 158 0004 44F40034 		orr	r4, r4, #131072
+ 159              	.LVL16:
+  53:application/laser_ctrl/galvanometer.c ****     frame |= Galvo_Parity(frame >> 1u); // bit19..bit1 偶校验
+ 160              		.loc 1 53 5 is_stmt 1 view .LVU37
+ 161              		.loc 1 53 14 is_stmt 0 view .LVU38
+ 162 0008 6008     		lsrs	r0, r4, #1
+ 163              	.LVL17:
+ 164              		.loc 1 53 14 view .LVU39
+ 165 000a FFF7FEFF 		bl	Galvo_Parity
+ 166              	.LVL18:
+  54:application/laser_ctrl/galvanometer.c ****     return frame;
+ 167              		.loc 1 54 5 is_stmt 1 view .LVU40
+  55:application/laser_ctrl/galvanometer.c **** }
+ 168              		.loc 1 55 1 is_stmt 0 view .LVU41
+ 169 000e 2043     		orrs	r0, r0, r4
+ 170              	.LVL19:
+ 171              		.loc 1 55 1 view .LVU42
+ 172 0010 10BD     		pop	{r4, pc}
+ 173              		.cfi_endproc
+ 174              	.LFE352:
+ 176              		.section	.text.Galvo_FillDmaBuf,"ax",%progbits
+ 177              		.align	1
+ 178              		.syntax unified
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s 			page 5
+
+
+ 179              		.thumb
+ 180              		.thumb_func
+ 182              	Galvo_FillDmaBuf:
+ 183              	.LVL20:
+ 184              	.LFB353:
+  56:application/laser_ctrl/galvanometer.c **** 
+  57:application/laser_ctrl/galvanometer.c **** static uint16_t Galvo_FillDmaBuf(uint32_t x_frame, uint32_t y_frame)
+  58:application/laser_ctrl/galvanometer.c **** {
+ 185              		.loc 1 58 1 is_stmt 1 view -0
+ 186              		.cfi_startproc
+ 187              		@ args = 0, pretend = 0, frame = 0
+ 188              		@ frame_needed = 0, uses_anonymous_args = 0
+ 189              		.loc 1 58 1 is_stmt 0 view .LVU44
+ 190 0000 10B5     		push	{r4, lr}
+ 191              	.LCFI1:
+ 192              		.cfi_def_cfa_offset 8
+ 193              		.cfi_offset 4, -8
+ 194              		.cfi_offset 14, -4
+ 195 0002 0C46     		mov	r4, r1
+  59:application/laser_ctrl/galvanometer.c ****     uint16_t idx = 0u;
+ 196              		.loc 1 59 5 is_stmt 1 view .LVU45
+ 197              	.LVL21:
+  60:application/laser_ctrl/galvanometer.c **** 
+  61:application/laser_ctrl/galvanometer.c ****     for (int8_t bit = 19; bit >= 0; bit--)
+ 198              		.loc 1 61 5 view .LVU46
+ 199              	.LBB2:
+ 200              		.loc 1 61 10 view .LVU47
+ 201              		.loc 1 61 17 is_stmt 0 view .LVU48
+ 202 0004 1322     		movs	r2, #19
+ 203              	.LBE2:
+  59:application/laser_ctrl/galvanometer.c ****     uint16_t idx = 0u;
+ 204              		.loc 1 59 14 view .LVU49
+ 205 0006 4FF0000C 		mov	ip, #0
+ 206              	.LBB5:
+ 207              		.loc 1 61 5 view .LVU50
+ 208 000a 17E0     		b	.L11
+ 209              	.LVL22:
+ 210              	.L16:
+ 211              	.LBB3:
+  62:application/laser_ctrl/galvanometer.c ****     {
+  63:application/laser_ctrl/galvanometer.c ****         uint32_t bsrr = PIN_RESET(GALVO_CLK_Pin) | PIN_RESET(GALVO_SYN_Pin);
+  64:application/laser_ctrl/galvanometer.c **** 
+  65:application/laser_ctrl/galvanometer.c ****         if ((x_frame >> bit) & 1u)
+  66:application/laser_ctrl/galvanometer.c ****         {
+  67:application/laser_ctrl/galvanometer.c ****             bsrr |= PIN_SET(GALVO_CHX_Pin);
+  68:application/laser_ctrl/galvanometer.c ****         }
+  69:application/laser_ctrl/galvanometer.c ****         else
+  70:application/laser_ctrl/galvanometer.c ****         {
+  71:application/laser_ctrl/galvanometer.c ****             bsrr |= PIN_RESET(GALVO_CHX_Pin);
+ 212              		.loc 1 71 18 view .LVU51
+ 213 000c 4FF4E013 		mov	r3, #1835008
+ 214 0010 1DE0     		b	.L12
+ 215              	.LVL23:
+ 216              	.L13:
+  72:application/laser_ctrl/galvanometer.c ****         }
+  73:application/laser_ctrl/galvanometer.c **** 
+  74:application/laser_ctrl/galvanometer.c ****         if ((y_frame >> bit) & 1u)
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s 			page 6
+
+
+  75:application/laser_ctrl/galvanometer.c ****         {
+  76:application/laser_ctrl/galvanometer.c ****             bsrr |= PIN_SET(GALVO_CHY_Pin);
+  77:application/laser_ctrl/galvanometer.c ****         }
+  78:application/laser_ctrl/galvanometer.c ****         else
+  79:application/laser_ctrl/galvanometer.c ****         {
+  80:application/laser_ctrl/galvanometer.c ****             bsrr |= PIN_RESET(GALVO_CHY_Pin);
+ 217              		.loc 1 80 13 is_stmt 1 view .LVU52
+ 218              		.loc 1 80 18 is_stmt 0 view .LVU53
+ 219 0012 43F40013 		orr	r3, r3, #2097152
+ 220              	.LVL24:
+ 221              	.L14:
+  81:application/laser_ctrl/galvanometer.c ****         }
+  82:application/laser_ctrl/galvanometer.c **** 
+  83:application/laser_ctrl/galvanometer.c ****         g_dma_buf[idx++] = bsrr;
+ 222              		.loc 1 83 9 is_stmt 1 view .LVU54
+ 223              		.loc 1 83 22 is_stmt 0 view .LVU55
+ 224 0016 0CF1010E 		add	lr, ip, #1
+ 225 001a 1FFA8EFE 		uxth	lr, lr
+ 226              	.LVL25:
+ 227              		.loc 1 83 26 view .LVU56
+ 228 001e 1449     		ldr	r1, .L19
+ 229 0020 41F82C30 		str	r3, [r1, ip, lsl #2]
+  84:application/laser_ctrl/galvanometer.c **** 
+  85:application/laser_ctrl/galvanometer.c ****         // 振镜在 CLK 上升沿采样
+  86:application/laser_ctrl/galvanometer.c ****         bsrr &= ~PIN_RESET(GALVO_CLK_Pin);
+ 230              		.loc 1 86 9 is_stmt 1 view .LVU57
+ 231              		.loc 1 86 14 is_stmt 0 view .LVU58
+ 232 0024 23F40023 		bic	r3, r3, #524288
+ 233              	.LVL26:
+  87:application/laser_ctrl/galvanometer.c ****         bsrr |= PIN_SET(GALVO_CLK_Pin);
+ 234              		.loc 1 87 9 is_stmt 1 view .LVU59
+ 235              		.loc 1 87 14 is_stmt 0 view .LVU60
+ 236 0028 43F00803 		orr	r3, r3, #8
+ 237              	.LVL27:
+  88:application/laser_ctrl/galvanometer.c ****         g_dma_buf[idx++] = bsrr;
+ 238              		.loc 1 88 9 is_stmt 1 view .LVU61
+ 239              		.loc 1 88 22 is_stmt 0 view .LVU62
+ 240 002c 0CF1020C 		add	ip, ip, #2
+ 241 0030 1FFA8CFC 		uxth	ip, ip
+ 242              	.LVL28:
+ 243              		.loc 1 88 26 view .LVU63
+ 244 0034 41F82E30 		str	r3, [r1, lr, lsl #2]
+ 245              	.LBE3:
+  61:application/laser_ctrl/galvanometer.c ****     {
+ 246              		.loc 1 61 40 is_stmt 1 discriminator 2 view .LVU64
+ 247 0038 013A     		subs	r2, r2, #1
+ 248              	.LVL29:
+  61:application/laser_ctrl/galvanometer.c ****     {
+ 249              		.loc 1 61 40 is_stmt 0 discriminator 2 view .LVU65
+ 250 003a 52B2     		sxtb	r2, r2
+ 251              	.LVL30:
+ 252              	.L11:
+  61:application/laser_ctrl/galvanometer.c ****     {
+ 253              		.loc 1 61 31 is_stmt 1 discriminator 1 view .LVU66
+ 254 003c 002A     		cmp	r2, #0
+ 255 003e 0EDB     		blt	.L18
+ 256              	.LBB4:
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s 			page 7
+
+
+  63:application/laser_ctrl/galvanometer.c **** 
+ 257              		.loc 1 63 9 view .LVU67
+ 258              	.LVL31:
+  65:application/laser_ctrl/galvanometer.c ****         {
+ 259              		.loc 1 65 9 view .LVU68
+  65:application/laser_ctrl/galvanometer.c ****         {
+ 260              		.loc 1 65 22 is_stmt 0 view .LVU69
+ 261 0040 9646     		mov	lr, r2
+ 262 0042 20FA02F3 		lsr	r3, r0, r2
+  65:application/laser_ctrl/galvanometer.c ****         {
+ 263              		.loc 1 65 12 view .LVU70
+ 264 0046 13F0010F 		tst	r3, #1
+ 265 004a DFD0     		beq	.L16
+  67:application/laser_ctrl/galvanometer.c ****         }
+ 266              		.loc 1 67 18 view .LVU71
+ 267 004c 094B     		ldr	r3, .L19+4
+ 268              	.L12:
+ 269              	.LVL32:
+  74:application/laser_ctrl/galvanometer.c ****         {
+ 270              		.loc 1 74 9 is_stmt 1 view .LVU72
+  74:application/laser_ctrl/galvanometer.c ****         {
+ 271              		.loc 1 74 22 is_stmt 0 view .LVU73
+ 272 004e 24FA0EFE 		lsr	lr, r4, lr
+  74:application/laser_ctrl/galvanometer.c ****         {
+ 273              		.loc 1 74 12 view .LVU74
+ 274 0052 1EF0010F 		tst	lr, #1
+ 275 0056 DCD0     		beq	.L13
+  76:application/laser_ctrl/galvanometer.c ****         }
+ 276              		.loc 1 76 13 is_stmt 1 view .LVU75
+  76:application/laser_ctrl/galvanometer.c ****         }
+ 277              		.loc 1 76 18 is_stmt 0 view .LVU76
+ 278 0058 43F02003 		orr	r3, r3, #32
+ 279              	.LVL33:
+  76:application/laser_ctrl/galvanometer.c ****         }
+ 280              		.loc 1 76 18 view .LVU77
+ 281 005c DBE7     		b	.L14
+ 282              	.LVL34:
+ 283              	.L18:
+  76:application/laser_ctrl/galvanometer.c ****         }
+ 284              		.loc 1 76 18 view .LVU78
+ 285              	.LBE4:
+ 286              	.LBE5:
+  89:application/laser_ctrl/galvanometer.c ****     }
+  90:application/laser_ctrl/galvanometer.c **** 
+  91:application/laser_ctrl/galvanometer.c ****     // 帧间空闲态: SYNC=高, CLK=高, CHX/CHY=低
+  92:application/laser_ctrl/galvanometer.c ****     g_dma_buf[idx++] = PIN_SET(GALVO_SYN_Pin) | PIN_SET(GALVO_CLK_Pin) |
+ 287              		.loc 1 92 5 is_stmt 1 view .LVU79
+ 288              		.loc 1 92 18 is_stmt 0 view .LVU80
+ 289 005e 0CF10100 		add	r0, ip, #1
+ 290              	.LVL35:
+ 291              		.loc 1 92 22 view .LVU81
+ 292 0062 034B     		ldr	r3, .L19
+ 293 0064 044A     		ldr	r2, .L19+8
+ 294              	.LVL36:
+ 295              		.loc 1 92 22 view .LVU82
+ 296 0066 43F82C20 		str	r2, [r3, ip, lsl #2]
+  93:application/laser_ctrl/galvanometer.c ****                        PIN_RESET(GALVO_CHX_Pin) | PIN_RESET(GALVO_CHY_Pin);
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s 			page 8
+
+
+  94:application/laser_ctrl/galvanometer.c ****     return idx;
+ 297              		.loc 1 94 5 is_stmt 1 view .LVU83
+  95:application/laser_ctrl/galvanometer.c **** }
+ 298              		.loc 1 95 1 is_stmt 0 view .LVU84
+ 299 006a 80B2     		uxth	r0, r0
+ 300              		.loc 1 95 1 view .LVU85
+ 301 006c 10BD     		pop	{r4, pc}
+ 302              	.LVL37:
+ 303              	.L20:
+ 304              		.loc 1 95 1 view .LVU86
+ 305 006e 00BF     		.align	2
+ 306              	.L19:
+ 307 0070 00000000 		.word	g_dma_buf
+ 308 0074 04001800 		.word	1572868
+ 309 0078 18002400 		.word	2359320
+ 310              		.cfi_endproc
+ 311              	.LFE353:
+ 313              		.section	.text.Galvo_StartFrame,"ax",%progbits
+ 314              		.align	1
+ 315              		.syntax unified
+ 316              		.thumb
+ 317              		.thumb_func
+ 319              	Galvo_StartFrame:
+ 320              	.LVL38:
+ 321              	.LFB356:
+  96:application/laser_ctrl/galvanometer.c **** 
+  97:application/laser_ctrl/galvanometer.c **** static void Galvo_DmaCpltCallback(DMA_HandleTypeDef *hdma)
+  98:application/laser_ctrl/galvanometer.c **** {
+  99:application/laser_ctrl/galvanometer.c ****     (void)hdma;
+ 100:application/laser_ctrl/galvanometer.c ****     Galvo_DMA_Complete_Callback();
+ 101:application/laser_ctrl/galvanometer.c **** }
+ 102:application/laser_ctrl/galvanometer.c **** 
+ 103:application/laser_ctrl/galvanometer.c **** static void Galvo_DmaErrorCallback(DMA_HandleTypeDef *hdma)
+ 104:application/laser_ctrl/galvanometer.c **** {
+ 105:application/laser_ctrl/galvanometer.c ****     (void)hdma;
+ 106:application/laser_ctrl/galvanometer.c ****     Galvo_DMA_Complete_Callback();
+ 107:application/laser_ctrl/galvanometer.c **** }
+ 108:application/laser_ctrl/galvanometer.c **** 
+ 109:application/laser_ctrl/galvanometer.c **** static HAL_StatusTypeDef Galvo_StartFrame(float x, float y)
+ 110:application/laser_ctrl/galvanometer.c **** {
+ 322              		.loc 1 110 1 is_stmt 1 view -0
+ 323              		.cfi_startproc
+ 324              		@ args = 0, pretend = 0, frame = 0
+ 325              		@ frame_needed = 0, uses_anonymous_args = 0
+ 326              		.loc 1 110 1 is_stmt 0 view .LVU88
+ 327 0000 38B5     		push	{r3, r4, r5, lr}
+ 328              	.LCFI2:
+ 329              		.cfi_def_cfa_offset 16
+ 330              		.cfi_offset 3, -16
+ 331              		.cfi_offset 4, -12
+ 332              		.cfi_offset 5, -8
+ 333              		.cfi_offset 14, -4
+ 334 0002 2DED028B 		vpush.64	{d8}
+ 335              	.LCFI3:
+ 336              		.cfi_def_cfa_offset 24
+ 337              		.cfi_offset 80, -24
+ 338              		.cfi_offset 81, -20
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s 			page 9
+
+
+ 339 0006 B0EE608A 		vmov.f32	s16, s1
+ 111:application/laser_ctrl/galvanometer.c ****     uint16_t x_raw = Galvo_CoordToRaw(x);
+ 340              		.loc 1 111 5 is_stmt 1 view .LVU89
+ 341              		.loc 1 111 22 is_stmt 0 view .LVU90
+ 342 000a FFF7FEFF 		bl	Galvo_CoordToRaw
+ 343              	.LVL39:
+ 344              		.loc 1 111 22 view .LVU91
+ 345 000e 0446     		mov	r4, r0
+ 346              	.LVL40:
+ 112:application/laser_ctrl/galvanometer.c ****     uint16_t y_raw = Galvo_CoordToRaw(y);
+ 347              		.loc 1 112 5 is_stmt 1 view .LVU92
+ 348              		.loc 1 112 22 is_stmt 0 view .LVU93
+ 349 0010 B0EE480A 		vmov.f32	s0, s16
+ 350 0014 FFF7FEFF 		bl	Galvo_CoordToRaw
+ 351              	.LVL41:
+ 352 0018 0546     		mov	r5, r0
+ 353              	.LVL42:
+ 113:application/laser_ctrl/galvanometer.c **** 
+ 114:application/laser_ctrl/galvanometer.c ****     uint32_t x_frame = Galvo_BuildFrame(x_raw);
+ 354              		.loc 1 114 5 is_stmt 1 view .LVU94
+ 355              		.loc 1 114 24 is_stmt 0 view .LVU95
+ 356 001a 2046     		mov	r0, r4
+ 357 001c FFF7FEFF 		bl	Galvo_BuildFrame
+ 358              	.LVL43:
+ 359 0020 0446     		mov	r4, r0
+ 360              	.LVL44:
+ 115:application/laser_ctrl/galvanometer.c ****     uint32_t y_frame = Galvo_BuildFrame(y_raw);
+ 361              		.loc 1 115 5 is_stmt 1 view .LVU96
+ 362              		.loc 1 115 24 is_stmt 0 view .LVU97
+ 363 0022 2846     		mov	r0, r5
+ 364              	.LVL45:
+ 365              		.loc 1 115 24 view .LVU98
+ 366 0024 FFF7FEFF 		bl	Galvo_BuildFrame
+ 367              	.LVL46:
+ 368 0028 0146     		mov	r1, r0
+ 369              	.LVL47:
+ 116:application/laser_ctrl/galvanometer.c ****     uint16_t count = Galvo_FillDmaBuf(x_frame, y_frame);
+ 370              		.loc 1 116 5 is_stmt 1 view .LVU99
+ 371              		.loc 1 116 22 is_stmt 0 view .LVU100
+ 372 002a 2046     		mov	r0, r4
+ 373              	.LVL48:
+ 374              		.loc 1 116 22 view .LVU101
+ 375 002c FFF7FEFF 		bl	Galvo_FillDmaBuf
+ 376              	.LVL49:
+ 377              		.loc 1 116 22 view .LVU102
+ 378 0030 0546     		mov	r5, r0
+ 379              	.LVL50:
+ 117:application/laser_ctrl/galvanometer.c **** 
+ 118:application/laser_ctrl/galvanometer.c ****     HAL_TIM_Base_Stop(&htim7);
+ 380              		.loc 1 118 5 is_stmt 1 view .LVU103
+ 381 0032 1A4C     		ldr	r4, .L26
+ 382              	.LVL51:
+ 383              		.loc 1 118 5 is_stmt 0 view .LVU104
+ 384 0034 2046     		mov	r0, r4
+ 385 0036 FFF7FEFF 		bl	HAL_TIM_Base_Stop
+ 386              	.LVL52:
+ 119:application/laser_ctrl/galvanometer.c ****     __HAL_TIM_DISABLE_DMA(&htim7, TIM_DMA_UPDATE);
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s 			page 10
+
+
+ 387              		.loc 1 119 5 is_stmt 1 view .LVU105
+ 388 003a 2268     		ldr	r2, [r4]
+ 389 003c D368     		ldr	r3, [r2, #12]
+ 390 003e 23F48073 		bic	r3, r3, #256
+ 391 0042 D360     		str	r3, [r2, #12]
+ 120:application/laser_ctrl/galvanometer.c ****     (void)HAL_DMA_Abort(&hdma_tim7_up);
+ 392              		.loc 1 120 5 view .LVU106
+ 393              		.loc 1 120 11 is_stmt 0 view .LVU107
+ 394 0044 164C     		ldr	r4, .L26+4
+ 395 0046 2046     		mov	r0, r4
+ 396 0048 FFF7FEFF 		bl	HAL_DMA_Abort
+ 397              	.LVL53:
+ 121:application/laser_ctrl/galvanometer.c **** 
+ 122:application/laser_ctrl/galvanometer.c ****     hdma_tim7_up.XferCpltCallback = Galvo_DmaCpltCallback;
+ 398              		.loc 1 122 5 is_stmt 1 view .LVU108
+ 399              		.loc 1 122 35 is_stmt 0 view .LVU109
+ 400 004c 154B     		ldr	r3, .L26+8
+ 401 004e E363     		str	r3, [r4, #60]
+ 123:application/laser_ctrl/galvanometer.c ****     hdma_tim7_up.XferErrorCallback = Galvo_DmaErrorCallback;
+ 402              		.loc 1 123 5 is_stmt 1 view .LVU110
+ 403              		.loc 1 123 36 is_stmt 0 view .LVU111
+ 404 0050 154B     		ldr	r3, .L26+12
+ 405 0052 E364     		str	r3, [r4, #76]
+ 124:application/laser_ctrl/galvanometer.c **** 
+ 125:application/laser_ctrl/galvanometer.c ****     if (HAL_DMA_Start_IT(&hdma_tim7_up,
+ 406              		.loc 1 125 5 is_stmt 1 view .LVU112
+ 407              		.loc 1 125 9 is_stmt 0 view .LVU113
+ 408 0054 2B46     		mov	r3, r5
+ 409 0056 154A     		ldr	r2, .L26+16
+ 410 0058 1549     		ldr	r1, .L26+20
+ 411 005a 2046     		mov	r0, r4
+ 412 005c FFF7FEFF 		bl	HAL_DMA_Start_IT
+ 413              	.LVL54:
+ 414              		.loc 1 125 8 discriminator 1 view .LVU114
+ 415 0060 18B1     		cbz	r0, .L25
+ 126:application/laser_ctrl/galvanometer.c ****                          (uint32_t)g_dma_buf,
+ 127:application/laser_ctrl/galvanometer.c ****                          (uint32_t)&(GPIOE->BSRR),
+ 128:application/laser_ctrl/galvanometer.c ****                          count) != HAL_OK)
+ 129:application/laser_ctrl/galvanometer.c ****     {
+ 130:application/laser_ctrl/galvanometer.c ****         return HAL_ERROR;
+ 416              		.loc 1 130 16 view .LVU115
+ 417 0062 0120     		movs	r0, #1
+ 418              	.L22:
+ 131:application/laser_ctrl/galvanometer.c ****     }
+ 132:application/laser_ctrl/galvanometer.c **** 
+ 133:application/laser_ctrl/galvanometer.c ****     __HAL_TIM_ENABLE_DMA(&htim7, TIM_DMA_UPDATE);
+ 134:application/laser_ctrl/galvanometer.c ****     if (HAL_TIM_Base_Start(&htim7) != HAL_OK)
+ 135:application/laser_ctrl/galvanometer.c ****     {
+ 136:application/laser_ctrl/galvanometer.c ****         __HAL_TIM_DISABLE_DMA(&htim7, TIM_DMA_UPDATE);
+ 137:application/laser_ctrl/galvanometer.c ****         (void)HAL_DMA_Abort(&hdma_tim7_up);
+ 138:application/laser_ctrl/galvanometer.c ****         HAL_TIM_Base_Stop(&htim7);
+ 139:application/laser_ctrl/galvanometer.c ****         return HAL_ERROR;
+ 140:application/laser_ctrl/galvanometer.c ****     }
+ 141:application/laser_ctrl/galvanometer.c **** 
+ 142:application/laser_ctrl/galvanometer.c ****     return HAL_OK;
+ 143:application/laser_ctrl/galvanometer.c **** }
+ 419              		.loc 1 143 1 view .LVU116
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s 			page 11
+
+
+ 420 0064 BDEC028B 		vldm	sp!, {d8}
+ 421              	.LCFI4:
+ 422              		.cfi_remember_state
+ 423              		.cfi_restore 80
+ 424              		.cfi_restore 81
+ 425              		.cfi_def_cfa_offset 16
+ 426              	.LVL55:
+ 427              		.loc 1 143 1 view .LVU117
+ 428 0068 38BD     		pop	{r3, r4, r5, pc}
+ 429              	.LVL56:
+ 430              	.L25:
+ 431              	.LCFI5:
+ 432              		.cfi_restore_state
+ 133:application/laser_ctrl/galvanometer.c ****     if (HAL_TIM_Base_Start(&htim7) != HAL_OK)
+ 433              		.loc 1 133 5 is_stmt 1 view .LVU118
+ 434 006a 0C48     		ldr	r0, .L26
+ 435 006c 0268     		ldr	r2, [r0]
+ 436 006e D368     		ldr	r3, [r2, #12]
+ 437 0070 43F48073 		orr	r3, r3, #256
+ 438 0074 D360     		str	r3, [r2, #12]
+ 134:application/laser_ctrl/galvanometer.c ****     {
+ 439              		.loc 1 134 5 view .LVU119
+ 134:application/laser_ctrl/galvanometer.c ****     {
+ 440              		.loc 1 134 9 is_stmt 0 view .LVU120
+ 441 0076 FFF7FEFF 		bl	HAL_TIM_Base_Start
+ 442              	.LVL57:
+ 134:application/laser_ctrl/galvanometer.c ****     {
+ 443              		.loc 1 134 8 discriminator 1 view .LVU121
+ 444 007a 0028     		cmp	r0, #0
+ 445 007c F2D0     		beq	.L22
+ 136:application/laser_ctrl/galvanometer.c ****         (void)HAL_DMA_Abort(&hdma_tim7_up);
+ 446              		.loc 1 136 9 is_stmt 1 view .LVU122
+ 447 007e 074C     		ldr	r4, .L26
+ 448 0080 2268     		ldr	r2, [r4]
+ 449 0082 D368     		ldr	r3, [r2, #12]
+ 450 0084 23F48073 		bic	r3, r3, #256
+ 451 0088 D360     		str	r3, [r2, #12]
+ 137:application/laser_ctrl/galvanometer.c ****         HAL_TIM_Base_Stop(&htim7);
+ 452              		.loc 1 137 9 view .LVU123
+ 137:application/laser_ctrl/galvanometer.c ****         HAL_TIM_Base_Stop(&htim7);
+ 453              		.loc 1 137 15 is_stmt 0 view .LVU124
+ 454 008a 0548     		ldr	r0, .L26+4
+ 455 008c FFF7FEFF 		bl	HAL_DMA_Abort
+ 456              	.LVL58:
+ 138:application/laser_ctrl/galvanometer.c ****         return HAL_ERROR;
+ 457              		.loc 1 138 9 is_stmt 1 view .LVU125
+ 458 0090 2046     		mov	r0, r4
+ 459 0092 FFF7FEFF 		bl	HAL_TIM_Base_Stop
+ 460              	.LVL59:
+ 139:application/laser_ctrl/galvanometer.c ****     }
+ 461              		.loc 1 139 9 view .LVU126
+ 139:application/laser_ctrl/galvanometer.c ****     }
+ 462              		.loc 1 139 16 is_stmt 0 view .LVU127
+ 463 0096 0120     		movs	r0, #1
+ 464 0098 E4E7     		b	.L22
+ 465              	.L27:
+ 466 009a 00BF     		.align	2
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s 			page 12
+
+
+ 467              	.L26:
+ 468 009c 00000000 		.word	htim7
+ 469 00a0 00000000 		.word	hdma_tim7_up
+ 470 00a4 00000000 		.word	Galvo_DmaCpltCallback
+ 471 00a8 00000000 		.word	Galvo_DmaErrorCallback
+ 472 00ac 18100258 		.word	1476530200
+ 473 00b0 00000000 		.word	g_dma_buf
+ 474              		.cfi_endproc
+ 475              	.LFE356:
+ 477              		.section	.text.Galvo_Init,"ax",%progbits
+ 478              		.align	1
+ 479              		.global	Galvo_Init
+ 480              		.syntax unified
+ 481              		.thumb
+ 482              		.thumb_func
+ 484              	Galvo_Init:
+ 485              	.LFB357:
+ 144:application/laser_ctrl/galvanometer.c **** 
+ 145:application/laser_ctrl/galvanometer.c **** void Galvo_Init(void)
+ 146:application/laser_ctrl/galvanometer.c **** {
+ 486              		.loc 1 146 1 is_stmt 1 view -0
+ 487              		.cfi_startproc
+ 488              		@ args = 0, pretend = 0, frame = 0
+ 489              		@ frame_needed = 0, uses_anonymous_args = 0
+ 490              		@ link register save eliminated.
+ 147:application/laser_ctrl/galvanometer.c ****     g_dma_busy = 0u;
+ 491              		.loc 1 147 5 view .LVU129
+ 492              		.loc 1 147 16 is_stmt 0 view .LVU130
+ 493 0000 0023     		movs	r3, #0
+ 494 0002 044A     		ldr	r2, .L29
+ 495 0004 1370     		strb	r3, [r2]
+ 148:application/laser_ctrl/galvanometer.c ****     g_pending_valid = 0u;
+ 496              		.loc 1 148 5 is_stmt 1 view .LVU131
+ 497              		.loc 1 148 21 is_stmt 0 view .LVU132
+ 498 0006 044A     		ldr	r2, .L29+4
+ 499 0008 1370     		strb	r3, [r2]
+ 149:application/laser_ctrl/galvanometer.c **** 
+ 150:application/laser_ctrl/galvanometer.c ****     // 空闲态: SYNC=高, CLK=高, CHX/CHY=低
+ 151:application/laser_ctrl/galvanometer.c ****     GPIOE->BSRR = PIN_SET(GALVO_SYN_Pin) | PIN_SET(GALVO_CLK_Pin) |
+ 500              		.loc 1 151 5 is_stmt 1 view .LVU133
+ 501              		.loc 1 151 17 is_stmt 0 view .LVU134
+ 502 000a 044B     		ldr	r3, .L29+8
+ 503 000c 044A     		ldr	r2, .L29+12
+ 504 000e 9A61     		str	r2, [r3, #24]
+ 152:application/laser_ctrl/galvanometer.c ****                   PIN_RESET(GALVO_CHX_Pin) | PIN_RESET(GALVO_CHY_Pin);
+ 153:application/laser_ctrl/galvanometer.c **** }
+ 505              		.loc 1 153 1 view .LVU135
+ 506 0010 7047     		bx	lr
+ 507              	.L30:
+ 508 0012 00BF     		.align	2
+ 509              	.L29:
+ 510 0014 00000000 		.word	g_dma_busy
+ 511 0018 00000000 		.word	g_pending_valid
+ 512 001c 00100258 		.word	1476530176
+ 513 0020 18002400 		.word	2359320
+ 514              		.cfi_endproc
+ 515              	.LFE357:
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s 			page 13
+
+
+ 517              		.section	.text.Galvo_Send_XY_DMA,"ax",%progbits
+ 518              		.align	1
+ 519              		.global	Galvo_Send_XY_DMA
+ 520              		.syntax unified
+ 521              		.thumb
+ 522              		.thumb_func
+ 524              	Galvo_Send_XY_DMA:
+ 525              	.LVL60:
+ 526              	.LFB358:
+ 154:application/laser_ctrl/galvanometer.c **** 
+ 155:application/laser_ctrl/galvanometer.c **** void Galvo_Send_XY_DMA(float x, float y)
+ 156:application/laser_ctrl/galvanometer.c **** {
+ 527              		.loc 1 156 1 is_stmt 1 view -0
+ 528              		.cfi_startproc
+ 529              		@ args = 0, pretend = 0, frame = 0
+ 530              		@ frame_needed = 0, uses_anonymous_args = 0
+ 531              		.loc 1 156 1 is_stmt 0 view .LVU137
+ 532 0000 08B5     		push	{r3, lr}
+ 533              	.LCFI6:
+ 534              		.cfi_def_cfa_offset 8
+ 535              		.cfi_offset 3, -8
+ 536              		.cfi_offset 14, -4
+ 157:application/laser_ctrl/galvanometer.c ****     if (g_dma_busy != 0u)
+ 537              		.loc 1 157 5 is_stmt 1 view .LVU138
+ 538              		.loc 1 157 20 is_stmt 0 view .LVU139
+ 539 0002 0C4B     		ldr	r3, .L35
+ 540 0004 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 541              		.loc 1 157 8 view .LVU140
+ 542 0006 4BB1     		cbz	r3, .L32
+ 158:application/laser_ctrl/galvanometer.c ****     {
+ 159:application/laser_ctrl/galvanometer.c ****         // 忙时覆盖为最新点，避免持续丢失最新目标
+ 160:application/laser_ctrl/galvanometer.c ****         g_pending_x = x;
+ 543              		.loc 1 160 9 is_stmt 1 view .LVU141
+ 544              		.loc 1 160 21 is_stmt 0 view .LVU142
+ 545 0008 0B4B     		ldr	r3, .L35+4
+ 546 000a 83ED000A 		vstr.32	s0, [r3]
+ 161:application/laser_ctrl/galvanometer.c ****         g_pending_y = y;
+ 547              		.loc 1 161 9 is_stmt 1 view .LVU143
+ 548              		.loc 1 161 21 is_stmt 0 view .LVU144
+ 549 000e 0B4B     		ldr	r3, .L35+8
+ 550 0010 C3ED000A 		vstr.32	s1, [r3]
+ 162:application/laser_ctrl/galvanometer.c ****         g_pending_valid = 1u;
+ 551              		.loc 1 162 9 is_stmt 1 view .LVU145
+ 552              		.loc 1 162 25 is_stmt 0 view .LVU146
+ 553 0014 0A4B     		ldr	r3, .L35+12
+ 554 0016 0122     		movs	r2, #1
+ 555 0018 1A70     		strb	r2, [r3]
+ 163:application/laser_ctrl/galvanometer.c ****         return;
+ 556              		.loc 1 163 9 is_stmt 1 view .LVU147
+ 557              	.LVL61:
+ 558              	.L31:
+ 164:application/laser_ctrl/galvanometer.c ****     }
+ 165:application/laser_ctrl/galvanometer.c **** 
+ 166:application/laser_ctrl/galvanometer.c ****     g_dma_busy = 1u;
+ 167:application/laser_ctrl/galvanometer.c ****     if (Galvo_StartFrame(x, y) != HAL_OK)
+ 168:application/laser_ctrl/galvanometer.c ****     {
+ 169:application/laser_ctrl/galvanometer.c ****         g_dma_busy = 0u;
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s 			page 14
+
+
+ 170:application/laser_ctrl/galvanometer.c ****     }
+ 171:application/laser_ctrl/galvanometer.c **** }
+ 559              		.loc 1 171 1 is_stmt 0 view .LVU148
+ 560 001a 08BD     		pop	{r3, pc}
+ 561              	.LVL62:
+ 562              	.L32:
+ 166:application/laser_ctrl/galvanometer.c ****     if (Galvo_StartFrame(x, y) != HAL_OK)
+ 563              		.loc 1 166 5 is_stmt 1 view .LVU149
+ 166:application/laser_ctrl/galvanometer.c ****     if (Galvo_StartFrame(x, y) != HAL_OK)
+ 564              		.loc 1 166 16 is_stmt 0 view .LVU150
+ 565 001c 054B     		ldr	r3, .L35
+ 566 001e 0122     		movs	r2, #1
+ 567 0020 1A70     		strb	r2, [r3]
+ 167:application/laser_ctrl/galvanometer.c ****     {
+ 568              		.loc 1 167 5 is_stmt 1 view .LVU151
+ 167:application/laser_ctrl/galvanometer.c ****     {
+ 569              		.loc 1 167 9 is_stmt 0 view .LVU152
+ 570 0022 FFF7FEFF 		bl	Galvo_StartFrame
+ 571              	.LVL63:
+ 167:application/laser_ctrl/galvanometer.c ****     {
+ 572              		.loc 1 167 8 discriminator 1 view .LVU153
+ 573 0026 0028     		cmp	r0, #0
+ 574 0028 F7D0     		beq	.L31
+ 169:application/laser_ctrl/galvanometer.c ****     }
+ 575              		.loc 1 169 9 is_stmt 1 view .LVU154
+ 169:application/laser_ctrl/galvanometer.c ****     }
+ 576              		.loc 1 169 20 is_stmt 0 view .LVU155
+ 577 002a 024B     		ldr	r3, .L35
+ 578 002c 0022     		movs	r2, #0
+ 579 002e 1A70     		strb	r2, [r3]
+ 580 0030 F3E7     		b	.L31
+ 581              	.L36:
+ 582 0032 00BF     		.align	2
+ 583              	.L35:
+ 584 0034 00000000 		.word	g_dma_busy
+ 585 0038 00000000 		.word	g_pending_x
+ 586 003c 00000000 		.word	g_pending_y
+ 587 0040 00000000 		.word	g_pending_valid
+ 588              		.cfi_endproc
+ 589              	.LFE358:
+ 591              		.section	.text.Galvo_DMA_Complete_Callback,"ax",%progbits
+ 592              		.align	1
+ 593              		.global	Galvo_DMA_Complete_Callback
+ 594              		.syntax unified
+ 595              		.thumb
+ 596              		.thumb_func
+ 598              	Galvo_DMA_Complete_Callback:
+ 599              	.LFB359:
+ 172:application/laser_ctrl/galvanometer.c **** 
+ 173:application/laser_ctrl/galvanometer.c **** void Galvo_DMA_Complete_Callback(void)
+ 174:application/laser_ctrl/galvanometer.c **** {
+ 600              		.loc 1 174 1 is_stmt 1 view -0
+ 601              		.cfi_startproc
+ 602              		@ args = 0, pretend = 0, frame = 0
+ 603              		@ frame_needed = 0, uses_anonymous_args = 0
+ 604 0000 10B5     		push	{r4, lr}
+ 605              	.LCFI7:
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s 			page 15
+
+
+ 606              		.cfi_def_cfa_offset 8
+ 607              		.cfi_offset 4, -8
+ 608              		.cfi_offset 14, -4
+ 175:application/laser_ctrl/galvanometer.c ****     HAL_TIM_Base_Stop(&htim7);
+ 609              		.loc 1 175 5 view .LVU157
+ 610 0002 114C     		ldr	r4, .L41
+ 611 0004 2046     		mov	r0, r4
+ 612 0006 FFF7FEFF 		bl	HAL_TIM_Base_Stop
+ 613              	.LVL64:
+ 176:application/laser_ctrl/galvanometer.c ****     __HAL_TIM_DISABLE_DMA(&htim7, TIM_DMA_UPDATE);
+ 614              		.loc 1 176 5 view .LVU158
+ 615 000a 2268     		ldr	r2, [r4]
+ 616 000c D368     		ldr	r3, [r2, #12]
+ 617 000e 23F48073 		bic	r3, r3, #256
+ 618 0012 D360     		str	r3, [r2, #12]
+ 177:application/laser_ctrl/galvanometer.c ****     g_dma_busy = 0u;
+ 619              		.loc 1 177 5 view .LVU159
+ 620              		.loc 1 177 16 is_stmt 0 view .LVU160
+ 621 0014 0D4B     		ldr	r3, .L41+4
+ 622 0016 0022     		movs	r2, #0
+ 623 0018 1A70     		strb	r2, [r3]
+ 178:application/laser_ctrl/galvanometer.c **** 
+ 179:application/laser_ctrl/galvanometer.c ****     if (g_pending_valid != 0u)
+ 624              		.loc 1 179 5 is_stmt 1 view .LVU161
+ 625              		.loc 1 179 25 is_stmt 0 view .LVU162
+ 626 001a 0D4B     		ldr	r3, .L41+8
+ 627 001c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 628              		.loc 1 179 8 view .LVU163
+ 629 001e 03B9     		cbnz	r3, .L40
+ 630              	.L37:
+ 180:application/laser_ctrl/galvanometer.c ****     {
+ 181:application/laser_ctrl/galvanometer.c ****         float pending_x = g_pending_x;
+ 182:application/laser_ctrl/galvanometer.c ****         float pending_y = g_pending_y;
+ 183:application/laser_ctrl/galvanometer.c ****         g_pending_valid = 0u;
+ 184:application/laser_ctrl/galvanometer.c **** 
+ 185:application/laser_ctrl/galvanometer.c ****         g_dma_busy = 1u;
+ 186:application/laser_ctrl/galvanometer.c ****         if (Galvo_StartFrame(pending_x, pending_y) != HAL_OK)
+ 187:application/laser_ctrl/galvanometer.c ****         {
+ 188:application/laser_ctrl/galvanometer.c ****             g_dma_busy = 0u;
+ 189:application/laser_ctrl/galvanometer.c ****         }
+ 190:application/laser_ctrl/galvanometer.c ****     }
+ 191:application/laser_ctrl/galvanometer.c **** }
+ 631              		.loc 1 191 1 view .LVU164
+ 632 0020 10BD     		pop	{r4, pc}
+ 633              	.L40:
+ 634              	.LBB6:
+ 181:application/laser_ctrl/galvanometer.c ****         float pending_y = g_pending_y;
+ 635              		.loc 1 181 9 is_stmt 1 view .LVU165
+ 181:application/laser_ctrl/galvanometer.c ****         float pending_y = g_pending_y;
+ 636              		.loc 1 181 15 is_stmt 0 view .LVU166
+ 637 0022 0C4B     		ldr	r3, .L41+12
+ 638 0024 93ED000A 		vldr.32	s0, [r3]
+ 639              	.LVL65:
+ 182:application/laser_ctrl/galvanometer.c ****         g_pending_valid = 0u;
+ 640              		.loc 1 182 9 is_stmt 1 view .LVU167
+ 182:application/laser_ctrl/galvanometer.c ****         g_pending_valid = 0u;
+ 641              		.loc 1 182 15 is_stmt 0 view .LVU168
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s 			page 16
+
+
+ 642 0028 0B4B     		ldr	r3, .L41+16
+ 643 002a D3ED000A 		vldr.32	s1, [r3]
+ 644              	.LVL66:
+ 183:application/laser_ctrl/galvanometer.c **** 
+ 645              		.loc 1 183 9 is_stmt 1 view .LVU169
+ 183:application/laser_ctrl/galvanometer.c **** 
+ 646              		.loc 1 183 25 is_stmt 0 view .LVU170
+ 647 002e 084B     		ldr	r3, .L41+8
+ 648 0030 1A70     		strb	r2, [r3]
+ 185:application/laser_ctrl/galvanometer.c ****         if (Galvo_StartFrame(pending_x, pending_y) != HAL_OK)
+ 649              		.loc 1 185 9 is_stmt 1 view .LVU171
+ 185:application/laser_ctrl/galvanometer.c ****         if (Galvo_StartFrame(pending_x, pending_y) != HAL_OK)
+ 650              		.loc 1 185 20 is_stmt 0 view .LVU172
+ 651 0032 064B     		ldr	r3, .L41+4
+ 652 0034 0122     		movs	r2, #1
+ 653 0036 1A70     		strb	r2, [r3]
+ 186:application/laser_ctrl/galvanometer.c ****         {
+ 654              		.loc 1 186 9 is_stmt 1 view .LVU173
+ 186:application/laser_ctrl/galvanometer.c ****         {
+ 655              		.loc 1 186 13 is_stmt 0 view .LVU174
+ 656 0038 FFF7FEFF 		bl	Galvo_StartFrame
+ 657              	.LVL67:
+ 186:application/laser_ctrl/galvanometer.c ****         {
+ 658              		.loc 1 186 12 discriminator 1 view .LVU175
+ 659 003c 0028     		cmp	r0, #0
+ 660 003e EFD0     		beq	.L37
+ 188:application/laser_ctrl/galvanometer.c ****         }
+ 661              		.loc 1 188 13 is_stmt 1 view .LVU176
+ 188:application/laser_ctrl/galvanometer.c ****         }
+ 662              		.loc 1 188 24 is_stmt 0 view .LVU177
+ 663 0040 024B     		ldr	r3, .L41+4
+ 664 0042 0022     		movs	r2, #0
+ 665 0044 1A70     		strb	r2, [r3]
+ 666              	.LBE6:
+ 667              		.loc 1 191 1 view .LVU178
+ 668 0046 EBE7     		b	.L37
+ 669              	.L42:
+ 670              		.align	2
+ 671              	.L41:
+ 672 0048 00000000 		.word	htim7
+ 673 004c 00000000 		.word	g_dma_busy
+ 674 0050 00000000 		.word	g_pending_valid
+ 675 0054 00000000 		.word	g_pending_x
+ 676 0058 00000000 		.word	g_pending_y
+ 677              		.cfi_endproc
+ 678              	.LFE359:
+ 680              		.section	.text.Galvo_DmaErrorCallback,"ax",%progbits
+ 681              		.align	1
+ 682              		.syntax unified
+ 683              		.thumb
+ 684              		.thumb_func
+ 686              	Galvo_DmaErrorCallback:
+ 687              	.LVL68:
+ 688              	.LFB355:
+ 104:application/laser_ctrl/galvanometer.c ****     (void)hdma;
+ 689              		.loc 1 104 1 is_stmt 1 view -0
+ 690              		.cfi_startproc
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s 			page 17
+
+
+ 691              		@ args = 0, pretend = 0, frame = 0
+ 692              		@ frame_needed = 0, uses_anonymous_args = 0
+ 104:application/laser_ctrl/galvanometer.c ****     (void)hdma;
+ 693              		.loc 1 104 1 is_stmt 0 view .LVU180
+ 694 0000 08B5     		push	{r3, lr}
+ 695              	.LCFI8:
+ 696              		.cfi_def_cfa_offset 8
+ 697              		.cfi_offset 3, -8
+ 698              		.cfi_offset 14, -4
+ 105:application/laser_ctrl/galvanometer.c ****     Galvo_DMA_Complete_Callback();
+ 699              		.loc 1 105 5 is_stmt 1 view .LVU181
+ 106:application/laser_ctrl/galvanometer.c **** }
+ 700              		.loc 1 106 5 view .LVU182
+ 701 0002 FFF7FEFF 		bl	Galvo_DMA_Complete_Callback
+ 702              	.LVL69:
+ 107:application/laser_ctrl/galvanometer.c **** 
+ 703              		.loc 1 107 1 is_stmt 0 view .LVU183
+ 704 0006 08BD     		pop	{r3, pc}
+ 705              		.cfi_endproc
+ 706              	.LFE355:
+ 708              		.section	.text.Galvo_DmaCpltCallback,"ax",%progbits
+ 709              		.align	1
+ 710              		.syntax unified
+ 711              		.thumb
+ 712              		.thumb_func
+ 714              	Galvo_DmaCpltCallback:
+ 715              	.LVL70:
+ 716              	.LFB354:
+  98:application/laser_ctrl/galvanometer.c ****     (void)hdma;
+ 717              		.loc 1 98 1 is_stmt 1 view -0
+ 718              		.cfi_startproc
+ 719              		@ args = 0, pretend = 0, frame = 0
+ 720              		@ frame_needed = 0, uses_anonymous_args = 0
+  98:application/laser_ctrl/galvanometer.c ****     (void)hdma;
+ 721              		.loc 1 98 1 is_stmt 0 view .LVU185
+ 722 0000 08B5     		push	{r3, lr}
+ 723              	.LCFI9:
+ 724              		.cfi_def_cfa_offset 8
+ 725              		.cfi_offset 3, -8
+ 726              		.cfi_offset 14, -4
+  99:application/laser_ctrl/galvanometer.c ****     Galvo_DMA_Complete_Callback();
+ 727              		.loc 1 99 5 is_stmt 1 view .LVU186
+ 100:application/laser_ctrl/galvanometer.c **** }
+ 728              		.loc 1 100 5 view .LVU187
+ 729 0002 FFF7FEFF 		bl	Galvo_DMA_Complete_Callback
+ 730              	.LVL71:
+ 101:application/laser_ctrl/galvanometer.c **** 
+ 731              		.loc 1 101 1 is_stmt 0 view .LVU188
+ 732 0006 08BD     		pop	{r3, pc}
+ 733              		.cfi_endproc
+ 734              	.LFE354:
+ 736              		.section	.bss.g_pending_y,"aw",%nobits
+ 737              		.align	2
+ 740              	g_pending_y:
+ 741 0000 00000000 		.space	4
+ 742              		.section	.bss.g_pending_x,"aw",%nobits
+ 743              		.align	2
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s 			page 18
+
+
+ 746              	g_pending_x:
+ 747 0000 00000000 		.space	4
+ 748              		.section	.bss.g_pending_valid,"aw",%nobits
+ 751              	g_pending_valid:
+ 752 0000 00       		.space	1
+ 753              		.section	.bss.g_dma_busy,"aw",%nobits
+ 756              	g_dma_busy:
+ 757 0000 00       		.space	1
+ 758              		.section	.bss.g_dma_buf,"aw",%nobits
+ 759              		.align	2
+ 762              	g_dma_buf:
+ 763 0000 00000000 		.space	168
+ 763      00000000 
+ 763      00000000 
+ 763      00000000 
+ 763      00000000 
+ 764              		.text
+ 765              	.Letext0:
+ 766              		.file 2 "D:/14.3 rel1/arm-none-eabi/include/machine/_default_types.h"
+ 767              		.file 3 "D:/14.3 rel1/arm-none-eabi/include/sys/_stdint.h"
+ 768              		.file 4 "Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h723xx.h"
+ 769              		.file 5 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_def.h"
+ 770              		.file 6 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_dma.h"
+ 771              		.file 7 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_tim.h"
+ 772              		.file 8 "Core/Inc/tim.h"
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s 			page 19
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 galvanometer.c
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:20     .text.Galvo_Parity:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:25     .text.Galvo_Parity:00000000 Galvo_Parity
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:63     .text.Galvo_CoordToRaw:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:68     .text.Galvo_CoordToRaw:00000000 Galvo_CoordToRaw
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:125    .text.Galvo_CoordToRaw:00000054 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:133    .text.Galvo_BuildFrame:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:138    .text.Galvo_BuildFrame:00000000 Galvo_BuildFrame
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:177    .text.Galvo_FillDmaBuf:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:182    .text.Galvo_FillDmaBuf:00000000 Galvo_FillDmaBuf
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:307    .text.Galvo_FillDmaBuf:00000070 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:762    .bss.g_dma_buf:00000000 g_dma_buf
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:314    .text.Galvo_StartFrame:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:319    .text.Galvo_StartFrame:00000000 Galvo_StartFrame
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:468    .text.Galvo_StartFrame:0000009c $d
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:714    .text.Galvo_DmaCpltCallback:00000000 Galvo_DmaCpltCallback
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:686    .text.Galvo_DmaErrorCallback:00000000 Galvo_DmaErrorCallback
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:478    .text.Galvo_Init:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:484    .text.Galvo_Init:00000000 Galvo_Init
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:510    .text.Galvo_Init:00000014 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:756    .bss.g_dma_busy:00000000 g_dma_busy
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:751    .bss.g_pending_valid:00000000 g_pending_valid
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:518    .text.Galvo_Send_XY_DMA:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:524    .text.Galvo_Send_XY_DMA:00000000 Galvo_Send_XY_DMA
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:584    .text.Galvo_Send_XY_DMA:00000034 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:746    .bss.g_pending_x:00000000 g_pending_x
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:740    .bss.g_pending_y:00000000 g_pending_y
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:592    .text.Galvo_DMA_Complete_Callback:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:598    .text.Galvo_DMA_Complete_Callback:00000000 Galvo_DMA_Complete_Callback
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:672    .text.Galvo_DMA_Complete_Callback:00000048 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:681    .text.Galvo_DmaErrorCallback:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:709    .text.Galvo_DmaCpltCallback:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:737    .bss.g_pending_y:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:743    .bss.g_pending_x:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:752    .bss.g_pending_valid:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:757    .bss.g_dma_busy:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\cctBXOih.s:759    .bss.g_dma_buf:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_TIM_Base_Stop
+HAL_DMA_Abort
+HAL_DMA_Start_IT
+HAL_TIM_Base_Start
+htim7
+hdma_tim7_up

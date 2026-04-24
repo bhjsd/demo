@@ -1,0 +1,436 @@
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 1
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"bsp_gpio.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.file 1 "bsp/gpio/bsp_gpio.c"
+  19              		.section	.text.HAL_GPIO_EXTI_Callback,"ax",%progbits
+  20              		.align	1
+  21              		.global	HAL_GPIO_EXTI_Callback
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	HAL_GPIO_EXTI_Callback:
+  27              	.LVL0:
+  28              	.LFB350:
+   1:bsp/gpio/bsp_gpio.c **** #include "bsp_gpio.h"
+   2:bsp/gpio/bsp_gpio.c **** #include "memory.h"
+   3:bsp/gpio/bsp_gpio.c **** #include "stdlib.h"
+   4:bsp/gpio/bsp_gpio.c **** 
+   5:bsp/gpio/bsp_gpio.c **** static uint8_t idx;
+   6:bsp/gpio/bsp_gpio.c **** static GPIOInstance *gpio_instance[GPIO_MX_DEVICE_NUM] = {NULL};
+   7:bsp/gpio/bsp_gpio.c **** 
+   8:bsp/gpio/bsp_gpio.c **** /**
+   9:bsp/gpio/bsp_gpio.c ****  * @brief EXTI中断回调函数,根据GPIO_Pin找到对应的GPIOInstance,并调用模块回调函
+  10:bsp/gpio/bsp_gpio.c ****  * @note 如何判断具体是哪一个GPIO的引脚连接到这个EXTI中断线上?
+  11:bsp/gpio/bsp_gpio.c ****  *       一个EXTI中断线只能连接一个GPIO引脚,因此可以通过GPIO_Pin来判断,PinX�
+  12:bsp/gpio/bsp_gpio.c ****  *       一个Pin号只会对应一个EXTI,详情见gpio.md
+  13:bsp/gpio/bsp_gpio.c ****  * @param GPIO_Pin 发生中断的GPIO_Pin
+  14:bsp/gpio/bsp_gpio.c ****  */
+  15:bsp/gpio/bsp_gpio.c **** void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+  16:bsp/gpio/bsp_gpio.c **** {
+  29              		.loc 1 16 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		.loc 1 16 1 is_stmt 0 view .LVU1
+  34 0000 08B5     		push	{r3, lr}
+  35              	.LCFI0:
+  36              		.cfi_def_cfa_offset 8
+  37              		.cfi_offset 3, -8
+  38              		.cfi_offset 14, -4
+  17:bsp/gpio/bsp_gpio.c ****     // 如有必要,可以根据pinstate和HAL_GPIO_ReadPin来判断是上升沿还是下降沿/ris
+  18:bsp/gpio/bsp_gpio.c ****     GPIOInstance *gpio;
+  39              		.loc 1 18 5 is_stmt 1 view .LVU2
+  19:bsp/gpio/bsp_gpio.c ****     for (size_t i = 0; i < idx; i++)
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s 			page 2
+
+
+  40              		.loc 1 19 5 view .LVU3
+  41              	.LBB2:
+  42              		.loc 1 19 10 view .LVU4
+  43              	.LVL1:
+  44              		.loc 1 19 17 is_stmt 0 view .LVU5
+  45 0002 0023     		movs	r3, #0
+  46              		.loc 1 19 5 view .LVU6
+  47 0004 00E0     		b	.L2
+  48              	.LVL2:
+  49              	.L3:
+  50              		.loc 1 19 34 is_stmt 1 discriminator 2 view .LVU7
+  51 0006 0133     		adds	r3, r3, #1
+  52              	.LVL3:
+  53              	.L2:
+  54              		.loc 1 19 26 discriminator 1 view .LVU8
+  55 0008 074A     		ldr	r2, .L7
+  56 000a 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+  57 000c 9A42     		cmp	r2, r3
+  58 000e 0AD9     		bls	.L1
+  20:bsp/gpio/bsp_gpio.c ****     {
+  21:bsp/gpio/bsp_gpio.c ****         gpio = gpio_instance[i];
+  59              		.loc 1 21 9 view .LVU9
+  60              		.loc 1 21 14 is_stmt 0 view .LVU10
+  61 0010 064A     		ldr	r2, .L7+4
+  62 0012 52F82320 		ldr	r2, [r2, r3, lsl #2]
+  63              	.LVL4:
+  22:bsp/gpio/bsp_gpio.c ****         if (gpio->GPIO_Pin == GPIO_Pin && gpio->gpio_model_callback != NULL)
+  64              		.loc 1 22 9 is_stmt 1 view .LVU11
+  65              		.loc 1 22 17 is_stmt 0 view .LVU12
+  66 0016 D188     		ldrh	r1, [r2, #6]
+  67              		.loc 1 22 12 view .LVU13
+  68 0018 8142     		cmp	r1, r0
+  69 001a F4D1     		bne	.L3
+  70              		.loc 1 22 47 discriminator 1 view .LVU14
+  71 001c 9168     		ldr	r1, [r2, #8]
+  72              		.loc 1 22 40 discriminator 1 view .LVU15
+  73 001e 0029     		cmp	r1, #0
+  74 0020 F1D0     		beq	.L3
+  23:bsp/gpio/bsp_gpio.c ****         {
+  24:bsp/gpio/bsp_gpio.c ****             gpio->gpio_model_callback(gpio);
+  75              		.loc 1 24 13 is_stmt 1 view .LVU16
+  76 0022 1046     		mov	r0, r2
+  77              	.LVL5:
+  78              		.loc 1 24 13 is_stmt 0 view .LVU17
+  79 0024 8847     		blx	r1
+  80              	.LVL6:
+  25:bsp/gpio/bsp_gpio.c ****             return;
+  81              		.loc 1 25 13 is_stmt 1 view .LVU18
+  82              	.L1:
+  83              		.loc 1 25 13 is_stmt 0 view .LVU19
+  84              	.LBE2:
+  26:bsp/gpio/bsp_gpio.c ****         }
+  27:bsp/gpio/bsp_gpio.c ****     }
+  28:bsp/gpio/bsp_gpio.c **** }
+  85              		.loc 1 28 1 view .LVU20
+  86 0026 08BD     		pop	{r3, pc}
+  87              	.L8:
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s 			page 3
+
+
+  88              		.align	2
+  89              	.L7:
+  90 0028 00000000 		.word	idx
+  91 002c 00000000 		.word	gpio_instance
+  92              		.cfi_endproc
+  93              	.LFE350:
+  95              		.section	.text.GPIORegister,"ax",%progbits
+  96              		.align	1
+  97              		.global	GPIORegister
+  98              		.syntax unified
+  99              		.thumb
+ 100              		.thumb_func
+ 102              	GPIORegister:
+ 103              	.LVL7:
+ 104              	.LFB351:
+  29:bsp/gpio/bsp_gpio.c **** 
+  30:bsp/gpio/bsp_gpio.c **** GPIOInstance *GPIORegister(GPIO_Init_Config_s *GPIO_config)
+  31:bsp/gpio/bsp_gpio.c **** {
+ 105              		.loc 1 31 1 is_stmt 1 view -0
+ 106              		.cfi_startproc
+ 107              		@ args = 0, pretend = 0, frame = 0
+ 108              		@ frame_needed = 0, uses_anonymous_args = 0
+ 109              		.loc 1 31 1 is_stmt 0 view .LVU22
+ 110 0000 10B5     		push	{r4, lr}
+ 111              	.LCFI1:
+ 112              		.cfi_def_cfa_offset 8
+ 113              		.cfi_offset 4, -8
+ 114              		.cfi_offset 14, -4
+ 115 0002 0446     		mov	r4, r0
+  32:bsp/gpio/bsp_gpio.c ****     GPIOInstance *ins = (GPIOInstance *)malloc(sizeof(GPIOInstance));
+ 116              		.loc 1 32 5 is_stmt 1 view .LVU23
+ 117              		.loc 1 32 41 is_stmt 0 view .LVU24
+ 118 0004 1020     		movs	r0, #16
+ 119              	.LVL8:
+ 120              		.loc 1 32 41 view .LVU25
+ 121 0006 FFF7FEFF 		bl	malloc
+ 122              	.LVL9:
+  33:bsp/gpio/bsp_gpio.c ****     memset(ins, 0, sizeof(GPIOInstance));
+ 123              		.loc 1 33 5 is_stmt 1 view .LVU26
+ 124 000a 0022     		movs	r2, #0
+ 125 000c 0260     		str	r2, [r0]	@ unaligned
+ 126 000e 4260     		str	r2, [r0, #4]	@ unaligned
+ 127 0010 8260     		str	r2, [r0, #8]	@ unaligned
+ 128 0012 C260     		str	r2, [r0, #12]	@ unaligned
+  34:bsp/gpio/bsp_gpio.c **** 
+  35:bsp/gpio/bsp_gpio.c ****     ins->GPIOx = GPIO_config->GPIOx;
+ 129              		.loc 1 35 5 view .LVU27
+ 130              		.loc 1 35 29 is_stmt 0 view .LVU28
+ 131 0014 2268     		ldr	r2, [r4]
+ 132              		.loc 1 35 16 view .LVU29
+ 133 0016 0260     		str	r2, [r0]
+  36:bsp/gpio/bsp_gpio.c ****     ins->GPIO_Pin = GPIO_config->GPIO_Pin;
+ 134              		.loc 1 36 5 is_stmt 1 view .LVU30
+ 135              		.loc 1 36 32 is_stmt 0 view .LVU31
+ 136 0018 E288     		ldrh	r2, [r4, #6]
+ 137              		.loc 1 36 19 view .LVU32
+ 138 001a C280     		strh	r2, [r0, #6]	@ movhi
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s 			page 4
+
+
+  37:bsp/gpio/bsp_gpio.c ****     ins->pin_state = GPIO_config->pin_state;
+ 139              		.loc 1 37 5 is_stmt 1 view .LVU33
+ 140              		.loc 1 37 33 is_stmt 0 view .LVU34
+ 141 001c 2279     		ldrb	r2, [r4, #4]	@ zero_extendqisi2
+ 142              		.loc 1 37 20 view .LVU35
+ 143 001e 0271     		strb	r2, [r0, #4]
+  38:bsp/gpio/bsp_gpio.c ****     ins->exti_mode = GPIO_config->exti_mode;
+ 144              		.loc 1 38 5 is_stmt 1 view .LVU36
+ 145              		.loc 1 38 33 is_stmt 0 view .LVU37
+ 146 0020 6279     		ldrb	r2, [r4, #5]	@ zero_extendqisi2
+ 147              		.loc 1 38 20 view .LVU38
+ 148 0022 4271     		strb	r2, [r0, #5]
+  39:bsp/gpio/bsp_gpio.c ****     ins->id = GPIO_config->id;
+ 149              		.loc 1 39 5 is_stmt 1 view .LVU39
+ 150              		.loc 1 39 26 is_stmt 0 view .LVU40
+ 151 0024 E268     		ldr	r2, [r4, #12]
+ 152              		.loc 1 39 13 view .LVU41
+ 153 0026 C260     		str	r2, [r0, #12]
+  40:bsp/gpio/bsp_gpio.c ****     ins->gpio_model_callback = GPIO_config->gpio_model_callback;
+ 154              		.loc 1 40 5 is_stmt 1 view .LVU42
+ 155              		.loc 1 40 43 is_stmt 0 view .LVU43
+ 156 0028 A268     		ldr	r2, [r4, #8]
+ 157              		.loc 1 40 30 view .LVU44
+ 158 002a 8260     		str	r2, [r0, #8]
+  41:bsp/gpio/bsp_gpio.c ****     gpio_instance[idx++] = ins;
+ 159              		.loc 1 41 5 is_stmt 1 view .LVU45
+ 160              		.loc 1 41 22 is_stmt 0 view .LVU46
+ 161 002c 0349     		ldr	r1, .L11
+ 162 002e 0A78     		ldrb	r2, [r1]	@ zero_extendqisi2
+ 163 0030 541C     		adds	r4, r2, #1
+ 164              	.LVL10:
+ 165              		.loc 1 41 22 view .LVU47
+ 166 0032 0C70     		strb	r4, [r1]
+ 167              		.loc 1 41 26 view .LVU48
+ 168 0034 0249     		ldr	r1, .L11+4
+ 169 0036 41F82200 		str	r0, [r1, r2, lsl #2]
+  42:bsp/gpio/bsp_gpio.c ****     return ins;
+ 170              		.loc 1 42 5 is_stmt 1 view .LVU49
+  43:bsp/gpio/bsp_gpio.c **** }
+ 171              		.loc 1 43 1 is_stmt 0 view .LVU50
+ 172 003a 10BD     		pop	{r4, pc}
+ 173              	.L12:
+ 174              		.align	2
+ 175              	.L11:
+ 176 003c 00000000 		.word	idx
+ 177 0040 00000000 		.word	gpio_instance
+ 178              		.cfi_endproc
+ 179              	.LFE351:
+ 181              		.section	.text.GPIOToggel,"ax",%progbits
+ 182              		.align	1
+ 183              		.global	GPIOToggel
+ 184              		.syntax unified
+ 185              		.thumb
+ 186              		.thumb_func
+ 188              	GPIOToggel:
+ 189              	.LVL11:
+ 190              	.LFB352:
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s 			page 5
+
+
+  44:bsp/gpio/bsp_gpio.c **** 
+  45:bsp/gpio/bsp_gpio.c **** // ----------------- GPIO API -----------------
+  46:bsp/gpio/bsp_gpio.c **** // 都是对HAL的形式上的封装,后续考虑增加GPIO state变量,可以直接读取state
+  47:bsp/gpio/bsp_gpio.c **** 
+  48:bsp/gpio/bsp_gpio.c **** void GPIOToggel(GPIOInstance *_instance)
+  49:bsp/gpio/bsp_gpio.c **** {
+ 191              		.loc 1 49 1 is_stmt 1 view -0
+ 192              		.cfi_startproc
+ 193              		@ args = 0, pretend = 0, frame = 0
+ 194              		@ frame_needed = 0, uses_anonymous_args = 0
+ 195              		.loc 1 49 1 is_stmt 0 view .LVU52
+ 196 0000 08B5     		push	{r3, lr}
+ 197              	.LCFI2:
+ 198              		.cfi_def_cfa_offset 8
+ 199              		.cfi_offset 3, -8
+ 200              		.cfi_offset 14, -4
+  50:bsp/gpio/bsp_gpio.c ****     HAL_GPIO_TogglePin(_instance->GPIOx, _instance->GPIO_Pin);
+ 201              		.loc 1 50 5 is_stmt 1 view .LVU53
+ 202 0002 C188     		ldrh	r1, [r0, #6]
+ 203 0004 0068     		ldr	r0, [r0]
+ 204              	.LVL12:
+ 205              		.loc 1 50 5 is_stmt 0 view .LVU54
+ 206 0006 FFF7FEFF 		bl	HAL_GPIO_TogglePin
+ 207              	.LVL13:
+  51:bsp/gpio/bsp_gpio.c **** }
+ 208              		.loc 1 51 1 view .LVU55
+ 209 000a 08BD     		pop	{r3, pc}
+ 210              		.cfi_endproc
+ 211              	.LFE352:
+ 213              		.section	.text.GPIOSet,"ax",%progbits
+ 214              		.align	1
+ 215              		.global	GPIOSet
+ 216              		.syntax unified
+ 217              		.thumb
+ 218              		.thumb_func
+ 220              	GPIOSet:
+ 221              	.LVL14:
+ 222              	.LFB353:
+  52:bsp/gpio/bsp_gpio.c **** 
+  53:bsp/gpio/bsp_gpio.c **** void GPIOSet(GPIOInstance *_instance)
+  54:bsp/gpio/bsp_gpio.c **** {
+ 223              		.loc 1 54 1 is_stmt 1 view -0
+ 224              		.cfi_startproc
+ 225              		@ args = 0, pretend = 0, frame = 0
+ 226              		@ frame_needed = 0, uses_anonymous_args = 0
+ 227              		.loc 1 54 1 is_stmt 0 view .LVU57
+ 228 0000 08B5     		push	{r3, lr}
+ 229              	.LCFI3:
+ 230              		.cfi_def_cfa_offset 8
+ 231              		.cfi_offset 3, -8
+ 232              		.cfi_offset 14, -4
+  55:bsp/gpio/bsp_gpio.c ****     HAL_GPIO_WritePin(_instance->GPIOx, _instance->GPIO_Pin, GPIO_PIN_SET);
+ 233              		.loc 1 55 5 is_stmt 1 view .LVU58
+ 234 0002 0122     		movs	r2, #1
+ 235 0004 C188     		ldrh	r1, [r0, #6]
+ 236 0006 0068     		ldr	r0, [r0]
+ 237              	.LVL15:
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s 			page 6
+
+
+ 238              		.loc 1 55 5 is_stmt 0 view .LVU59
+ 239 0008 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 240              	.LVL16:
+  56:bsp/gpio/bsp_gpio.c **** }
+ 241              		.loc 1 56 1 view .LVU60
+ 242 000c 08BD     		pop	{r3, pc}
+ 243              		.cfi_endproc
+ 244              	.LFE353:
+ 246              		.section	.text.GPIOReset,"ax",%progbits
+ 247              		.align	1
+ 248              		.global	GPIOReset
+ 249              		.syntax unified
+ 250              		.thumb
+ 251              		.thumb_func
+ 253              	GPIOReset:
+ 254              	.LVL17:
+ 255              	.LFB354:
+  57:bsp/gpio/bsp_gpio.c **** 
+  58:bsp/gpio/bsp_gpio.c **** void GPIOReset(GPIOInstance *_instance)
+  59:bsp/gpio/bsp_gpio.c **** {
+ 256              		.loc 1 59 1 is_stmt 1 view -0
+ 257              		.cfi_startproc
+ 258              		@ args = 0, pretend = 0, frame = 0
+ 259              		@ frame_needed = 0, uses_anonymous_args = 0
+ 260              		.loc 1 59 1 is_stmt 0 view .LVU62
+ 261 0000 08B5     		push	{r3, lr}
+ 262              	.LCFI4:
+ 263              		.cfi_def_cfa_offset 8
+ 264              		.cfi_offset 3, -8
+ 265              		.cfi_offset 14, -4
+  60:bsp/gpio/bsp_gpio.c ****     HAL_GPIO_WritePin(_instance->GPIOx, _instance->GPIO_Pin, GPIO_PIN_RESET);
+ 266              		.loc 1 60 5 is_stmt 1 view .LVU63
+ 267 0002 0022     		movs	r2, #0
+ 268 0004 C188     		ldrh	r1, [r0, #6]
+ 269 0006 0068     		ldr	r0, [r0]
+ 270              	.LVL18:
+ 271              		.loc 1 60 5 is_stmt 0 view .LVU64
+ 272 0008 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 273              	.LVL19:
+  61:bsp/gpio/bsp_gpio.c **** }
+ 274              		.loc 1 61 1 view .LVU65
+ 275 000c 08BD     		pop	{r3, pc}
+ 276              		.cfi_endproc
+ 277              	.LFE354:
+ 279              		.section	.text.GPIORead,"ax",%progbits
+ 280              		.align	1
+ 281              		.global	GPIORead
+ 282              		.syntax unified
+ 283              		.thumb
+ 284              		.thumb_func
+ 286              	GPIORead:
+ 287              	.LVL20:
+ 288              	.LFB355:
+  62:bsp/gpio/bsp_gpio.c **** 
+  63:bsp/gpio/bsp_gpio.c **** GPIO_PinState GPIORead(GPIOInstance *_instance)
+  64:bsp/gpio/bsp_gpio.c **** {
+ 289              		.loc 1 64 1 is_stmt 1 view -0
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s 			page 7
+
+
+ 290              		.cfi_startproc
+ 291              		@ args = 0, pretend = 0, frame = 0
+ 292              		@ frame_needed = 0, uses_anonymous_args = 0
+ 293              		.loc 1 64 1 is_stmt 0 view .LVU67
+ 294 0000 08B5     		push	{r3, lr}
+ 295              	.LCFI5:
+ 296              		.cfi_def_cfa_offset 8
+ 297              		.cfi_offset 3, -8
+ 298              		.cfi_offset 14, -4
+  65:bsp/gpio/bsp_gpio.c ****     return HAL_GPIO_ReadPin(_instance->GPIOx, _instance->GPIO_Pin);
+ 299              		.loc 1 65 5 is_stmt 1 view .LVU68
+ 300              		.loc 1 65 12 is_stmt 0 view .LVU69
+ 301 0002 C188     		ldrh	r1, [r0, #6]
+ 302 0004 0068     		ldr	r0, [r0]
+ 303              	.LVL21:
+ 304              		.loc 1 65 12 view .LVU70
+ 305 0006 FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 306              	.LVL22:
+  66:bsp/gpio/bsp_gpio.c **** }
+ 307              		.loc 1 66 1 view .LVU71
+ 308 000a 08BD     		pop	{r3, pc}
+ 309              		.cfi_endproc
+ 310              	.LFE355:
+ 312              		.section	.bss.gpio_instance,"aw",%nobits
+ 313              		.align	2
+ 316              	gpio_instance:
+ 317 0000 00000000 		.space	40
+ 317      00000000 
+ 317      00000000 
+ 317      00000000 
+ 317      00000000 
+ 318              		.section	.bss.idx,"aw",%nobits
+ 321              	idx:
+ 322 0000 00       		.space	1
+ 323              		.text
+ 324              	.Letext0:
+ 325              		.file 2 "D:/14.3 rel1/arm-none-eabi/include/machine/_default_types.h"
+ 326              		.file 3 "D:/14.3 rel1/arm-none-eabi/include/sys/_stdint.h"
+ 327              		.file 4 "Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h723xx.h"
+ 328              		.file 5 "D:/14.3 rel1/lib/gcc/arm-none-eabi/15.2.1/include/stddef.h"
+ 329              		.file 6 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_gpio.h"
+ 330              		.file 7 "bsp/gpio/bsp_gpio.h"
+ 331              		.file 8 "D:/14.3 rel1/arm-none-eabi/include/string.h"
+ 332              		.file 9 "D:/14.3 rel1/arm-none-eabi/include/stdlib.h"
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s 			page 8
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 bsp_gpio.c
+C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s:20     .text.HAL_GPIO_EXTI_Callback:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s:26     .text.HAL_GPIO_EXTI_Callback:00000000 HAL_GPIO_EXTI_Callback
+C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s:90     .text.HAL_GPIO_EXTI_Callback:00000028 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s:321    .bss.idx:00000000 idx
+C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s:316    .bss.gpio_instance:00000000 gpio_instance
+C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s:96     .text.GPIORegister:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s:102    .text.GPIORegister:00000000 GPIORegister
+C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s:176    .text.GPIORegister:0000003c $d
+C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s:182    .text.GPIOToggel:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s:188    .text.GPIOToggel:00000000 GPIOToggel
+C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s:214    .text.GPIOSet:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s:220    .text.GPIOSet:00000000 GPIOSet
+C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s:247    .text.GPIOReset:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s:253    .text.GPIOReset:00000000 GPIOReset
+C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s:280    .text.GPIORead:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s:286    .text.GPIORead:00000000 GPIORead
+C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s:313    .bss.gpio_instance:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\cc7ttBuT.s:322    .bss.idx:00000000 $d
+
+UNDEFINED SYMBOLS
+malloc
+HAL_GPIO_TogglePin
+HAL_GPIO_WritePin
+HAL_GPIO_ReadPin

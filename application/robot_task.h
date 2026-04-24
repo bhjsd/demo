@@ -9,12 +9,11 @@
 #include "robot.h"
 #include "ins_task.h"
 #include "motor_task.h"
-#include "referee_task.h"
 #include "master_process.h"
 #include "daemon.h"
-#include "HT04.h"
-#include "buzzer.h"
 #include "dmmotor.h"
+#include "laser_task.h"
+
 
 #include "bsp_log.h"
 
@@ -23,13 +22,14 @@ osThreadId robotTaskHandle;
 osThreadId motorTaskHandle;
 osThreadId daemonTaskHandle;
 osThreadId uiTaskHandle;
+osThreadId laserTaskHandle;
 
-void StartINSTASK(void const *argument);
-void StartMOTORTASK(void const *argument);
-void StartDAEMONTASK(void const *argument);
-void StartROBOTTASK(void const *argument);
-void StartUITASK(void const *argument);
-
+void StartINSTASK(void *argument);
+void StartMOTORTASK(void *argument);
+void StartDAEMONTASK(void *argument);
+void StartROBOTTASK(void *argument);
+void StartUITASK(void *argument);
+void StartLASERTASK(void *argument);
 /**
  * @brief 初始化机器人任务,所有持续运行的任务都在这里初始化
  *
@@ -71,13 +71,21 @@ void OSTaskInit()
     //     .priority   = osPriorityNormal,
     // };
     // uiTaskHandle = osThreadNew(StartUITASK, NULL, &uitask_attr);
+
+    const osThreadAttr_t lasertask_attr = {
+        .name       = "lasertask",
+        .stack_size = 512 * 4,
+        .priority   = osPriorityNormal,
+    };
+    laserTaskHandle = osThreadNew(StartLASERTASK, NULL, &lasertask_attr);
      DMMotorControlInit(); // 初始化大电机
 
 
 }
 
-__attribute__((noreturn)) void StartINSTASK(void const *argument)
+__attribute__((noreturn)) void StartINSTASK(void *argument)
 {
+    UNUSED(argument);
     static float ins_start;
     static float ins_dt;
     INS_Init(); // 确保BMI088被正确初始化.
@@ -94,8 +102,9 @@ __attribute__((noreturn)) void StartINSTASK(void const *argument)
     }
 }
 
-__attribute__((noreturn)) void StartMOTORTASK(void const *argument)
+__attribute__((noreturn)) void StartMOTORTASK(void *argument)
 {
+    UNUSED(argument);
     static float motor_dt;
     static float motor_start;
     LOGINFO("[freeRTOS] MOTOR Task Start");
@@ -110,18 +119,17 @@ __attribute__((noreturn)) void StartMOTORTASK(void const *argument)
     }
 }
 
-__attribute__((noreturn)) void StartDAEMONTASK(void const *argument)
+__attribute__((noreturn)) void StartDAEMONTASK(void *argument)
 {
+    UNUSED(argument);
     static float daemon_dt;
     static float daemon_start;
-    BuzzerInit();
     LOGINFO("[freeRTOS] Daemon Task Start");
     for (;;)
     {
         // 100Hz
         daemon_start = DWT_GetTimeline_ms();
         DaemonTask();
-        BuzzerTask();
         daemon_dt = DWT_GetTimeline_ms() - daemon_start;
         if (daemon_dt > 10)
             LOGERROR("[freeRTOS] Daemon Task is being DELAY! dt = [%f]", &daemon_dt);
@@ -129,8 +137,9 @@ __attribute__((noreturn)) void StartDAEMONTASK(void const *argument)
     }
 }
 
-__attribute__((noreturn)) void StartROBOTTASK(void const *argument)
+__attribute__((noreturn)) void StartROBOTTASK(void *argument)
 {
+    UNUSED(argument);
     static float robot_dt;
     static float robot_start;
     LOGINFO("[freeRTOS] ROBOT core Task Start");
@@ -146,15 +155,23 @@ __attribute__((noreturn)) void StartROBOTTASK(void const *argument)
     }
 }
 
-__attribute__((noreturn)) void StartUITASK(void const *argument)
+__attribute__((noreturn)) void StartUITASK(void *argument)
 {
+    UNUSED(argument);
     LOGINFO("[freeRTOS] UI Task Start");
-    MyUIInit();
-    LOGINFO("[freeRTOS] UI Init Done, communication with ref has established");
     for (;;)
     {
-        // 每给裁判系统发送一包数据会挂起一次,详见UITask函数的refereeSend()
-        UITask();
-        osDelay(1); // 即使没有任何UI需要刷新,也挂起一次,防止卡在UITask中无法切换
+        osDelay(1000);
+    }
+}
+
+__attribute__((noreturn)) void StartLASERTASK(void *argument)
+{
+    UNUSED(argument);
+    LOGINFO("[freeRTOS] LASER Task Start");
+    for (;;)
+    {
+        LaserCtrl_Task();
+        osDelay(1);
     }
 }

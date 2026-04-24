@@ -1,4 +1,4 @@
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccB66Kjf.s 			page 1
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccaUMVFJ.s 			page 1
 
 
    1              		.cpu cortex-m7
@@ -58,7 +58,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccB66Kjf.s 			page 1
   28:Core/Src/freertos.c **** 
   29:Core/Src/freertos.c **** /* USER CODE END Includes */
   30:Core/Src/freertos.c **** 
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccB66Kjf.s 			page 2
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccaUMVFJ.s 			page 2
 
 
   31:Core/Src/freertos.c **** /* Private typedef -----------------------------------------------------------*/
@@ -84,7 +84,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccB66Kjf.s 			page 1
   51:Core/Src/freertos.c **** osThreadId_t defaultTaskHandle;
   52:Core/Src/freertos.c **** const osThreadAttr_t defaultTask_attributes = {
   53:Core/Src/freertos.c ****   .name = "defaultTask",
-  54:Core/Src/freertos.c ****   .stack_size = 3584 * 4,
+  54:Core/Src/freertos.c ****   .stack_size = 3584 * 4,//14KB
   55:Core/Src/freertos.c ****   .priority = (osPriority_t) osPriorityNormal,
   56:Core/Src/freertos.c **** };
   57:Core/Src/freertos.c **** 
@@ -118,7 +118,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccB66Kjf.s 			page 1
   85:Core/Src/freertos.c **** 
   86:Core/Src/freertos.c ****   /* USER CODE BEGIN RTOS_TIMERS */
   87:Core/Src/freertos.c ****   /* start timers, add new ones, ... */
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccB66Kjf.s 			page 3
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccaUMVFJ.s 			page 3
 
 
   88:Core/Src/freertos.c ****   /* USER CODE END RTOS_TIMERS */
@@ -178,7 +178,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccB66Kjf.s 			page 1
   47 0008 FFF7FEFF 		bl	osDelay
   48              	.LVL2:
  121:Core/Src/freertos.c ****   {
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccB66Kjf.s 			page 4
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccaUMVFJ.s 			page 4
 
 
   49              		.loc 1 121 3 view .LVU5
@@ -238,7 +238,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccB66Kjf.s 			page 1
   99              		.align	2
  102              	defaultTask_attributes:
  103 0000 00000000 		.word	.LC0
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccB66Kjf.s 			page 5
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccaUMVFJ.s 			page 5
 
 
  104 0004 00000000 		.space	16
@@ -259,21 +259,21 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccB66Kjf.s 			page 1
  117              		.file 2 "D:/14.3 rel1/arm-none-eabi/include/machine/_default_types.h"
  118              		.file 3 "D:/14.3 rel1/arm-none-eabi/include/sys/_stdint.h"
  119              		.file 4 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h"
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccB66Kjf.s 			page 6
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccaUMVFJ.s 			page 6
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 freertos.c
-C:\Users\ADMINI~1\AppData\Local\Temp\ccB66Kjf.s:20     .text.StartDefaultTask:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccB66Kjf.s:26     .text.StartDefaultTask:00000000 StartDefaultTask
-C:\Users\ADMINI~1\AppData\Local\Temp\ccB66Kjf.s:55     .text.MX_FREERTOS_Init:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccB66Kjf.s:61     .text.MX_FREERTOS_Init:00000000 MX_FREERTOS_Init
-C:\Users\ADMINI~1\AppData\Local\Temp\ccB66Kjf.s:87     .text.MX_FREERTOS_Init:00000014 $d
-C:\Users\ADMINI~1\AppData\Local\Temp\ccB66Kjf.s:102    .rodata.defaultTask_attributes:00000000 defaultTask_attributes
-C:\Users\ADMINI~1\AppData\Local\Temp\ccB66Kjf.s:113    .bss.defaultTaskHandle:00000000 defaultTaskHandle
-C:\Users\ADMINI~1\AppData\Local\Temp\ccB66Kjf.s:95     .rodata.str1.4:00000000 $d
-C:\Users\ADMINI~1\AppData\Local\Temp\ccB66Kjf.s:99     .rodata.defaultTask_attributes:00000000 $d
-C:\Users\ADMINI~1\AppData\Local\Temp\ccB66Kjf.s:110    .bss.defaultTaskHandle:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccaUMVFJ.s:20     .text.StartDefaultTask:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccaUMVFJ.s:26     .text.StartDefaultTask:00000000 StartDefaultTask
+C:\Users\ADMINI~1\AppData\Local\Temp\ccaUMVFJ.s:55     .text.MX_FREERTOS_Init:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccaUMVFJ.s:61     .text.MX_FREERTOS_Init:00000000 MX_FREERTOS_Init
+C:\Users\ADMINI~1\AppData\Local\Temp\ccaUMVFJ.s:87     .text.MX_FREERTOS_Init:00000014 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccaUMVFJ.s:102    .rodata.defaultTask_attributes:00000000 defaultTask_attributes
+C:\Users\ADMINI~1\AppData\Local\Temp\ccaUMVFJ.s:113    .bss.defaultTaskHandle:00000000 defaultTaskHandle
+C:\Users\ADMINI~1\AppData\Local\Temp\ccaUMVFJ.s:95     .rodata.str1.4:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccaUMVFJ.s:99     .rodata.defaultTask_attributes:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccaUMVFJ.s:110    .bss.defaultTaskHandle:00000000 $d
 
 UNDEFINED SYMBOLS
 MX_USB_DEVICE_Init

@@ -45,6 +45,11 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN 0 */
 
+__attribute__((section(".dma_buffer"), aligned(4))) volatile uint32_t g_usb_connect_count = 0U;
+__attribute__((section(".dma_buffer"), aligned(4))) volatile uint32_t g_usb_disconnect_count = 0U;
+__attribute__((section(".dma_buffer"), aligned(4))) volatile uint32_t g_usb_reset_count = 0U;
+__attribute__((section(".dma_buffer"), aligned(4))) volatile uint32_t g_usb_link_state = 0U; /* 0:unknown 1:connected 2:disconnected */
+
 /* USER CODE END 0 */
 
 /* USER CODE BEGIN PFP */
@@ -65,6 +70,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status);
 
 void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
 {
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
   if(pcdHandle->Instance==USB_OTG_HS)
   {
@@ -84,6 +90,26 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
   /** Enable USB Voltage detector
   */
     HAL_PWREx_EnableUSBVoltageDetector();
+
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+
+    /**USB_OTG_HS GPIO Configuration
+    PA11     ------> USB_OTG_HS_DM
+    PA12     ------> USB_OTG_HS_DP
+    PC8      ------> USB_OTG_HS_VBUS
+    */
+    GPIO_InitStruct.Pin = GPIO_PIN_11|GPIO_PIN_12;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF10_OTG1_FS;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Pin = GPIO_PIN_8;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
     /* Peripheral clock enable */
     __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
@@ -109,6 +135,9 @@ void HAL_PCD_MspDeInit(PCD_HandleTypeDef* pcdHandle)
 
     /* Peripheral interrupt Deinit*/
     HAL_NVIC_DisableIRQ(OTG_HS_IRQn);
+
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_11|GPIO_PIN_12);
+    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_8);
 
   /* USER CODE BEGIN USB_OTG_HS_MspDeInit 1 */
 
@@ -185,6 +214,7 @@ static void PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
 void HAL_PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
 #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
 {
+  g_usb_reset_count++;
   USBD_SpeedTypeDef speed = USBD_SPEED_FULL;
 
   if ( hpcd->Init.speed == PCD_SPEED_HIGH)
@@ -290,6 +320,8 @@ static void PCD_ConnectCallback(PCD_HandleTypeDef *hpcd)
 void HAL_PCD_ConnectCallback(PCD_HandleTypeDef *hpcd)
 #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
 {
+  g_usb_connect_count++;
+  g_usb_link_state = 1U;
   USBD_LL_DevConnected((USBD_HandleTypeDef*)hpcd->pData);
 }
 
@@ -304,6 +336,8 @@ static void PCD_DisconnectCallback(PCD_HandleTypeDef *hpcd)
 void HAL_PCD_DisconnectCallback(PCD_HandleTypeDef *hpcd)
 #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
 {
+  g_usb_disconnect_count++;
+  g_usb_link_state = 2U;
   USBD_LL_DevDisconnected((USBD_HandleTypeDef*)hpcd->pData);
 }
 

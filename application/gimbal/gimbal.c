@@ -7,6 +7,7 @@
 #include "general_def.h"
 #include "bmi088.h"
 #include "vofa.h"
+#include "param_config.h"
 
 static attitude_t *gimba_IMU_data; // 云台IMU数据
 
@@ -19,17 +20,20 @@ static DJIMotorInstance *yaw_motor;  // 云台yaw电机实例
 static DMMotorInstance *pitch_motor; // 云台pitch电机实例
 
 static float yaw_speed_feedforward = 0.0f; // yaw电机的速度前馈
-static float yaw_current_feedforward_abs = 500.0f;
+static float yaw_current_feedforward_abs = PARAM_YAW_CURRENT_FEEDFORWARD_ABS;
 static float yaw_current_feedforward = 0.0f; // yaw电机的电流前馈
 
 static float yaw_last_ref = 0.0f; // 上一次yaw电机的设定值,用于计算前馈
 
-static BMI088Instance *bmi088; // 云台IMU
 void GimbalInit()//云台初始化
 {
-    HAL_GPIO_WritePin(POWER_24V_1_GPIO_Port, POWER_24V_1_Pin, GPIO_PIN_SET);//
+#ifdef POWER_24V_1_GPIO_Port
+    HAL_GPIO_WritePin(POWER_24V_1_GPIO_Port, POWER_24V_1_Pin, GPIO_PIN_SET);
+#endif
     gimba_IMU_data = INS_Init(); // IMU先初始化,获取姿态数据指针赋给yaw电机的其他数据来源
+#ifdef POWER_24V_1_GPIO_Port
     HAL_GPIO_WritePin(POWER_24V_1_GPIO_Port, POWER_24V_1_Pin, GPIO_PIN_RESET);
+#endif
     gimbal_pub = PubRegister("gimbal_feed", sizeof(Gimbal_Upload_Data_s));
     gimbal_sub = SubRegister("gimbal_cmd", sizeof(Gimbal_Ctrl_Cmd_s));
 
@@ -39,23 +43,23 @@ void GimbalInit()//云台初始化
         .can_init_config.tx_id = 0x01,
         .controller_param_init_config = {
             .angle_PID = {
-                .Kp = 0.3,
-                .Ki = 0.8,
-                .Kd = 0.005,
-                .IntegralLimit = 20,
+                .Kp = PARAM_YAW_ANGLE_KP,
+                .Ki = PARAM_YAW_ANGLE_KI,
+                .Kd = PARAM_YAW_ANGLE_KD,
+                .IntegralLimit = PARAM_YAW_ANGLE_INT_LIMIT,
                 .CoefA = 15.0f,
                 .CoefB = 1.0f,
                 .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On_Measurement | PID_ChangingIntegrationRate,
-                .MaxOut = 20,
+                .MaxOut = PARAM_YAW_ANGLE_MAX_OUT,
             },
             .speed_PID = {
-                .Kp = 1200,
-                .Ki = 0,
-                .Kd = 3,
-                .IntegralLimit = 16000,
+                .Kp = PARAM_YAW_SPEED_KP,
+                .Ki = PARAM_YAW_SPEED_KI,
+                .Kd = PARAM_YAW_SPEED_KD,
+                .IntegralLimit = PARAM_YAW_SPEED_INT_LIMIT,
                 .Output_LPF_RC = 0.001,
                 .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On_Measurement | PID_OutputFilter,
-                .MaxOut = 16000,
+                .MaxOut = PARAM_YAW_SPEED_MAX_OUT,
             },
             .other_angle_feedback_ptr = &gimba_IMU_data->YawTotalAngle,
             .other_speed_feedback_ptr = &gimba_IMU_data->Gyro[2],
@@ -81,20 +85,20 @@ void GimbalInit()//云台初始化
         },
         .controller_param_init_config = {
             .angle_PID = {
-                .Kp = 1,
-                .Ki = 0,
-                .Kd = 0.005,
+                .Kp = PARAM_PITCH_ANGLE_KP,
+                .Ki = PARAM_PITCH_ANGLE_KI,
+                .Kd = PARAM_PITCH_ANGLE_KD,
                 .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On_Measurement | PID_OutputFilter | PID_DerivativeFilter,
-                .IntegralLimit = 10,
-                .MaxOut = 10,
+                .IntegralLimit = PARAM_PITCH_ANGLE_INT_LIMIT,
+                .MaxOut = PARAM_PITCH_ANGLE_MAX_OUT,
             },
             .speed_PID = {
-                .Kp = 0.8,
-                .Ki = 0,
-                .Kd = 0,
+                .Kp = PARAM_PITCH_SPEED_KP,
+                .Ki = PARAM_PITCH_SPEED_KI,
+                .Kd = PARAM_PITCH_SPEED_KD,
                 .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On_Measurement,
-                .IntegralLimit = 0.1,
-                .MaxOut = 1,
+                .IntegralLimit = PARAM_PITCH_SPEED_INT_LIMIT,
+                .MaxOut = PARAM_PITCH_SPEED_MAX_OUT,
             },
             .other_angle_feedback_ptr = &gimba_IMU_data->Pitch,
             // 还需要增加角速度额外反馈指针,注意方向,ins_task.md中有c板的bodyframe坐标系说明
@@ -134,18 +138,18 @@ void GimbalTask()
         DJIMotorEnable(yaw_motor);
         DMMotorEnable(pitch_motor);
 
-        yaw_speed_feedforward = DEGREE_2_RAD * (gimbal_cmd_recv.yaw - yaw_last_ref) * 500.0f;
-        LIMIT_MIN_MAX(yaw_speed_feedforward, -10.0f, 10.0f); // 限制前馈值
+        yaw_speed_feedforward = DEGREE_2_RAD * (gimbal_cmd_recv.yaw - yaw_last_ref) * PARAM_YAW_SPEED_FEEDFORWARD_SCALE;
+        LIMIT_MIN_MAX(yaw_speed_feedforward, -PARAM_YAW_SPEED_FEEDFORWARD_LIMIT, PARAM_YAW_SPEED_FEEDFORWARD_LIMIT); // 限制前馈值
         yaw_last_ref = gimbal_cmd_recv.yaw;                  // 更新上一次的参考值
         DJIMotorSetRef(yaw_motor, gimbal_cmd_recv.yaw);      // yaw和pitch会在robot_cmd中处理好多圈和单圈
         DMMotorSetRef(pitch_motor, gimbal_cmd_recv.pitch);
         if (yaw_motor->motor_controller.speed_PID.Ref >= 0.5f)
         {
-            yaw_current_feedforward = 500.0f; // 前馈电流
+            yaw_current_feedforward = PARAM_YAW_CURRENT_FEEDFORWARD_ABS; // 前馈电流
         }
         else if (yaw_motor->motor_controller.speed_PID.Ref <= -0.5f)
         {
-            yaw_current_feedforward = -500.0f; // 前馈电流
+            yaw_current_feedforward = -PARAM_YAW_CURRENT_FEEDFORWARD_ABS; // 前馈电流
         }
         else
         {

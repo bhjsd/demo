@@ -1,4 +1,4 @@
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 1
 
 
    1              		.cpu cortex-m7
@@ -58,7 +58,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
   28:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   */
   29:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** 
   30:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** 
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 2
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 2
 
 
   31:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** /** @defgroup USBD_CORE
@@ -118,7 +118,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
   85:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   * @brief  USBD_Init
   86:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   *         Initialize the device stack and load the class driver
   87:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   * @param  pdev: device instance
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 3
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 3
 
 
   88:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   * @param  pdesc: Descriptor structure address
@@ -178,7 +178,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
   48              		.loc 1 121 19 view .LVU7
   49 0008 C3F8B802 		str	r0, [r3, #696]
  122:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   pdev->pUserData[0] = NULL;
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 4
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 4
 
 
   50              		.loc 1 122 3 is_stmt 1 view .LVU8
@@ -238,7 +238,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
   85              		.cfi_restore 14
  103:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   }
   86              		.loc 1 103 12 view .LVU25
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 5
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 5
 
 
   87 002a 0320     		movs	r0, #3
@@ -298,7 +298,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  161:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   for (uint32_t i = 0; i < USBD_MAX_SUPPORTED_CLASS; i++)
  162:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   {
  163:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****     /* Check if current class is in use */
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 6
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 6
 
 
  164:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****     if ((pdev->tclasslist[i].Active) == 1U)
@@ -358,7 +358,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  151 002c FFF7FEFF 		bl	USBD_LL_DeInit
  152              	.LVL9:
  191:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** 
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 7
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 7
 
 
  192:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   return ret;
@@ -418,7 +418,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  210:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** #endif /* (USBD_DEBUG_LEVEL > 1U) */
  211:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****     return USBD_FAIL;
  212:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   }
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 8
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 8
 
 
  213:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** 
@@ -478,7 +478,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  224 0036 0020     		movs	r0, #0
  225              	.LVL13:
  226              	.L13:
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 9
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 9
 
 
  234:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** }
@@ -538,7 +538,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  259:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** 
  260:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****       pdev->tclasslist[pdev->classId].EpAdd = EpAddr;
  261:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** 
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 10
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 10
 
 
  262:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****       /* Call the composite class builder */
@@ -598,7 +598,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  316:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****         if (pdev->pClass[pdev->classId]->DeInit(pdev, (uint8_t)pdev->dev_config) != 0U)
  317:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****         {
  318:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** #if (USBD_DEBUG_LEVEL > 1U)
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 11
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 11
 
 
  319:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****           USBD_ErrLog("Class DeInit didn't succeed!, can't unregister selected class");
@@ -658,7 +658,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  373:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** 
  374:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   return USBD_OK;
  375:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** }
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 12
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 12
 
 
  376:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** #endif /* USBD_USER_REGISTER_CALLBACK */
@@ -718,7 +718,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  286              		.cfi_startproc
  287              		@ args = 0, pretend = 0, frame = 0
  288              		@ frame_needed = 0, uses_anonymous_args = 0
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 13
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 13
 
 
  289              		.loc 1 401 1 is_stmt 0 view .LVU83
@@ -778,7 +778,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  431:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   return USBD_OK;
  314              		.loc 1 431 3 is_stmt 1 view .LVU92
  432:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** }
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 14
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 14
 
 
  315              		.loc 1 432 1 is_stmt 0 view .LVU93
@@ -838,7 +838,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  349              		.global	USBD_SetClassConfig
  350              		.syntax unified
  351              		.thumb
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 15
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 15
 
 
  352              		.thumb_func
@@ -898,7 +898,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  489:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   {
  490:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****     /* Set configuration and Start the Class */
  491:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****     ret = (USBD_StatusTypeDef)pdev->pClass[0]->Init(pdev, cfgidx);
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 16
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 16
 
 
  374              		.loc 1 491 5 is_stmt 1 view .LVU106
@@ -958,7 +958,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  413              		.cfi_offset 14, -4
  507:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   USBD_StatusTypeDef ret = USBD_OK;
  414              		.loc 1 507 3 is_stmt 1 view .LVU115
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 17
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 17
 
 
  415              	.LVL29:
@@ -1018,7 +1018,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  440              		.align	1
  441              		.global	USBD_LL_SetupStage
  442              		.syntax unified
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 18
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 18
 
 
  443              		.thumb
@@ -1078,7 +1078,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  556:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   switch (pdev->request.bmRequest & 0x1FU)
  479              		.loc 1 556 3 is_stmt 1 view .LVU134
  480              		.loc 1 556 24 is_stmt 0 view .LVU135
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 19
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 19
 
 
  481 001c 94F8AA12 		ldrb	r1, [r4, #682]	@ zero_extendqisi2
@@ -1138,7 +1138,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  567:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****       break;
  512              		.loc 1 567 7 view .LVU145
  567:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****       break;
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 20
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 20
 
 
  513              		.loc 1 567 13 is_stmt 0 view .LVU146
@@ -1198,7 +1198,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  599:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****       if (pep->rem_length > pep->maxpacket)
  600:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****       {
  601:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****         pep->rem_length -= pep->maxpacket;
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 21
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 21
 
 
  602:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** 
@@ -1258,7 +1258,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  656:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****       {
  657:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****         if (pdev->pClass[idx]->DataOut != NULL)
  658:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****         {
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 22
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 22
 
 
  659:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****           pdev->classId = idx;
@@ -1318,7 +1318,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  713:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****           /* Prepare endpoint for premature end of transfer */
  714:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****           (void)USBD_LL_PrepareReceive(pdev, 0U, NULL, 0U);
  715:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****         }
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 23
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 23
 
 
  716:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****         else
@@ -1378,7 +1378,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  770:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   */
  771:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** USBD_StatusTypeDef USBD_LL_Reset(USBD_HandleTypeDef *pdev)
  772:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** {
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 24
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 24
 
 
  543              		.loc 1 772 1 view -0
@@ -1438,7 +1438,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  793:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** 
  794:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****         if (pdev->pClass[i]->DeInit != NULL)
  795:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****         {
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 25
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 25
 
 
  796:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****           if (pdev->pClass[i]->DeInit(pdev, (uint8_t)pdev->dev_config) != USBD_OK)
@@ -1498,7 +1498,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  606              		.loc 1 820 38 is_stmt 0 view .LVU176
  607 0038 0126     		movs	r6, #1
  608 003a A4F86461 		strh	r6, [r4, #356]	@ movhi
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 26
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 26
 
 
  821:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** 
@@ -1558,7 +1558,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  651              		.syntax unified
  652              		.thumb
  653              		.thumb_func
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 27
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 27
 
 
  655              	USBD_LL_SetSpeed:
@@ -1618,7 +1618,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  688              		@ frame_needed = 0, uses_anonymous_args = 0
  689              		@ link register save eliminated.
  855:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   if (pdev->dev_state != USBD_STATE_SUSPENDED)
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 28
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 28
 
 
  690              		.loc 1 855 3 view .LVU196
@@ -1678,7 +1678,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  729              		@ frame_needed = 0, uses_anonymous_args = 0
  730              		@ link register save eliminated.
  873:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   if (pdev->dev_state == USBD_STATE_SUSPENDED)
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 29
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 29
 
 
  731              		.loc 1 873 3 view .LVU208
@@ -1738,7 +1738,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  769              		@ frame_needed = 0, uses_anonymous_args = 0
  770              		.loc 1 888 1 is_stmt 0 view .LVU218
  771 0000 08B5     		push	{r3, lr}
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 30
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 30
 
 
  772              	.LCFI13:
@@ -1798,7 +1798,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  791              		.loc 1 910 21 is_stmt 0 view .LVU225
  792 000e D0F8B832 		ldr	r3, [r0, #696]
  910:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****     {
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 31
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 31
 
 
  793              		.loc 1 910 8 view .LVU226
@@ -1858,7 +1858,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  831              		.loc 1 933 3 is_stmt 1 view .LVU235
  832              		.loc 1 933 24 is_stmt 0 view .LVU236
  833 0002 D0F8D432 		ldr	r3, [r0, #724]
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 32
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 32
 
 
  834              		.loc 1 933 19 view .LVU237
@@ -1918,7 +1918,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  867              		.loc 1 935 12 view .LVU250
  868 0024 0320     		movs	r0, #3
  869              	.LVL67:
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 33
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 33
 
 
  935:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   }
@@ -1978,7 +1978,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  961:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****     return USBD_FAIL;
  962:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   }
  963:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** 
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 34
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 34
 
 
  964:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   if (pdev->dev_state == USBD_STATE_CONFIGURED)
@@ -2038,7 +2038,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  945              		.loc 1 972 10 view .LVU273
  946 0028 1846     		mov	r0, r3
  947              	.LVL77:
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 35
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 35
 
 
  972:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** }
@@ -2098,7 +2098,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  991:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   *         Handle device disconnection event
  992:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   * @param  pdev: device instance
  993:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   * @retval status
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 36
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 36
 
 
  994:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   */
@@ -2158,7 +2158,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  1012              		.loc 1 1023 9 view .LVU290
  1013 0010 0179     		ldrb	r1, [r0, #4]	@ zero_extendqisi2
  1014 0012 9847     		blx	r3
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 37
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 37
 
 
  1015              	.LVL82:
@@ -2218,7 +2218,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  1050              		@ frame_needed = 0, uses_anonymous_args = 0
  1051              		@ link register save eliminated.
 1042:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** #ifdef USE_USBD_COMPOSITE
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 38
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 38
 
 
 1043:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   /* Parse the table of classes in use */
@@ -2278,7 +2278,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
 1078:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   * @retval index of the class using the selected endpoint number. 0xFF if no class found.
 1079:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   */
 1080:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** uint8_t USBD_CoreFindEP(USBD_HandleTypeDef *pdev, uint8_t index)
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 39
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 39
 
 
 1081:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** {
@@ -2338,7 +2338,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  1098              	.LFB363:
  588:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   USBD_EndpointTypeDef *pep;
  1099              		.loc 1 588 1 is_stmt 1 view -0
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 40
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 40
 
 
  1100              		.cfi_startproc
@@ -2398,7 +2398,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  1140              		.loc 1 599 14 is_stmt 0 view .LVU323
  1141 0018 D0F85C11 		ldr	r1, [r0, #348]
  1142              	.LVL96:
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 41
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 41
 
 
  599:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****       {
@@ -2458,7 +2458,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  1183              		.loc 1 617 19 is_stmt 0 view .LVU337
  1184 004e 90F8AE12 		ldrb	r1, [r0, #686]	@ zero_extendqisi2
  1185 0052 FFF7FEFF 		bl	USBD_CoreFindIF
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 42
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 42
 
 
  1186              	.LVL102:
@@ -2518,7 +2518,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  1225 007c 1A69     		ldr	r2, [r3, #16]
  635:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****             {
  1226              		.loc 1 635 16 view .LVU353
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 43
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 43
 
 
  1227 007e 002A     		cmp	r2, #0
@@ -2578,7 +2578,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  1264              		.loc 1 657 12 view .LVU370
  1265 00aa 002A     		cmp	r2, #0
  1266 00ac B3D0     		beq	.L80
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 44
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 44
 
 
  659:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****           ret = (USBD_StatusTypeDef)pdev->pClass[idx]->DataOut(pdev, epnum);
@@ -2638,7 +2638,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  1312              		.cfi_offset 5, -8
  1313              		.cfi_offset 14, -4
  1314 0002 0446     		mov	r4, r0
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 45
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 45
 
 
  684:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****   USBD_StatusTypeDef ret;
@@ -2698,7 +2698,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  1352              	.L102:
  694:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****       {
  1353              		.loc 1 694 7 is_stmt 1 view .LVU399
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 46
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 46
 
 
  694:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****       {
@@ -2758,7 +2758,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  698:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** 
  1394              		.loc 1 698 9 is_stmt 1 view .LVU414
  698:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** 
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 47
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 47
 
 
  1395              		.loc 1 698 15 is_stmt 0 view .LVU415
@@ -2818,7 +2818,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  1437              	.LVL133:
  714:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****         }
  1438              		.loc 1 714 11 view .LVU428
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 48
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 48
 
 
  1439 0086 C5E7     		b	.L95
@@ -2878,7 +2878,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  746:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****       {
  1477              		.loc 1 746 15 is_stmt 0 view .LVU445
  1478 00aa 94F89C32 		ldrb	r3, [r4, #668]	@ zero_extendqisi2
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 49
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 49
 
 
  746:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****       {
@@ -2938,7 +2938,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  1520              		.thumb
  1521              		.thumb_func
  1523              	USBD_GetNextDesc:
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 50
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 50
 
 
  1524              	.LVL144:
@@ -2998,7 +2998,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
 1164:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****       pdesc = USBD_GetNextDesc((uint8_t *)pdesc, &ptr);
 1165:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c **** 
 1166:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****       if (pdesc->bDescriptorType == USB_DESC_TYPE_ENDPOINT)
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 51
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 51
 
 
 1167:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****       {
@@ -3058,7 +3058,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  1546              	.LVL146:
  1547              		.loc 1 1200 1 view .LVU469
  1548 000c 7047     		bx	lr
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 52
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 52
 
 
  1549              		.cfi_endproc
@@ -3118,7 +3118,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
 1162:Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c ****     {
  1593              		.loc 1 1162 5 is_stmt 1 view .LVU482
  1594              	.LVL148:
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 53
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 53
 
 
  1595              	.L109:
@@ -3178,7 +3178,7 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  1635              	.LVL153:
  1636              	.L111:
  1637              	.LCFI22:
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 54
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 54
 
 
  1638              		.cfi_def_cfa_offset 0
@@ -3204,59 +3204,59 @@ ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 1
  1656              		.file 5 "Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h"
  1657              		.file 6 "Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h"
  1658              		.file 7 "Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h"
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 55
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 55
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 usbd_core.c
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:20     .text.USBD_Init:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:26     .text.USBD_Init:00000000 USBD_Init
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:95     .text.USBD_DeInit:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:101    .text.USBD_DeInit:00000000 USBD_DeInit
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:161    .text.USBD_RegisterClass:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:167    .text.USBD_RegisterClass:00000000 USBD_RegisterClass
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:247    .text.USBD_Start:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:253    .text.USBD_Start:00000000 USBD_Start
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:276    .text.USBD_Stop:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:282    .text.USBD_Stop:00000000 USBD_Stop
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:323    .text.USBD_RunTestMode:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:329    .text.USBD_RunTestMode:00000000 USBD_RunTestMode
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:348    .text.USBD_SetClassConfig:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:354    .text.USBD_SetClassConfig:00000000 USBD_SetClassConfig
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:395    .text.USBD_ClrClassConfig:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:401    .text.USBD_ClrClassConfig:00000000 USBD_ClrClassConfig
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:440    .text.USBD_LL_SetupStage:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:446    .text.USBD_LL_SetupStage:00000000 USBD_LL_SetupStage
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:534    .text.USBD_LL_Reset:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:540    .text.USBD_LL_Reset:00000000 USBD_LL_Reset
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:649    .text.USBD_LL_SetSpeed:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:655    .text.USBD_LL_SetSpeed:00000000 USBD_LL_SetSpeed
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:676    .text.USBD_LL_Suspend:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:682    .text.USBD_LL_Suspend:00000000 USBD_LL_Suspend
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:717    .text.USBD_LL_Resume:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:723    .text.USBD_LL_Resume:00000000 USBD_LL_Resume
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:757    .text.USBD_LL_SOF:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:763    .text.USBD_LL_SOF:00000000 USBD_LL_SOF
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:812    .text.USBD_LL_IsoINIncomplete:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:818    .text.USBD_LL_IsoINIncomplete:00000000 USBD_LL_IsoINIncomplete
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:883    .text.USBD_LL_IsoOUTIncomplete:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:889    .text.USBD_LL_IsoOUTIncomplete:00000000 USBD_LL_IsoOUTIncomplete
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:954    .text.USBD_LL_DevConnected:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:960    .text.USBD_LL_DevConnected:00000000 USBD_LL_DevConnected
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:979    .text.USBD_LL_DevDisconnected:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:985    .text.USBD_LL_DevDisconnected:00000000 USBD_LL_DevDisconnected
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:1038   .text.USBD_CoreFindIF:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:1044   .text.USBD_CoreFindIF:00000000 USBD_CoreFindIF
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:1064   .text.USBD_CoreFindEP:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:1070   .text.USBD_CoreFindEP:00000000 USBD_CoreFindEP
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:1090   .text.USBD_LL_DataOutStage:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:1096   .text.USBD_LL_DataOutStage:00000000 USBD_LL_DataOutStage
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:1293   .text.USBD_LL_DataInStage:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:1299   .text.USBD_LL_DataInStage:00000000 USBD_LL_DataInStage
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:1517   .text.USBD_GetNextDesc:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:1523   .text.USBD_GetNextDesc:00000000 USBD_GetNextDesc
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:1553   .text.USBD_GetEpDesc:00000000 $t
-C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s:1559   .text.USBD_GetEpDesc:00000000 USBD_GetEpDesc
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:20     .text.USBD_Init:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:26     .text.USBD_Init:00000000 USBD_Init
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:95     .text.USBD_DeInit:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:101    .text.USBD_DeInit:00000000 USBD_DeInit
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:161    .text.USBD_RegisterClass:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:167    .text.USBD_RegisterClass:00000000 USBD_RegisterClass
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:247    .text.USBD_Start:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:253    .text.USBD_Start:00000000 USBD_Start
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:276    .text.USBD_Stop:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:282    .text.USBD_Stop:00000000 USBD_Stop
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:323    .text.USBD_RunTestMode:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:329    .text.USBD_RunTestMode:00000000 USBD_RunTestMode
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:348    .text.USBD_SetClassConfig:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:354    .text.USBD_SetClassConfig:00000000 USBD_SetClassConfig
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:395    .text.USBD_ClrClassConfig:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:401    .text.USBD_ClrClassConfig:00000000 USBD_ClrClassConfig
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:440    .text.USBD_LL_SetupStage:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:446    .text.USBD_LL_SetupStage:00000000 USBD_LL_SetupStage
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:534    .text.USBD_LL_Reset:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:540    .text.USBD_LL_Reset:00000000 USBD_LL_Reset
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:649    .text.USBD_LL_SetSpeed:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:655    .text.USBD_LL_SetSpeed:00000000 USBD_LL_SetSpeed
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:676    .text.USBD_LL_Suspend:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:682    .text.USBD_LL_Suspend:00000000 USBD_LL_Suspend
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:717    .text.USBD_LL_Resume:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:723    .text.USBD_LL_Resume:00000000 USBD_LL_Resume
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:757    .text.USBD_LL_SOF:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:763    .text.USBD_LL_SOF:00000000 USBD_LL_SOF
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:812    .text.USBD_LL_IsoINIncomplete:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:818    .text.USBD_LL_IsoINIncomplete:00000000 USBD_LL_IsoINIncomplete
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:883    .text.USBD_LL_IsoOUTIncomplete:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:889    .text.USBD_LL_IsoOUTIncomplete:00000000 USBD_LL_IsoOUTIncomplete
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:954    .text.USBD_LL_DevConnected:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:960    .text.USBD_LL_DevConnected:00000000 USBD_LL_DevConnected
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:979    .text.USBD_LL_DevDisconnected:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:985    .text.USBD_LL_DevDisconnected:00000000 USBD_LL_DevDisconnected
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:1038   .text.USBD_CoreFindIF:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:1044   .text.USBD_CoreFindIF:00000000 USBD_CoreFindIF
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:1064   .text.USBD_CoreFindEP:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:1070   .text.USBD_CoreFindEP:00000000 USBD_CoreFindEP
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:1090   .text.USBD_LL_DataOutStage:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:1096   .text.USBD_LL_DataOutStage:00000000 USBD_LL_DataOutStage
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:1293   .text.USBD_LL_DataInStage:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:1299   .text.USBD_LL_DataInStage:00000000 USBD_LL_DataInStage
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:1517   .text.USBD_GetNextDesc:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:1523   .text.USBD_GetNextDesc:00000000 USBD_GetNextDesc
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:1553   .text.USBD_GetEpDesc:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s:1559   .text.USBD_GetEpDesc:00000000 USBD_GetEpDesc
 
 UNDEFINED SYMBOLS
 USBD_LL_Init
@@ -3264,7 +3264,7 @@ USBD_LL_Stop
 USBD_LL_DeInit
 USBD_LL_Start
 USBD_ParseSetupRequest
-ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccF2mohH.s 			page 56
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\cczxP3Oc.s 			page 56
 
 
 USBD_StdDevReq

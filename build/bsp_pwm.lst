@@ -1,0 +1,892 @@
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 1
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"bsp_pwm.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.file 1 "bsp/pwm/bsp_pwm.c"
+  19              		.section	.text.PWMSelectTclk,"ax",%progbits
+  20              		.align	1
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  25              	PWMSelectTclk:
+  26              	.LVL0:
+  27              	.LFB357:
+   1:bsp/pwm/bsp_pwm.c **** #include "bsp_pwm.h"
+   2:bsp/pwm/bsp_pwm.c **** #include "stdlib.h"
+   3:bsp/pwm/bsp_pwm.c **** #include "memory.h"
+   4:bsp/pwm/bsp_pwm.c **** 
+   5:bsp/pwm/bsp_pwm.c **** // 配合中断以及初始化
+   6:bsp/pwm/bsp_pwm.c **** static uint8_t idx;
+   7:bsp/pwm/bsp_pwm.c **** static PWMInstance *pwm_instance[PWM_DEVICE_CNT] = {NULL}; // 所有的pwm instance保存于此,用
+   8:bsp/pwm/bsp_pwm.c **** static uint32_t PWMSelectTclk(TIM_HandleTypeDef *htim );
+   9:bsp/pwm/bsp_pwm.c **** /**
+  10:bsp/pwm/bsp_pwm.c ****  * @brief pwm dma传输完成回调函数
+  11:bsp/pwm/bsp_pwm.c ****  *
+  12:bsp/pwm/bsp_pwm.c ****  * @param htim 发生中断的定时器句柄
+  13:bsp/pwm/bsp_pwm.c ****  */
+  14:bsp/pwm/bsp_pwm.c **** void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
+  15:bsp/pwm/bsp_pwm.c **** {
+  16:bsp/pwm/bsp_pwm.c ****     for (uint8_t i = 0; i < idx; i++)
+  17:bsp/pwm/bsp_pwm.c ****     { // 来自同一个定时器的中断且通道相同
+  18:bsp/pwm/bsp_pwm.c ****         if (pwm_instance[i]->htim == htim && htim->Channel == (1<<(pwm_instance[i]->channel/4)))
+  19:bsp/pwm/bsp_pwm.c ****         {
+  20:bsp/pwm/bsp_pwm.c ****             if (pwm_instance[i]->callback) // 如果有回调函数
+  21:bsp/pwm/bsp_pwm.c ****                 pwm_instance[i]->callback(pwm_instance[i]);
+  22:bsp/pwm/bsp_pwm.c ****             return; // 一次只能有一个通道的中断,所以直接返回
+  23:bsp/pwm/bsp_pwm.c ****         }
+  24:bsp/pwm/bsp_pwm.c ****     }
+  25:bsp/pwm/bsp_pwm.c **** }
+  26:bsp/pwm/bsp_pwm.c **** 
+  27:bsp/pwm/bsp_pwm.c **** PWMInstance *PWMRegister(PWM_Init_Config_s *config)
+  28:bsp/pwm/bsp_pwm.c **** {
+  29:bsp/pwm/bsp_pwm.c ****     if (idx >= PWM_DEVICE_CNT) // 超过最大实例数,考虑增加或查看是否有内存泄漏
+  30:bsp/pwm/bsp_pwm.c ****         while (1)
+  31:bsp/pwm/bsp_pwm.c ****             ;
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s 			page 2
+
+
+  32:bsp/pwm/bsp_pwm.c ****     PWMInstance *pwm = (PWMInstance *)malloc(sizeof(PWMInstance));
+  33:bsp/pwm/bsp_pwm.c ****     memset(pwm, 0, sizeof(PWMInstance));
+  34:bsp/pwm/bsp_pwm.c **** 
+  35:bsp/pwm/bsp_pwm.c ****     pwm->htim = config->htim;
+  36:bsp/pwm/bsp_pwm.c ****     pwm->channel = config->channel;
+  37:bsp/pwm/bsp_pwm.c ****     pwm->period = config->period;
+  38:bsp/pwm/bsp_pwm.c ****     pwm->dutyratio = config->dutyratio;
+  39:bsp/pwm/bsp_pwm.c ****     pwm->callback = config->callback;
+  40:bsp/pwm/bsp_pwm.c ****     pwm->id = config->id;
+  41:bsp/pwm/bsp_pwm.c ****     pwm->tclk = PWMSelectTclk(pwm->htim);
+  42:bsp/pwm/bsp_pwm.c ****     // 启动PWM
+  43:bsp/pwm/bsp_pwm.c ****     HAL_TIM_PWM_Start(pwm->htim, pwm->channel);
+  44:bsp/pwm/bsp_pwm.c ****     PWMSetPeriod(pwm, pwm->period);
+  45:bsp/pwm/bsp_pwm.c ****     PWMSetDutyRatio(pwm, pwm->dutyratio);
+  46:bsp/pwm/bsp_pwm.c ****     pwm_instance[idx++] = pwm;
+  47:bsp/pwm/bsp_pwm.c ****     return pwm;
+  48:bsp/pwm/bsp_pwm.c **** }
+  49:bsp/pwm/bsp_pwm.c **** 
+  50:bsp/pwm/bsp_pwm.c **** /* 只是对HAL的函数进行了形式上的封装 */
+  51:bsp/pwm/bsp_pwm.c **** void PWMStart(PWMInstance *pwm)
+  52:bsp/pwm/bsp_pwm.c **** {
+  53:bsp/pwm/bsp_pwm.c ****     HAL_TIM_PWM_Start(pwm->htim, pwm->channel);
+  54:bsp/pwm/bsp_pwm.c **** }
+  55:bsp/pwm/bsp_pwm.c **** 
+  56:bsp/pwm/bsp_pwm.c **** /* 只是对HAL的函数进行了形式上的封装 */
+  57:bsp/pwm/bsp_pwm.c **** void PWMStop(PWMInstance *pwm)
+  58:bsp/pwm/bsp_pwm.c **** {
+  59:bsp/pwm/bsp_pwm.c ****     HAL_TIM_PWM_Stop(pwm->htim, pwm->channel);
+  60:bsp/pwm/bsp_pwm.c **** }
+  61:bsp/pwm/bsp_pwm.c **** 
+  62:bsp/pwm/bsp_pwm.c **** /*
+  63:bsp/pwm/bsp_pwm.c ****  * @brief 设置pwm周期
+  64:bsp/pwm/bsp_pwm.c ****  *
+  65:bsp/pwm/bsp_pwm.c ****  * @param pwm pwm实例
+  66:bsp/pwm/bsp_pwm.c ****  * @param period 周期 单位 s
+  67:bsp/pwm/bsp_pwm.c ****  */
+  68:bsp/pwm/bsp_pwm.c **** void PWMSetPeriod(PWMInstance *pwm, float period)
+  69:bsp/pwm/bsp_pwm.c **** {
+  70:bsp/pwm/bsp_pwm.c ****     __HAL_TIM_SetAutoreload(pwm->htim, period*((pwm->tclk)/(pwm->htim->Init.Prescaler+1)));
+  71:bsp/pwm/bsp_pwm.c **** }
+  72:bsp/pwm/bsp_pwm.c **** /*
+  73:bsp/pwm/bsp_pwm.c ****     * @brief 设置pwm占空比
+  74:bsp/pwm/bsp_pwm.c ****     *
+  75:bsp/pwm/bsp_pwm.c ****     * @param pwm pwm实例
+  76:bsp/pwm/bsp_pwm.c ****     * @param dutyratio 占空比 0~1
+  77:bsp/pwm/bsp_pwm.c **** */
+  78:bsp/pwm/bsp_pwm.c **** void PWMSetDutyRatio(PWMInstance *pwm, float dutyratio)
+  79:bsp/pwm/bsp_pwm.c **** {
+  80:bsp/pwm/bsp_pwm.c ****     __HAL_TIM_SetCompare(pwm->htim, pwm->channel, dutyratio * (pwm->htim->Instance->ARR));
+  81:bsp/pwm/bsp_pwm.c **** }
+  82:bsp/pwm/bsp_pwm.c **** 
+  83:bsp/pwm/bsp_pwm.c **** /* 只是对HAL的函数进行了形式上的封装 */
+  84:bsp/pwm/bsp_pwm.c **** void PWMStartDMA(PWMInstance *pwm, uint32_t *pData, uint32_t Size)
+  85:bsp/pwm/bsp_pwm.c **** {
+  86:bsp/pwm/bsp_pwm.c ****     HAL_TIM_PWM_Start_DMA(pwm->htim, pwm->channel, pData, Size);
+  87:bsp/pwm/bsp_pwm.c **** }
+  88:bsp/pwm/bsp_pwm.c **** 
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s 			page 3
+
+
+  89:bsp/pwm/bsp_pwm.c **** // 设置pwm对应定时器时钟源频率
+  90:bsp/pwm/bsp_pwm.c **** static uint32_t PWMSelectTclk(TIM_HandleTypeDef *htim)
+  91:bsp/pwm/bsp_pwm.c **** {
+  28              		.loc 1 91 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		.loc 1 91 1 is_stmt 0 view .LVU1
+  33 0000 08B5     		push	{r3, lr}
+  34              	.LCFI0:
+  35              		.cfi_def_cfa_offset 8
+  36              		.cfi_offset 3, -8
+  37              		.cfi_offset 14, -4
+  92:bsp/pwm/bsp_pwm.c ****     uintptr_t tclk_temp = ((uintptr_t)((htim)->Instance));
+  38              		.loc 1 92 5 is_stmt 1 view .LVU2
+  39              		.loc 1 92 46 is_stmt 0 view .LVU3
+  40 0002 0268     		ldr	r2, [r0]
+  41              	.LVL1:
+  93:bsp/pwm/bsp_pwm.c **** 
+  94:bsp/pwm/bsp_pwm.c ****     // 判断是否为 APB1 定时器 (TIM2~TIM7, TIM12~TIM14)
+  95:bsp/pwm/bsp_pwm.c ****     if ((tclk_temp >= (APB1PERIPH_BASE + 0x0000UL)) &&
+  42              		.loc 1 95 5 is_stmt 1 view .LVU4
+  43              		.loc 1 95 53 is_stmt 0 view .LVU5
+  44 0004 02F14043 		add	r3, r2, #-1073741824
+  45              		.loc 1 95 8 view .LVU6
+  46 0008 B3F5044F 		cmp	r3, #33792
+  47 000c 06D3     		bcc	.L10
+  96:bsp/pwm/bsp_pwm.c ****         (tclk_temp <= (APB1PERIPH_BASE + 0x83FFUL))) // 根据芯片参考手册调整范围
+  97:bsp/pwm/bsp_pwm.c ****     {
+  98:bsp/pwm/bsp_pwm.c ****         return (HAL_RCC_GetPCLK1Freq() * ((RCC->D1CFGR & RCC_D1CFGR_HPRE) == 0 ? 1 : 2));
+  99:bsp/pwm/bsp_pwm.c ****     }
+ 100:bsp/pwm/bsp_pwm.c ****     // 判断是否为 APB2 定时器 (TIM1, TIM8)
+ 101:bsp/pwm/bsp_pwm.c ****     else if ((tclk_temp >= (APB2PERIPH_BASE + 0x0000UL)) &&
+  48              		.loc 1 101 10 is_stmt 1 view .LVU7
+  49              		.loc 1 101 58 is_stmt 0 view .LVU8
+  50 000e 104B     		ldr	r3, .L12
+  51 0010 1344     		add	r3, r3, r2
+  52              		.loc 1 101 13 view .LVU9
+  53 0012 B3F5806F 		cmp	r3, #1024
+  54 0016 0ED3     		bcc	.L11
+ 102:bsp/pwm/bsp_pwm.c ****              (tclk_temp <= (APB2PERIPH_BASE + 0x03FFUL))) // 根据芯片参考手册调整范围
+ 103:bsp/pwm/bsp_pwm.c ****     {
+ 104:bsp/pwm/bsp_pwm.c ****         return (HAL_RCC_GetPCLK2Freq() * ((RCC->D1CFGR & RCC_D1CFGR_HPRE) == 0 ? 1 : 2));
+ 105:bsp/pwm/bsp_pwm.c ****     }
+ 106:bsp/pwm/bsp_pwm.c ****     return 0;
+  55              		.loc 1 106 12 view .LVU10
+  56 0018 0020     		movs	r0, #0
+  57              	.LVL2:
+  58              	.L1:
+ 107:bsp/pwm/bsp_pwm.c **** }
+  59              		.loc 1 107 1 view .LVU11
+  60 001a 08BD     		pop	{r3, pc}
+  61              	.LVL3:
+  62              	.L10:
+  98:bsp/pwm/bsp_pwm.c ****     }
+  63              		.loc 1 98 9 is_stmt 1 view .LVU12
+  98:bsp/pwm/bsp_pwm.c ****     }
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s 			page 4
+
+
+  64              		.loc 1 98 17 is_stmt 0 view .LVU13
+  65 001c FFF7FEFF 		bl	HAL_RCC_GetPCLK1Freq
+  66              	.LVL4:
+  98:bsp/pwm/bsp_pwm.c ****     }
+  67              		.loc 1 98 47 discriminator 1 view .LVU14
+  68 0020 0C4B     		ldr	r3, .L12+4
+  69 0022 9B69     		ldr	r3, [r3, #24]
+  98:bsp/pwm/bsp_pwm.c ****     }
+  70              		.loc 1 98 84 discriminator 1 view .LVU15
+  71 0024 13F00F0F 		tst	r3, #15
+  72 0028 03D1     		bne	.L6
+  98:bsp/pwm/bsp_pwm.c ****     }
+  73              		.loc 1 98 84 discriminator 2 view .LVU16
+  74 002a 0123     		movs	r3, #1
+  75              	.L3:
+  98:bsp/pwm/bsp_pwm.c ****     }
+  76              		.loc 1 98 40 discriminator 5 view .LVU17
+  77 002c 03FB00F0 		mul	r0, r3, r0
+  98:bsp/pwm/bsp_pwm.c ****     }
+  78              		.loc 1 98 40 view .LVU18
+  79 0030 F3E7     		b	.L1
+  80              	.L6:
+  98:bsp/pwm/bsp_pwm.c ****     }
+  81              		.loc 1 98 84 discriminator 3 view .LVU19
+  82 0032 0223     		movs	r3, #2
+  83 0034 FAE7     		b	.L3
+  84              	.LVL5:
+  85              	.L11:
+ 104:bsp/pwm/bsp_pwm.c ****     }
+  86              		.loc 1 104 9 is_stmt 1 view .LVU20
+ 104:bsp/pwm/bsp_pwm.c ****     }
+  87              		.loc 1 104 17 is_stmt 0 view .LVU21
+  88 0036 FFF7FEFF 		bl	HAL_RCC_GetPCLK2Freq
+  89              	.LVL6:
+ 104:bsp/pwm/bsp_pwm.c ****     }
+  90              		.loc 1 104 47 discriminator 1 view .LVU22
+  91 003a 064B     		ldr	r3, .L12+4
+  92 003c 9B69     		ldr	r3, [r3, #24]
+ 104:bsp/pwm/bsp_pwm.c ****     }
+  93              		.loc 1 104 84 discriminator 1 view .LVU23
+  94 003e 13F00F0F 		tst	r3, #15
+  95 0042 03D1     		bne	.L8
+ 104:bsp/pwm/bsp_pwm.c ****     }
+  96              		.loc 1 104 84 discriminator 2 view .LVU24
+  97 0044 0123     		movs	r3, #1
+  98              	.L5:
+ 104:bsp/pwm/bsp_pwm.c ****     }
+  99              		.loc 1 104 40 discriminator 5 view .LVU25
+ 100 0046 03FB00F0 		mul	r0, r3, r0
+ 104:bsp/pwm/bsp_pwm.c ****     }
+ 101              		.loc 1 104 40 view .LVU26
+ 102 004a E6E7     		b	.L1
+ 103              	.L8:
+ 104:bsp/pwm/bsp_pwm.c ****     }
+ 104              		.loc 1 104 84 discriminator 3 view .LVU27
+ 105 004c 0223     		movs	r3, #2
+ 106 004e FAE7     		b	.L5
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s 			page 5
+
+
+ 107              	.L13:
+ 108              		.align	2
+ 109              	.L12:
+ 110 0050 0000FFBF 		.word	-1073807360
+ 111 0054 00440258 		.word	1476543488
+ 112              		.cfi_endproc
+ 113              	.LFE357:
+ 115              		.section	.text.HAL_TIM_PWM_PulseFinishedCallback,"ax",%progbits
+ 116              		.align	1
+ 117              		.global	HAL_TIM_PWM_PulseFinishedCallback
+ 118              		.syntax unified
+ 119              		.thumb
+ 120              		.thumb_func
+ 122              	HAL_TIM_PWM_PulseFinishedCallback:
+ 123              	.LVL7:
+ 124              	.LFB350:
+  15:bsp/pwm/bsp_pwm.c ****     for (uint8_t i = 0; i < idx; i++)
+ 125              		.loc 1 15 1 is_stmt 1 view -0
+ 126              		.cfi_startproc
+ 127              		@ args = 0, pretend = 0, frame = 0
+ 128              		@ frame_needed = 0, uses_anonymous_args = 0
+  15:bsp/pwm/bsp_pwm.c ****     for (uint8_t i = 0; i < idx; i++)
+ 129              		.loc 1 15 1 is_stmt 0 view .LVU29
+ 130 0000 08B5     		push	{r3, lr}
+ 131              	.LCFI1:
+ 132              		.cfi_def_cfa_offset 8
+ 133              		.cfi_offset 3, -8
+ 134              		.cfi_offset 14, -4
+  16:bsp/pwm/bsp_pwm.c ****     { // 来自同一个定时器的中断且通道相同
+ 135              		.loc 1 16 5 is_stmt 1 view .LVU30
+ 136              	.LBB2:
+  16:bsp/pwm/bsp_pwm.c ****     { // 来自同一个定时器的中断且通道相同
+ 137              		.loc 1 16 10 view .LVU31
+ 138              	.LVL8:
+  16:bsp/pwm/bsp_pwm.c ****     { // 来自同一个定时器的中断且通道相同
+ 139              		.loc 1 16 18 is_stmt 0 view .LVU32
+ 140 0002 0023     		movs	r3, #0
+  16:bsp/pwm/bsp_pwm.c ****     { // 来自同一个定时器的中断且通道相同
+ 141              		.loc 1 16 5 view .LVU33
+ 142 0004 01E0     		b	.L15
+ 143              	.LVL9:
+ 144              	.L16:
+  16:bsp/pwm/bsp_pwm.c ****     { // 来自同一个定时器的中断且通道相同
+ 145              		.loc 1 16 35 is_stmt 1 discriminator 2 view .LVU34
+ 146 0006 0133     		adds	r3, r3, #1
+ 147              	.LVL10:
+  16:bsp/pwm/bsp_pwm.c ****     { // 来自同一个定时器的中断且通道相同
+ 148              		.loc 1 16 35 is_stmt 0 discriminator 2 view .LVU35
+ 149 0008 DBB2     		uxtb	r3, r3
+ 150              	.LVL11:
+ 151              	.L15:
+  16:bsp/pwm/bsp_pwm.c ****     { // 来自同一个定时器的中断且通道相同
+ 152              		.loc 1 16 27 is_stmt 1 discriminator 1 view .LVU36
+ 153 000a 0C4A     		ldr	r2, .L21
+ 154 000c 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 155 000e 9A42     		cmp	r2, r3
+ 156 0010 13D9     		bls	.L14
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s 			page 6
+
+
+  18:bsp/pwm/bsp_pwm.c ****         {
+ 157              		.loc 1 18 9 view .LVU37
+  18:bsp/pwm/bsp_pwm.c ****         {
+ 158              		.loc 1 18 25 is_stmt 0 view .LVU38
+ 159 0012 0B4A     		ldr	r2, .L21+4
+ 160 0014 52F82320 		ldr	r2, [r2, r3, lsl #2]
+  18:bsp/pwm/bsp_pwm.c ****         {
+ 161              		.loc 1 18 28 view .LVU39
+ 162 0018 1168     		ldr	r1, [r2]
+  18:bsp/pwm/bsp_pwm.c ****         {
+ 163              		.loc 1 18 12 view .LVU40
+ 164 001a 8142     		cmp	r1, r0
+ 165 001c F3D1     		bne	.L16
+  18:bsp/pwm/bsp_pwm.c ****         {
+ 166              		.loc 1 18 50 discriminator 1 view .LVU41
+ 167 001e 90F81CE0 		ldrb	lr, [r0, #28]	@ zero_extendqisi2
+  18:bsp/pwm/bsp_pwm.c ****         {
+ 168              		.loc 1 18 83 discriminator 1 view .LVU42
+ 169 0022 5168     		ldr	r1, [r2, #4]
+  18:bsp/pwm/bsp_pwm.c ****         {
+ 170              		.loc 1 18 92 discriminator 1 view .LVU43
+ 171 0024 4FEA910C 		lsr	ip, r1, #2
+  18:bsp/pwm/bsp_pwm.c ****         {
+ 172              		.loc 1 18 65 discriminator 1 view .LVU44
+ 173 0028 0121     		movs	r1, #1
+ 174 002a 01FA0CF1 		lsl	r1, r1, ip
+  18:bsp/pwm/bsp_pwm.c ****         {
+ 175              		.loc 1 18 43 discriminator 1 view .LVU45
+ 176 002e 8E45     		cmp	lr, r1
+ 177 0030 E9D1     		bne	.L16
+  20:bsp/pwm/bsp_pwm.c ****                 pwm_instance[i]->callback(pwm_instance[i]);
+ 178              		.loc 1 20 13 is_stmt 1 view .LVU46
+  20:bsp/pwm/bsp_pwm.c ****                 pwm_instance[i]->callback(pwm_instance[i]);
+ 179              		.loc 1 20 32 is_stmt 0 view .LVU47
+ 180 0032 5369     		ldr	r3, [r2, #20]
+ 181              	.LVL12:
+  20:bsp/pwm/bsp_pwm.c ****                 pwm_instance[i]->callback(pwm_instance[i]);
+ 182              		.loc 1 20 16 view .LVU48
+ 183 0034 0BB1     		cbz	r3, .L14
+  21:bsp/pwm/bsp_pwm.c ****             return; // 一次只能有一个通道的中断,所以直接返回
+ 184              		.loc 1 21 17 is_stmt 1 view .LVU49
+ 185 0036 1046     		mov	r0, r2
+ 186              	.LVL13:
+  21:bsp/pwm/bsp_pwm.c ****             return; // 一次只能有一个通道的中断,所以直接返回
+ 187              		.loc 1 21 17 is_stmt 0 view .LVU50
+ 188 0038 9847     		blx	r3
+ 189              	.LVL14:
+  22:bsp/pwm/bsp_pwm.c ****         }
+ 190              		.loc 1 22 13 is_stmt 1 view .LVU51
+ 191              	.L14:
+  22:bsp/pwm/bsp_pwm.c ****         }
+ 192              		.loc 1 22 13 is_stmt 0 view .LVU52
+ 193              	.LBE2:
+  25:bsp/pwm/bsp_pwm.c **** 
+ 194              		.loc 1 25 1 view .LVU53
+ 195 003a 08BD     		pop	{r3, pc}
+ 196              	.L22:
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s 			page 7
+
+
+ 197              		.align	2
+ 198              	.L21:
+ 199 003c 00000000 		.word	idx
+ 200 0040 00000000 		.word	pwm_instance
+ 201              		.cfi_endproc
+ 202              	.LFE350:
+ 204              		.section	.text.PWMStart,"ax",%progbits
+ 205              		.align	1
+ 206              		.global	PWMStart
+ 207              		.syntax unified
+ 208              		.thumb
+ 209              		.thumb_func
+ 211              	PWMStart:
+ 212              	.LVL15:
+ 213              	.LFB352:
+  52:bsp/pwm/bsp_pwm.c ****     HAL_TIM_PWM_Start(pwm->htim, pwm->channel);
+ 214              		.loc 1 52 1 is_stmt 1 view -0
+ 215              		.cfi_startproc
+ 216              		@ args = 0, pretend = 0, frame = 0
+ 217              		@ frame_needed = 0, uses_anonymous_args = 0
+  52:bsp/pwm/bsp_pwm.c ****     HAL_TIM_PWM_Start(pwm->htim, pwm->channel);
+ 218              		.loc 1 52 1 is_stmt 0 view .LVU55
+ 219 0000 08B5     		push	{r3, lr}
+ 220              	.LCFI2:
+ 221              		.cfi_def_cfa_offset 8
+ 222              		.cfi_offset 3, -8
+ 223              		.cfi_offset 14, -4
+  53:bsp/pwm/bsp_pwm.c **** }
+ 224              		.loc 1 53 5 is_stmt 1 view .LVU56
+ 225 0002 4168     		ldr	r1, [r0, #4]
+ 226 0004 0068     		ldr	r0, [r0]
+ 227              	.LVL16:
+  53:bsp/pwm/bsp_pwm.c **** }
+ 228              		.loc 1 53 5 is_stmt 0 view .LVU57
+ 229 0006 FFF7FEFF 		bl	HAL_TIM_PWM_Start
+ 230              	.LVL17:
+  54:bsp/pwm/bsp_pwm.c **** 
+ 231              		.loc 1 54 1 view .LVU58
+ 232 000a 08BD     		pop	{r3, pc}
+ 233              		.cfi_endproc
+ 234              	.LFE352:
+ 236              		.section	.text.PWMStop,"ax",%progbits
+ 237              		.align	1
+ 238              		.global	PWMStop
+ 239              		.syntax unified
+ 240              		.thumb
+ 241              		.thumb_func
+ 243              	PWMStop:
+ 244              	.LVL18:
+ 245              	.LFB353:
+  58:bsp/pwm/bsp_pwm.c ****     HAL_TIM_PWM_Stop(pwm->htim, pwm->channel);
+ 246              		.loc 1 58 1 is_stmt 1 view -0
+ 247              		.cfi_startproc
+ 248              		@ args = 0, pretend = 0, frame = 0
+ 249              		@ frame_needed = 0, uses_anonymous_args = 0
+  58:bsp/pwm/bsp_pwm.c ****     HAL_TIM_PWM_Stop(pwm->htim, pwm->channel);
+ 250              		.loc 1 58 1 is_stmt 0 view .LVU60
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s 			page 8
+
+
+ 251 0000 08B5     		push	{r3, lr}
+ 252              	.LCFI3:
+ 253              		.cfi_def_cfa_offset 8
+ 254              		.cfi_offset 3, -8
+ 255              		.cfi_offset 14, -4
+  59:bsp/pwm/bsp_pwm.c **** }
+ 256              		.loc 1 59 5 is_stmt 1 view .LVU61
+ 257 0002 4168     		ldr	r1, [r0, #4]
+ 258 0004 0068     		ldr	r0, [r0]
+ 259              	.LVL19:
+  59:bsp/pwm/bsp_pwm.c **** }
+ 260              		.loc 1 59 5 is_stmt 0 view .LVU62
+ 261 0006 FFF7FEFF 		bl	HAL_TIM_PWM_Stop
+ 262              	.LVL20:
+  60:bsp/pwm/bsp_pwm.c **** 
+ 263              		.loc 1 60 1 view .LVU63
+ 264 000a 08BD     		pop	{r3, pc}
+ 265              		.cfi_endproc
+ 266              	.LFE353:
+ 268              		.section	.text.PWMSetPeriod,"ax",%progbits
+ 269              		.align	1
+ 270              		.global	PWMSetPeriod
+ 271              		.syntax unified
+ 272              		.thumb
+ 273              		.thumb_func
+ 275              	PWMSetPeriod:
+ 276              	.LVL21:
+ 277              	.LFB354:
+  69:bsp/pwm/bsp_pwm.c ****     __HAL_TIM_SetAutoreload(pwm->htim, period*((pwm->tclk)/(pwm->htim->Init.Prescaler+1)));
+ 278              		.loc 1 69 1 is_stmt 1 view -0
+ 279              		.cfi_startproc
+ 280              		@ args = 0, pretend = 0, frame = 0
+ 281              		@ frame_needed = 0, uses_anonymous_args = 0
+ 282              		@ link register save eliminated.
+  70:bsp/pwm/bsp_pwm.c **** }
+ 283              		.loc 1 70 5 view .LVU65
+  70:bsp/pwm/bsp_pwm.c **** }
+ 284              		.loc 1 70 5 view .LVU66
+ 285 0000 8368     		ldr	r3, [r0, #8]
+ 286 0002 0168     		ldr	r1, [r0]
+ 287 0004 4A68     		ldr	r2, [r1, #4]
+ 288 0006 0132     		adds	r2, r2, #1
+ 289 0008 B3FBF2F3 		udiv	r3, r3, r2
+ 290 000c 07EE903A 		vmov	s15, r3	@ int
+ 291 0010 F8EE677A 		vcvt.f32.u32	s15, s15
+ 292 0014 67EE807A 		vmul.f32	s15, s15, s0
+ 293 0018 0B68     		ldr	r3, [r1]
+ 294 001a FCEEE77A 		vcvt.u32.f32	s15, s15
+ 295 001e C3ED0B7A 		vstr.32	s15, [r3, #44]	@ int
+  70:bsp/pwm/bsp_pwm.c **** }
+ 296              		.loc 1 70 5 view .LVU67
+ 297 0022 8368     		ldr	r3, [r0, #8]
+ 298 0024 0168     		ldr	r1, [r0]
+ 299 0026 4A68     		ldr	r2, [r1, #4]
+ 300 0028 0132     		adds	r2, r2, #1
+ 301 002a B3FBF2F3 		udiv	r3, r3, r2
+ 302 002e 07EE903A 		vmov	s15, r3	@ int
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s 			page 9
+
+
+ 303 0032 F8EE677A 		vcvt.f32.u32	s15, s15
+ 304 0036 27EE800A 		vmul.f32	s0, s15, s0
+ 305              	.LVL22:
+  70:bsp/pwm/bsp_pwm.c **** }
+ 306              		.loc 1 70 5 is_stmt 0 view .LVU68
+ 307 003a BCEEC00A 		vcvt.u32.f32	s0, s0
+ 308 003e 81ED030A 		vstr.32	s0, [r1, #12]	@ int
+  70:bsp/pwm/bsp_pwm.c **** }
+ 309              		.loc 1 70 5 is_stmt 1 view .LVU69
+  71:bsp/pwm/bsp_pwm.c **** /*
+ 310              		.loc 1 71 1 is_stmt 0 view .LVU70
+ 311 0042 7047     		bx	lr
+ 312              		.cfi_endproc
+ 313              	.LFE354:
+ 315              		.section	.text.PWMSetDutyRatio,"ax",%progbits
+ 316              		.align	1
+ 317              		.global	PWMSetDutyRatio
+ 318              		.syntax unified
+ 319              		.thumb
+ 320              		.thumb_func
+ 322              	PWMSetDutyRatio:
+ 323              	.LVL23:
+ 324              	.LFB355:
+  79:bsp/pwm/bsp_pwm.c ****     __HAL_TIM_SetCompare(pwm->htim, pwm->channel, dutyratio * (pwm->htim->Instance->ARR));
+ 325              		.loc 1 79 1 is_stmt 1 view -0
+ 326              		.cfi_startproc
+ 327              		@ args = 0, pretend = 0, frame = 0
+ 328              		@ frame_needed = 0, uses_anonymous_args = 0
+ 329              		@ link register save eliminated.
+  80:bsp/pwm/bsp_pwm.c **** }
+ 330              		.loc 1 80 5 view .LVU72
+ 331 0000 4368     		ldr	r3, [r0, #4]
+ 332 0002 63B9     		cbnz	r3, .L29
+  80:bsp/pwm/bsp_pwm.c **** }
+ 333              		.loc 1 80 5 is_stmt 0 discriminator 1 view .LVU73
+ 334 0004 0368     		ldr	r3, [r0]
+ 335 0006 1B68     		ldr	r3, [r3]
+ 336 0008 D3ED0B7A 		vldr.32	s15, [r3, #44]	@ int
+ 337 000c F8EE677A 		vcvt.f32.u32	s15, s15
+ 338 0010 27EE800A 		vmul.f32	s0, s15, s0
+ 339              	.LVL24:
+  80:bsp/pwm/bsp_pwm.c **** }
+ 340              		.loc 1 80 5 discriminator 1 view .LVU74
+ 341 0014 BCEEC00A 		vcvt.u32.f32	s0, s0
+ 342 0018 83ED0D0A 		vstr.32	s0, [r3, #52]	@ int
+ 343 001c 7047     		bx	lr
+ 344              	.LVL25:
+ 345              	.L29:
+  80:bsp/pwm/bsp_pwm.c **** }
+ 346              		.loc 1 80 5 discriminator 2 view .LVU75
+ 347 001e 042B     		cmp	r3, #4
+ 348 0020 12D0     		beq	.L35
+  80:bsp/pwm/bsp_pwm.c **** }
+ 349              		.loc 1 80 5 discriminator 4 view .LVU76
+ 350 0022 082B     		cmp	r3, #8
+ 351 0024 1DD0     		beq	.L36
+  80:bsp/pwm/bsp_pwm.c **** }
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s 			page 10
+
+
+ 352              		.loc 1 80 5 discriminator 6 view .LVU77
+ 353 0026 0C2B     		cmp	r3, #12
+ 354 0028 28D0     		beq	.L37
+  80:bsp/pwm/bsp_pwm.c **** }
+ 355              		.loc 1 80 5 discriminator 8 view .LVU78
+ 356 002a 102B     		cmp	r3, #16
+ 357 002c 33D0     		beq	.L38
+  80:bsp/pwm/bsp_pwm.c **** }
+ 358              		.loc 1 80 5 discriminator 10 view .LVU79
+ 359 002e 0368     		ldr	r3, [r0]
+ 360 0030 1B68     		ldr	r3, [r3]
+ 361 0032 D3ED0B7A 		vldr.32	s15, [r3, #44]	@ int
+ 362 0036 F8EE677A 		vcvt.f32.u32	s15, s15
+ 363 003a 67EE807A 		vmul.f32	s15, s15, s0
+ 364 003e FCEEE77A 		vcvt.u32.f32	s15, s15
+ 365 0042 C3ED177A 		vstr.32	s15, [r3, #92]	@ int
+  81:bsp/pwm/bsp_pwm.c **** 
+ 366              		.loc 1 81 1 view .LVU80
+ 367 0046 7047     		bx	lr
+ 368              	.L35:
+  80:bsp/pwm/bsp_pwm.c **** }
+ 369              		.loc 1 80 5 discriminator 3 view .LVU81
+ 370 0048 0368     		ldr	r3, [r0]
+ 371 004a 1B68     		ldr	r3, [r3]
+ 372 004c D3ED0B7A 		vldr.32	s15, [r3, #44]	@ int
+ 373 0050 F8EE677A 		vcvt.f32.u32	s15, s15
+ 374 0054 67EE807A 		vmul.f32	s15, s15, s0
+ 375 0058 FCEEE77A 		vcvt.u32.f32	s15, s15
+ 376 005c C3ED0E7A 		vstr.32	s15, [r3, #56]	@ int
+ 377 0060 7047     		bx	lr
+ 378              	.L36:
+  80:bsp/pwm/bsp_pwm.c **** }
+ 379              		.loc 1 80 5 discriminator 5 view .LVU82
+ 380 0062 0368     		ldr	r3, [r0]
+ 381 0064 1B68     		ldr	r3, [r3]
+ 382 0066 D3ED0B7A 		vldr.32	s15, [r3, #44]	@ int
+ 383 006a F8EE677A 		vcvt.f32.u32	s15, s15
+ 384 006e 67EE807A 		vmul.f32	s15, s15, s0
+ 385 0072 FCEEE77A 		vcvt.u32.f32	s15, s15
+ 386 0076 C3ED0F7A 		vstr.32	s15, [r3, #60]	@ int
+ 387 007a 7047     		bx	lr
+ 388              	.L37:
+  80:bsp/pwm/bsp_pwm.c **** }
+ 389              		.loc 1 80 5 discriminator 7 view .LVU83
+ 390 007c 0368     		ldr	r3, [r0]
+ 391 007e 1B68     		ldr	r3, [r3]
+ 392 0080 D3ED0B7A 		vldr.32	s15, [r3, #44]	@ int
+ 393 0084 F8EE677A 		vcvt.f32.u32	s15, s15
+ 394 0088 67EE807A 		vmul.f32	s15, s15, s0
+ 395 008c FCEEE77A 		vcvt.u32.f32	s15, s15
+ 396 0090 C3ED107A 		vstr.32	s15, [r3, #64]	@ int
+ 397 0094 7047     		bx	lr
+ 398              	.L38:
+  80:bsp/pwm/bsp_pwm.c **** }
+ 399              		.loc 1 80 5 discriminator 9 view .LVU84
+ 400 0096 0368     		ldr	r3, [r0]
+ 401 0098 1B68     		ldr	r3, [r3]
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s 			page 11
+
+
+ 402 009a D3ED0B7A 		vldr.32	s15, [r3, #44]	@ int
+ 403 009e F8EE677A 		vcvt.f32.u32	s15, s15
+ 404 00a2 67EE807A 		vmul.f32	s15, s15, s0
+ 405 00a6 FCEEE77A 		vcvt.u32.f32	s15, s15
+ 406 00aa C3ED167A 		vstr.32	s15, [r3, #88]	@ int
+ 407 00ae 7047     		bx	lr
+ 408              		.cfi_endproc
+ 409              	.LFE355:
+ 411              		.section	.text.PWMRegister,"ax",%progbits
+ 412              		.align	1
+ 413              		.global	PWMRegister
+ 414              		.syntax unified
+ 415              		.thumb
+ 416              		.thumb_func
+ 418              	PWMRegister:
+ 419              	.LVL26:
+ 420              	.LFB351:
+  28:bsp/pwm/bsp_pwm.c ****     if (idx >= PWM_DEVICE_CNT) // 超过最大实例数,考虑增加或查看是否有内存泄漏
+ 421              		.loc 1 28 1 is_stmt 1 view -0
+ 422              		.cfi_startproc
+ 423              		@ args = 0, pretend = 0, frame = 0
+ 424              		@ frame_needed = 0, uses_anonymous_args = 0
+  28:bsp/pwm/bsp_pwm.c ****     if (idx >= PWM_DEVICE_CNT) // 超过最大实例数,考虑增加或查看是否有内存泄漏
+ 425              		.loc 1 28 1 is_stmt 0 view .LVU86
+ 426 0000 38B5     		push	{r3, r4, r5, lr}
+ 427              	.LCFI4:
+ 428              		.cfi_def_cfa_offset 16
+ 429              		.cfi_offset 3, -16
+ 430              		.cfi_offset 4, -12
+ 431              		.cfi_offset 5, -8
+ 432              		.cfi_offset 14, -4
+  29:bsp/pwm/bsp_pwm.c ****         while (1)
+ 433              		.loc 1 29 5 is_stmt 1 view .LVU87
+  29:bsp/pwm/bsp_pwm.c ****         while (1)
+ 434              		.loc 1 29 13 is_stmt 0 view .LVU88
+ 435 0002 1C4B     		ldr	r3, .L43
+ 436 0004 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  29:bsp/pwm/bsp_pwm.c ****         while (1)
+ 437              		.loc 1 29 8 view .LVU89
+ 438 0006 0F2B     		cmp	r3, #15
+ 439 0008 00D9     		bls	.L40
+ 440              	.L41:
+  30:bsp/pwm/bsp_pwm.c ****             ;
+ 441              		.loc 1 30 9 is_stmt 1 view .LVU90
+  30:bsp/pwm/bsp_pwm.c ****             ;
+ 442              		.loc 1 30 15 view .LVU91
+ 443 000a FEE7     		b	.L41
+ 444              	.L40:
+ 445 000c 0546     		mov	r5, r0
+  32:bsp/pwm/bsp_pwm.c ****     memset(pwm, 0, sizeof(PWMInstance));
+ 446              		.loc 1 32 5 view .LVU92
+  32:bsp/pwm/bsp_pwm.c ****     memset(pwm, 0, sizeof(PWMInstance));
+ 447              		.loc 1 32 39 is_stmt 0 view .LVU93
+ 448 000e 1C20     		movs	r0, #28
+ 449              	.LVL27:
+  32:bsp/pwm/bsp_pwm.c ****     memset(pwm, 0, sizeof(PWMInstance));
+ 450              		.loc 1 32 39 view .LVU94
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s 			page 12
+
+
+ 451 0010 FFF7FEFF 		bl	malloc
+ 452              	.LVL28:
+ 453 0014 0446     		mov	r4, r0
+ 454              	.LVL29:
+  33:bsp/pwm/bsp_pwm.c **** 
+ 455              		.loc 1 33 5 is_stmt 1 view .LVU95
+ 456 0016 0023     		movs	r3, #0
+ 457 0018 0360     		str	r3, [r0]	@ unaligned
+ 458 001a 4360     		str	r3, [r0, #4]	@ unaligned
+ 459 001c 8360     		str	r3, [r0, #8]	@ unaligned
+ 460 001e C360     		str	r3, [r0, #12]	@ unaligned
+ 461 0020 0361     		str	r3, [r0, #16]	@ unaligned
+ 462 0022 4361     		str	r3, [r0, #20]	@ unaligned
+ 463 0024 8361     		str	r3, [r0, #24]	@ unaligned
+  35:bsp/pwm/bsp_pwm.c ****     pwm->channel = config->channel;
+ 464              		.loc 1 35 5 view .LVU96
+  35:bsp/pwm/bsp_pwm.c ****     pwm->channel = config->channel;
+ 465              		.loc 1 35 23 is_stmt 0 view .LVU97
+ 466 0026 2868     		ldr	r0, [r5]
+ 467              	.LVL30:
+  35:bsp/pwm/bsp_pwm.c ****     pwm->channel = config->channel;
+ 468              		.loc 1 35 15 view .LVU98
+ 469 0028 2060     		str	r0, [r4]
+  36:bsp/pwm/bsp_pwm.c ****     pwm->period = config->period;
+ 470              		.loc 1 36 5 is_stmt 1 view .LVU99
+  36:bsp/pwm/bsp_pwm.c ****     pwm->period = config->period;
+ 471              		.loc 1 36 26 is_stmt 0 view .LVU100
+ 472 002a 6B68     		ldr	r3, [r5, #4]
+  36:bsp/pwm/bsp_pwm.c ****     pwm->period = config->period;
+ 473              		.loc 1 36 18 view .LVU101
+ 474 002c 6360     		str	r3, [r4, #4]
+  37:bsp/pwm/bsp_pwm.c ****     pwm->dutyratio = config->dutyratio;
+ 475              		.loc 1 37 5 is_stmt 1 view .LVU102
+  37:bsp/pwm/bsp_pwm.c ****     pwm->dutyratio = config->dutyratio;
+ 476              		.loc 1 37 25 is_stmt 0 view .LVU103
+ 477 002e AB68     		ldr	r3, [r5, #8]	@ float
+  37:bsp/pwm/bsp_pwm.c ****     pwm->dutyratio = config->dutyratio;
+ 478              		.loc 1 37 17 view .LVU104
+ 479 0030 E360     		str	r3, [r4, #12]	@ float
+  38:bsp/pwm/bsp_pwm.c ****     pwm->callback = config->callback;
+ 480              		.loc 1 38 5 is_stmt 1 view .LVU105
+  38:bsp/pwm/bsp_pwm.c ****     pwm->callback = config->callback;
+ 481              		.loc 1 38 28 is_stmt 0 view .LVU106
+ 482 0032 EB68     		ldr	r3, [r5, #12]	@ float
+  38:bsp/pwm/bsp_pwm.c ****     pwm->callback = config->callback;
+ 483              		.loc 1 38 20 view .LVU107
+ 484 0034 2361     		str	r3, [r4, #16]	@ float
+  39:bsp/pwm/bsp_pwm.c ****     pwm->id = config->id;
+ 485              		.loc 1 39 5 is_stmt 1 view .LVU108
+  39:bsp/pwm/bsp_pwm.c ****     pwm->id = config->id;
+ 486              		.loc 1 39 27 is_stmt 0 view .LVU109
+ 487 0036 2B69     		ldr	r3, [r5, #16]
+  39:bsp/pwm/bsp_pwm.c ****     pwm->id = config->id;
+ 488              		.loc 1 39 19 view .LVU110
+ 489 0038 6361     		str	r3, [r4, #20]
+  40:bsp/pwm/bsp_pwm.c ****     pwm->tclk = PWMSelectTclk(pwm->htim);
+ 490              		.loc 1 40 5 is_stmt 1 view .LVU111
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s 			page 13
+
+
+  40:bsp/pwm/bsp_pwm.c ****     pwm->tclk = PWMSelectTclk(pwm->htim);
+ 491              		.loc 1 40 21 is_stmt 0 view .LVU112
+ 492 003a 6B69     		ldr	r3, [r5, #20]
+  40:bsp/pwm/bsp_pwm.c ****     pwm->tclk = PWMSelectTclk(pwm->htim);
+ 493              		.loc 1 40 13 view .LVU113
+ 494 003c A361     		str	r3, [r4, #24]
+  41:bsp/pwm/bsp_pwm.c ****     // 启动PWM
+ 495              		.loc 1 41 5 is_stmt 1 view .LVU114
+  41:bsp/pwm/bsp_pwm.c ****     // 启动PWM
+ 496              		.loc 1 41 17 is_stmt 0 view .LVU115
+ 497 003e FFF7FEFF 		bl	PWMSelectTclk
+ 498              	.LVL31:
+  41:bsp/pwm/bsp_pwm.c ****     // 启动PWM
+ 499              		.loc 1 41 15 discriminator 1 view .LVU116
+ 500 0042 A060     		str	r0, [r4, #8]
+  43:bsp/pwm/bsp_pwm.c ****     PWMSetPeriod(pwm, pwm->period);
+ 501              		.loc 1 43 5 is_stmt 1 view .LVU117
+ 502 0044 6168     		ldr	r1, [r4, #4]
+ 503 0046 2068     		ldr	r0, [r4]
+ 504 0048 FFF7FEFF 		bl	HAL_TIM_PWM_Start
+ 505              	.LVL32:
+  44:bsp/pwm/bsp_pwm.c ****     PWMSetDutyRatio(pwm, pwm->dutyratio);
+ 506              		.loc 1 44 5 view .LVU118
+ 507 004c 94ED030A 		vldr.32	s0, [r4, #12]
+ 508 0050 2046     		mov	r0, r4
+ 509 0052 FFF7FEFF 		bl	PWMSetPeriod
+ 510              	.LVL33:
+  45:bsp/pwm/bsp_pwm.c ****     pwm_instance[idx++] = pwm;
+ 511              		.loc 1 45 5 view .LVU119
+ 512 0056 94ED040A 		vldr.32	s0, [r4, #16]
+ 513 005a 2046     		mov	r0, r4
+ 514 005c FFF7FEFF 		bl	PWMSetDutyRatio
+ 515              	.LVL34:
+  46:bsp/pwm/bsp_pwm.c ****     return pwm;
+ 516              		.loc 1 46 5 view .LVU120
+  46:bsp/pwm/bsp_pwm.c ****     return pwm;
+ 517              		.loc 1 46 21 is_stmt 0 view .LVU121
+ 518 0060 044A     		ldr	r2, .L43
+ 519 0062 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 520 0064 591C     		adds	r1, r3, #1
+ 521 0066 1170     		strb	r1, [r2]
+  46:bsp/pwm/bsp_pwm.c ****     return pwm;
+ 522              		.loc 1 46 25 view .LVU122
+ 523 0068 034A     		ldr	r2, .L43+4
+ 524 006a 42F82340 		str	r4, [r2, r3, lsl #2]
+  47:bsp/pwm/bsp_pwm.c **** }
+ 525              		.loc 1 47 5 is_stmt 1 view .LVU123
+  48:bsp/pwm/bsp_pwm.c **** 
+ 526              		.loc 1 48 1 is_stmt 0 view .LVU124
+ 527 006e 2046     		mov	r0, r4
+ 528 0070 38BD     		pop	{r3, r4, r5, pc}
+ 529              	.LVL35:
+ 530              	.L44:
+  48:bsp/pwm/bsp_pwm.c **** 
+ 531              		.loc 1 48 1 view .LVU125
+ 532 0072 00BF     		.align	2
+ 533              	.L43:
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s 			page 14
+
+
+ 534 0074 00000000 		.word	idx
+ 535 0078 00000000 		.word	pwm_instance
+ 536              		.cfi_endproc
+ 537              	.LFE351:
+ 539              		.section	.text.PWMStartDMA,"ax",%progbits
+ 540              		.align	1
+ 541              		.global	PWMStartDMA
+ 542              		.syntax unified
+ 543              		.thumb
+ 544              		.thumb_func
+ 546              	PWMStartDMA:
+ 547              	.LVL36:
+ 548              	.LFB356:
+  85:bsp/pwm/bsp_pwm.c ****     HAL_TIM_PWM_Start_DMA(pwm->htim, pwm->channel, pData, Size);
+ 549              		.loc 1 85 1 is_stmt 1 view -0
+ 550              		.cfi_startproc
+ 551              		@ args = 0, pretend = 0, frame = 0
+ 552              		@ frame_needed = 0, uses_anonymous_args = 0
+  85:bsp/pwm/bsp_pwm.c ****     HAL_TIM_PWM_Start_DMA(pwm->htim, pwm->channel, pData, Size);
+ 553              		.loc 1 85 1 is_stmt 0 view .LVU127
+ 554 0000 08B5     		push	{r3, lr}
+ 555              	.LCFI5:
+ 556              		.cfi_def_cfa_offset 8
+ 557              		.cfi_offset 3, -8
+ 558              		.cfi_offset 14, -4
+  86:bsp/pwm/bsp_pwm.c **** }
+ 559              		.loc 1 86 5 is_stmt 1 view .LVU128
+ 560 0002 93B2     		uxth	r3, r2
+ 561 0004 0A46     		mov	r2, r1
+ 562              	.LVL37:
+  86:bsp/pwm/bsp_pwm.c **** }
+ 563              		.loc 1 86 5 is_stmt 0 view .LVU129
+ 564 0006 4168     		ldr	r1, [r0, #4]
+ 565              	.LVL38:
+  86:bsp/pwm/bsp_pwm.c **** }
+ 566              		.loc 1 86 5 view .LVU130
+ 567 0008 0068     		ldr	r0, [r0]
+ 568              	.LVL39:
+  86:bsp/pwm/bsp_pwm.c **** }
+ 569              		.loc 1 86 5 view .LVU131
+ 570 000a FFF7FEFF 		bl	HAL_TIM_PWM_Start_DMA
+ 571              	.LVL40:
+  87:bsp/pwm/bsp_pwm.c **** 
+ 572              		.loc 1 87 1 view .LVU132
+ 573 000e 08BD     		pop	{r3, pc}
+ 574              		.cfi_endproc
+ 575              	.LFE356:
+ 577              		.section	.bss.pwm_instance,"aw",%nobits
+ 578              		.align	2
+ 581              	pwm_instance:
+ 582 0000 00000000 		.space	64
+ 582      00000000 
+ 582      00000000 
+ 582      00000000 
+ 582      00000000 
+ 583              		.section	.bss.idx,"aw",%nobits
+ 586              	idx:
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s 			page 15
+
+
+ 587 0000 00       		.space	1
+ 588              		.text
+ 589              	.Letext0:
+ 590              		.file 2 "D:/14.3 rel1/arm-none-eabi/include/machine/_default_types.h"
+ 591              		.file 3 "D:/14.3 rel1/arm-none-eabi/include/sys/_stdint.h"
+ 592              		.file 4 "Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h723xx.h"
+ 593              		.file 5 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_def.h"
+ 594              		.file 6 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_dma.h"
+ 595              		.file 7 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_tim.h"
+ 596              		.file 8 "bsp/pwm/bsp_pwm.h"
+ 597              		.file 9 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_rcc.h"
+ 598              		.file 10 "D:/14.3 rel1/arm-none-eabi/include/string.h"
+ 599              		.file 11 "D:/14.3 rel1/arm-none-eabi/include/stdlib.h"
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s 			page 16
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 bsp_pwm.c
+C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s:20     .text.PWMSelectTclk:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s:25     .text.PWMSelectTclk:00000000 PWMSelectTclk
+C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s:110    .text.PWMSelectTclk:00000050 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s:116    .text.HAL_TIM_PWM_PulseFinishedCallback:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s:122    .text.HAL_TIM_PWM_PulseFinishedCallback:00000000 HAL_TIM_PWM_PulseFinishedCallback
+C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s:199    .text.HAL_TIM_PWM_PulseFinishedCallback:0000003c $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s:586    .bss.idx:00000000 idx
+C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s:581    .bss.pwm_instance:00000000 pwm_instance
+C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s:205    .text.PWMStart:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s:211    .text.PWMStart:00000000 PWMStart
+C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s:237    .text.PWMStop:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s:243    .text.PWMStop:00000000 PWMStop
+C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s:269    .text.PWMSetPeriod:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s:275    .text.PWMSetPeriod:00000000 PWMSetPeriod
+C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s:316    .text.PWMSetDutyRatio:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s:322    .text.PWMSetDutyRatio:00000000 PWMSetDutyRatio
+C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s:412    .text.PWMRegister:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s:418    .text.PWMRegister:00000000 PWMRegister
+C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s:534    .text.PWMRegister:00000074 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s:540    .text.PWMStartDMA:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s:546    .text.PWMStartDMA:00000000 PWMStartDMA
+C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s:578    .bss.pwm_instance:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccKV6NPk.s:587    .bss.idx:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_RCC_GetPCLK1Freq
+HAL_RCC_GetPCLK2Freq
+HAL_TIM_PWM_Start
+HAL_TIM_PWM_Stop
+malloc
+HAL_TIM_PWM_Start_DMA

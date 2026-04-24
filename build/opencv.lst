@@ -1,0 +1,634 @@
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 1
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"opencv.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.file 1 "application/cmd/opencv.c"
+  19              		.section	.text.DecodeVisionVCP,"ax",%progbits
+  20              		.align	1
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  25              	DecodeVisionVCP:
+  26              	.LVL0:
+  27              	.LFB395:
+   1:application/cmd/opencv.c **** #include "opencv.h"
+   2:application/cmd/opencv.c **** #include <stdint.h>
+   3:application/cmd/opencv.c **** #include "bsp_usb.h"
+   4:application/cmd/opencv.c **** #include "bsp_dwt.h"
+   5:application/cmd/opencv.c **** #include <string.h>
+   6:application/cmd/opencv.c **** 
+   7:application/cmd/opencv.c **** #include "robot_def.h"
+   8:application/cmd/opencv.c **** 
+   9:application/cmd/opencv.c **** float opencv_Vision_data[12] = {0};
+  10:application/cmd/opencv.c **** uint8_t Vison_revc_flag = 0;
+  11:application/cmd/opencv.c **** float Vison_Frequency = 0.0f;
+  12:application/cmd/opencv.c **** 
+  13:application/cmd/opencv.c **** #ifdef VISION_USE_VCP
+  14:application/cmd/opencv.c **** 
+  15:application/cmd/opencv.c **** static uint8_t *vis_recv_buff = NULL;
+  16:application/cmd/opencv.c **** static float last_vision_time = 0.0f;
+  17:application/cmd/opencv.c **** 
+  18:application/cmd/opencv.c **** #define VISION_PACKET_SIZE 51u
+  19:application/cmd/opencv.c **** #define VISION_HEADER 0xA5u
+  20:application/cmd/opencv.c **** #define VISION_FOOTER 0x5Au
+  21:application/cmd/opencv.c **** 
+  22:application/cmd/opencv.c **** static uint8_t rx_cache[256];
+  23:application/cmd/opencv.c **** static uint16_t rx_cache_len = 0;
+  24:application/cmd/opencv.c **** 
+  25:application/cmd/opencv.c **** static void DecodeVisionVCP(uint16_t recv_len)
+  26:application/cmd/opencv.c **** {
+  28              		.loc 1 26 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		.loc 1 26 1 is_stmt 0 view .LVU1
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s 			page 2
+
+
+  33 0000 70B5     		push	{r4, r5, r6, lr}
+  34              	.LCFI0:
+  35              		.cfi_def_cfa_offset 16
+  36              		.cfi_offset 4, -16
+  37              		.cfi_offset 5, -12
+  38              		.cfi_offset 6, -8
+  39              		.cfi_offset 14, -4
+  40 0002 2DED028B 		vpush.64	{d8}
+  41              	.LCFI1:
+  42              		.cfi_def_cfa_offset 24
+  43              		.cfi_offset 80, -24
+  44              		.cfi_offset 81, -20
+  45 0006 0446     		mov	r4, r0
+  27:application/cmd/opencv.c ****     float current_time = DWT_GetTimeline_s();
+  46              		.loc 1 27 5 is_stmt 1 view .LVU2
+  47              		.loc 1 27 26 is_stmt 0 view .LVU3
+  48 0008 FFF7FEFF 		bl	DWT_GetTimeline_s
+  49              	.LVL1:
+  28:application/cmd/opencv.c **** 
+  29:application/cmd/opencv.c ****     if (vis_recv_buff == NULL || recv_len == 0u)
+  50              		.loc 1 29 5 is_stmt 1 view .LVU4
+  51              		.loc 1 29 23 is_stmt 0 view .LVU5
+  52 000c 554B     		ldr	r3, .L22
+  53 000e 1D68     		ldr	r5, [r3]
+  54              		.loc 1 29 8 view .LVU6
+  55 0010 002D     		cmp	r5, #0
+  56 0012 00F0A380 		beq	.L1
+  57 0016 B0EE408A 		vmov.f32	s16, s0
+  58              		.loc 1 29 31 discriminator 1 view .LVU7
+  59 001a 002C     		cmp	r4, #0
+  60 001c 00F09E80 		beq	.L1
+  30:application/cmd/opencv.c ****     {
+  31:application/cmd/opencv.c ****         return;
+  32:application/cmd/opencv.c ****     }
+  33:application/cmd/opencv.c **** 
+  34:application/cmd/opencv.c ****     // Keep the newest data if the cache is about to overflow.
+  35:application/cmd/opencv.c ****     if (recv_len >= sizeof(rx_cache))
+  61              		.loc 1 35 5 is_stmt 1 view .LVU8
+  62              		.loc 1 35 8 is_stmt 0 view .LVU9
+  63 0020 FF2C     		cmp	r4, #255
+  64 0022 0BD9     		bls	.L3
+  36:application/cmd/opencv.c ****     {
+  37:application/cmd/opencv.c ****         memcpy(rx_cache, vis_recv_buff + (recv_len - sizeof(rx_cache)), sizeof(rx_cache));
+  65              		.loc 1 37 9 is_stmt 1 view .LVU10
+  66              		.loc 1 37 52 is_stmt 0 view .LVU11
+  67 0024 A4F58071 		sub	r1, r4, #256
+  68              		.loc 1 37 9 view .LVU12
+  69 0028 4FF48074 		mov	r4, #256
+  70              	.LVL2:
+  71              		.loc 1 37 9 view .LVU13
+  72 002c 2246     		mov	r2, r4
+  73 002e 2944     		add	r1, r1, r5
+  74              	.LVL3:
+  75              		.loc 1 37 9 view .LVU14
+  76 0030 4D48     		ldr	r0, .L22+4
+  77 0032 FFF7FEFF 		bl	memcpy
+  78              	.LVL4:
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s 			page 3
+
+
+  38:application/cmd/opencv.c ****         rx_cache_len = sizeof(rx_cache);
+  79              		.loc 1 38 9 is_stmt 1 view .LVU15
+  80              		.loc 1 38 22 is_stmt 0 view .LVU16
+  81 0036 4D4B     		ldr	r3, .L22+8
+  82 0038 1C80     		strh	r4, [r3]	@ movhi
+  83 003a 28E0     		b	.L14
+  84              	.LVL5:
+  85              	.L3:
+  86              	.LBB2:
+  39:application/cmd/opencv.c ****     }
+  40:application/cmd/opencv.c ****     else
+  41:application/cmd/opencv.c ****     {
+  42:application/cmd/opencv.c ****         uint16_t copy_len = recv_len;
+  87              		.loc 1 42 9 is_stmt 1 view .LVU17
+  43:application/cmd/opencv.c ****         if ((uint32_t)rx_cache_len + copy_len > sizeof(rx_cache))
+  88              		.loc 1 43 9 view .LVU18
+  89              		.loc 1 43 13 is_stmt 0 view .LVU19
+  90 003c 4B4B     		ldr	r3, .L22+8
+  91 003e 1B88     		ldrh	r3, [r3]
+  92              		.loc 1 43 36 view .LVU20
+  93 0040 1A19     		adds	r2, r3, r4
+  94              		.loc 1 43 12 view .LVU21
+  95 0042 B2F5807F 		cmp	r2, #256
+  96 0046 0CD8     		bhi	.L19
+  97              	.LVL6:
+  98              	.L5:
+  44:application/cmd/opencv.c ****         {
+  45:application/cmd/opencv.c ****             uint16_t shift = (uint16_t)((uint32_t)rx_cache_len + copy_len - sizeof(rx_cache));
+  46:application/cmd/opencv.c ****             rx_cache_len = (uint16_t)(rx_cache_len - shift);
+  47:application/cmd/opencv.c ****             memmove(rx_cache, rx_cache + shift, rx_cache_len);
+  48:application/cmd/opencv.c ****         }
+  49:application/cmd/opencv.c **** 
+  50:application/cmd/opencv.c ****         memcpy(rx_cache + rx_cache_len, vis_recv_buff, copy_len);
+  99              		.loc 1 50 9 is_stmt 1 view .LVU22
+ 100 0048 484E     		ldr	r6, .L22+8
+ 101 004a 3388     		ldrh	r3, [r6]
+ 102 004c 2246     		mov	r2, r4
+ 103 004e 2946     		mov	r1, r5
+ 104 0050 4548     		ldr	r0, .L22+4
+ 105 0052 1D46     		mov	r5, r3
+ 106 0054 1844     		add	r0, r0, r3
+ 107 0056 FFF7FEFF 		bl	memcpy
+ 108              	.LVL7:
+  51:application/cmd/opencv.c ****         rx_cache_len = (uint16_t)(rx_cache_len + copy_len);
+ 109              		.loc 1 51 9 view .LVU23
+ 110              		.loc 1 51 24 is_stmt 0 view .LVU24
+ 111 005a 2B46     		mov	r3, r5
+ 112 005c 2344     		add	r3, r3, r4
+ 113              		.loc 1 51 22 view .LVU25
+ 114 005e 3380     		strh	r3, [r6]	@ movhi
+ 115 0060 15E0     		b	.L14
+ 116              	.LVL8:
+ 117              	.L19:
+ 118              	.LBB3:
+  45:application/cmd/opencv.c ****             rx_cache_len = (uint16_t)(rx_cache_len - shift);
+ 119              		.loc 1 45 13 is_stmt 1 view .LVU26
+  45:application/cmd/opencv.c ****             rx_cache_len = (uint16_t)(rx_cache_len - shift);
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s 			page 4
+
+
+ 120              		.loc 1 45 64 is_stmt 0 view .LVU27
+ 121 0062 91B2     		uxth	r1, r2
+  45:application/cmd/opencv.c ****             rx_cache_len = (uint16_t)(rx_cache_len - shift);
+ 122              		.loc 1 45 22 view .LVU28
+ 123 0064 A1F58071 		sub	r1, r1, #256
+ 124 0068 89B2     		uxth	r1, r1
+ 125              	.LVL9:
+  46:application/cmd/opencv.c ****             memmove(rx_cache, rx_cache + shift, rx_cache_len);
+ 126              		.loc 1 46 13 is_stmt 1 view .LVU29
+  46:application/cmd/opencv.c ****             memmove(rx_cache, rx_cache + shift, rx_cache_len);
+ 127              		.loc 1 46 28 is_stmt 0 view .LVU30
+ 128 006a 5B1A     		subs	r3, r3, r1
+ 129 006c 9AB2     		uxth	r2, r3
+  46:application/cmd/opencv.c ****             memmove(rx_cache, rx_cache + shift, rx_cache_len);
+ 130              		.loc 1 46 26 view .LVU31
+ 131 006e 3F4B     		ldr	r3, .L22+8
+ 132 0070 1A80     		strh	r2, [r3]	@ movhi
+  47:application/cmd/opencv.c ****         }
+ 133              		.loc 1 47 13 is_stmt 1 view .LVU32
+ 134 0072 3D48     		ldr	r0, .L22+4
+ 135 0074 0144     		add	r1, r1, r0
+ 136              	.LVL10:
+  47:application/cmd/opencv.c ****         }
+ 137              		.loc 1 47 13 is_stmt 0 view .LVU33
+ 138 0076 FFF7FEFF 		bl	memmove
+ 139              	.LVL11:
+  47:application/cmd/opencv.c ****         }
+ 140              		.loc 1 47 13 view .LVU34
+ 141 007a E5E7     		b	.L5
+ 142              	.LVL12:
+ 143              	.L20:
+  47:application/cmd/opencv.c ****         }
+ 144              		.loc 1 47 13 view .LVU35
+ 145              	.LBE3:
+ 146              	.LBE2:
+ 147              	.LBB4:
+  52:application/cmd/opencv.c ****     }
+  53:application/cmd/opencv.c **** 
+  54:application/cmd/opencv.c ****     while (rx_cache_len >= VISION_PACKET_SIZE)
+  55:application/cmd/opencv.c ****     {
+  56:application/cmd/opencv.c ****         if (rx_cache[0] != VISION_HEADER)
+  57:application/cmd/opencv.c ****         {
+  58:application/cmd/opencv.c ****             rx_cache_len--;
+ 148              		.loc 1 58 13 is_stmt 1 view .LVU36
+ 149              		.loc 1 58 25 is_stmt 0 view .LVU37
+ 150 007c 0CF1FF32 		add	r2, ip, #-1
+ 151 0080 92B2     		uxth	r2, r2
+ 152 0082 3A4B     		ldr	r3, .L22+8
+ 153 0084 1A80     		strh	r2, [r3]	@ movhi
+  59:application/cmd/opencv.c ****             memmove(rx_cache, rx_cache + 1, rx_cache_len);
+ 154              		.loc 1 59 13 is_stmt 1 view .LVU38
+ 155 0086 3A49     		ldr	r1, .L22+12
+ 156 0088 481E     		subs	r0, r1, #1
+ 157 008a FFF7FEFF 		bl	memmove
+ 158              	.LVL13:
+  60:application/cmd/opencv.c ****             continue;
+ 159              		.loc 1 60 13 view .LVU39
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s 			page 5
+
+
+ 160              	.L14:
+ 161              	.LBE4:
+  54:application/cmd/opencv.c ****     {
+ 162              		.loc 1 54 25 view .LVU40
+ 163 008e 374B     		ldr	r3, .L22+8
+ 164 0090 B3F800C0 		ldrh	ip, [r3]
+ 165 0094 BCF1320F 		cmp	ip, #50
+ 166 0098 60D9     		bls	.L1
+ 167              	.LBB7:
+  56:application/cmd/opencv.c ****         {
+ 168              		.loc 1 56 9 view .LVU41
+  56:application/cmd/opencv.c ****         {
+ 169              		.loc 1 56 21 is_stmt 0 view .LVU42
+ 170 009a 334B     		ldr	r3, .L22+4
+ 171 009c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  56:application/cmd/opencv.c ****         {
+ 172              		.loc 1 56 12 view .LVU43
+ 173 009e A52B     		cmp	r3, #165
+ 174 00a0 ECD1     		bne	.L20
+  61:application/cmd/opencv.c ****         }
+  62:application/cmd/opencv.c **** 
+  63:application/cmd/opencv.c ****         if (rx_cache[VISION_PACKET_SIZE - 1u] != VISION_FOOTER)
+ 175              		.loc 1 63 9 is_stmt 1 view .LVU44
+ 176              		.loc 1 63 21 is_stmt 0 view .LVU45
+ 177 00a2 314B     		ldr	r3, .L22+4
+ 178 00a4 93F83230 		ldrb	r3, [r3, #50]	@ zero_extendqisi2
+ 179              		.loc 1 63 12 view .LVU46
+ 180 00a8 5A2B     		cmp	r3, #90
+ 181 00aa 1FD0     		beq	.L16
+  64:application/cmd/opencv.c ****         {
+  65:application/cmd/opencv.c ****             rx_cache_len--;
+ 182              		.loc 1 65 13 is_stmt 1 view .LVU47
+ 183              		.loc 1 65 25 is_stmt 0 view .LVU48
+ 184 00ac 0CF1FF32 		add	r2, ip, #-1
+ 185 00b0 92B2     		uxth	r2, r2
+ 186 00b2 2E4B     		ldr	r3, .L22+8
+ 187 00b4 1A80     		strh	r2, [r3]	@ movhi
+  66:application/cmd/opencv.c ****             memmove(rx_cache, rx_cache + 1, rx_cache_len);
+ 188              		.loc 1 66 13 is_stmt 1 view .LVU49
+ 189 00b6 2E49     		ldr	r1, .L22+12
+ 190 00b8 481E     		subs	r0, r1, #1
+ 191 00ba FFF7FEFF 		bl	memmove
+ 192              	.LVL14:
+  67:application/cmd/opencv.c ****             continue;
+ 193              		.loc 1 67 13 view .LVU50
+ 194 00be E6E7     		b	.L14
+ 195              	.LVL15:
+ 196              	.L9:
+ 197              	.LBB5:
+  68:application/cmd/opencv.c ****         }
+  69:application/cmd/opencv.c **** 
+  70:application/cmd/opencv.c ****         uint8_t checksum = 0u;
+  71:application/cmd/opencv.c ****         for (uint16_t i = 0; i < (VISION_PACKET_SIZE - 2u); i++)
+  72:application/cmd/opencv.c ****         {
+  73:application/cmd/opencv.c ****             checksum ^= rx_cache[i];
+ 198              		.loc 1 73 13 view .LVU51
+ 199              		.loc 1 73 33 is_stmt 0 view .LVU52
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s 			page 6
+
+
+ 200 00c0 2949     		ldr	r1, .L22+4
+ 201 00c2 C95C     		ldrb	r1, [r1, r3]	@ zero_extendqisi2
+ 202              		.loc 1 73 22 view .LVU53
+ 203 00c4 4A40     		eors	r2, r2, r1
+ 204              	.LVL16:
+  71:application/cmd/opencv.c ****         {
+ 205              		.loc 1 71 62 is_stmt 1 discriminator 3 view .LVU54
+ 206 00c6 0133     		adds	r3, r3, #1
+ 207              	.LVL17:
+  71:application/cmd/opencv.c ****         {
+ 208              		.loc 1 71 62 is_stmt 0 discriminator 3 view .LVU55
+ 209 00c8 9BB2     		uxth	r3, r3
+ 210              	.LVL18:
+ 211              	.L8:
+  71:application/cmd/opencv.c ****         {
+ 212              		.loc 1 71 32 is_stmt 1 discriminator 1 view .LVU56
+ 213 00ca 302B     		cmp	r3, #48
+ 214 00cc F8D9     		bls	.L9
+ 215              	.LBE5:
+  74:application/cmd/opencv.c ****         }
+  75:application/cmd/opencv.c **** 
+  76:application/cmd/opencv.c ****         if (checksum == rx_cache[VISION_PACKET_SIZE - 2u])
+ 216              		.loc 1 76 9 view .LVU57
+ 217              		.loc 1 76 33 is_stmt 0 view .LVU58
+ 218 00ce 264B     		ldr	r3, .L22+4
+ 219              	.LVL19:
+ 220              		.loc 1 76 33 view .LVU59
+ 221 00d0 93F83130 		ldrb	r3, [r3, #49]	@ zero_extendqisi2
+ 222              		.loc 1 76 12 view .LVU60
+ 223 00d4 9342     		cmp	r3, r2
+ 224 00d6 0CD0     		beq	.L21
+  77:application/cmd/opencv.c ****         {
+  78:application/cmd/opencv.c ****             memcpy(opencv_Vision_data, rx_cache + 1, sizeof(opencv_Vision_data));
+  79:application/cmd/opencv.c **** 
+  80:application/cmd/opencv.c ****             if (last_vision_time != 0.0f && (current_time - last_vision_time) > 0.0f)
+  81:application/cmd/opencv.c ****             {
+  82:application/cmd/opencv.c ****                 Vison_Frequency = 1.0f / (current_time - last_vision_time);
+  83:application/cmd/opencv.c ****             }
+  84:application/cmd/opencv.c ****             last_vision_time = current_time;
+  85:application/cmd/opencv.c ****             Vison_revc_flag = 1;
+  86:application/cmd/opencv.c **** 
+  87:application/cmd/opencv.c ****             rx_cache_len = (uint16_t)(rx_cache_len - VISION_PACKET_SIZE);
+  88:application/cmd/opencv.c ****             memmove(rx_cache, rx_cache + VISION_PACKET_SIZE, rx_cache_len);
+  89:application/cmd/opencv.c ****         }
+  90:application/cmd/opencv.c ****         else
+  91:application/cmd/opencv.c ****         {
+  92:application/cmd/opencv.c ****             rx_cache_len--;
+ 225              		.loc 1 92 13 is_stmt 1 view .LVU61
+ 226              		.loc 1 92 25 is_stmt 0 view .LVU62
+ 227 00d8 0CF1FF32 		add	r2, ip, #-1
+ 228              	.LVL20:
+ 229              		.loc 1 92 25 view .LVU63
+ 230 00dc 92B2     		uxth	r2, r2
+ 231 00de 234B     		ldr	r3, .L22+8
+ 232 00e0 1A80     		strh	r2, [r3]	@ movhi
+  93:application/cmd/opencv.c ****             memmove(rx_cache, rx_cache + 1, rx_cache_len);
+ 233              		.loc 1 93 13 is_stmt 1 view .LVU64
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s 			page 7
+
+
+ 234 00e2 2349     		ldr	r1, .L22+12
+ 235 00e4 481E     		subs	r0, r1, #1
+ 236 00e6 FFF7FEFF 		bl	memmove
+ 237              	.LVL21:
+ 238 00ea D0E7     		b	.L14
+ 239              	.LVL22:
+ 240              	.L16:
+ 241              	.LBB6:
+  71:application/cmd/opencv.c ****         {
+ 242              		.loc 1 71 23 is_stmt 0 view .LVU65
+ 243 00ec 0023     		movs	r3, #0
+ 244              	.LBE6:
+  70:application/cmd/opencv.c ****         for (uint16_t i = 0; i < (VISION_PACKET_SIZE - 2u); i++)
+ 245              		.loc 1 70 17 view .LVU66
+ 246 00ee 1A46     		mov	r2, r3
+ 247 00f0 EBE7     		b	.L8
+ 248              	.LVL23:
+ 249              	.L21:
+  78:application/cmd/opencv.c **** 
+ 250              		.loc 1 78 13 is_stmt 1 view .LVU67
+ 251 00f2 1F4C     		ldr	r4, .L22+12
+ 252 00f4 1F4D     		ldr	r5, .L22+16
+ 253              	.LVL24:
+ 254              	.L11:
+  78:application/cmd/opencv.c **** 
+ 255              		.loc 1 78 13 is_stmt 0 view .LVU68
+ 256 00f6 AE46     		mov	lr, r5
+ 257 00f8 2068     		ldr	r0, [r4]	@ unaligned
+ 258 00fa 6168     		ldr	r1, [r4, #4]	@ unaligned
+ 259 00fc A268     		ldr	r2, [r4, #8]	@ unaligned
+ 260 00fe E368     		ldr	r3, [r4, #12]	@ unaligned
+ 261 0100 AEE80F00 		stmia	lr!, {r0, r1, r2, r3}
+ 262 0104 1034     		adds	r4, r4, #16
+ 263 0106 7546     		mov	r5, lr
+ 264 0108 1B4B     		ldr	r3, .L22+20
+ 265 010a 9C42     		cmp	r4, r3
+ 266 010c F3D1     		bne	.L11
+  80:application/cmd/opencv.c ****             {
+ 267              		.loc 1 80 13 is_stmt 1 view .LVU69
+  80:application/cmd/opencv.c ****             {
+ 268              		.loc 1 80 34 is_stmt 0 view .LVU70
+ 269 010e 1B4B     		ldr	r3, .L22+24
+ 270 0110 D3ED007A 		vldr.32	s15, [r3]
+  80:application/cmd/opencv.c ****             {
+ 271              		.loc 1 80 16 view .LVU71
+ 272 0114 F5EE407A 		vcmp.f32	s15, #0
+ 273 0118 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 274 011c 0DD0     		beq	.L12
+  80:application/cmd/opencv.c ****             {
+ 275              		.loc 1 80 59 discriminator 1 view .LVU72
+ 276 011e 78EE677A 		vsub.f32	s15, s16, s15
+  80:application/cmd/opencv.c ****             {
+ 277              		.loc 1 80 42 discriminator 1 view .LVU73
+ 278 0122 F5EEC07A 		vcmpe.f32	s15, #0
+ 279 0126 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 280 012a 06DD     		ble	.L12
+  82:application/cmd/opencv.c ****             }
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s 			page 8
+
+
+ 281              		.loc 1 82 17 is_stmt 1 view .LVU74
+  82:application/cmd/opencv.c ****             }
+ 282              		.loc 1 82 40 is_stmt 0 view .LVU75
+ 283 012c F7EE006A 		vmov.f32	s13, #1.0e+0
+ 284 0130 86EEA77A 		vdiv.f32	s14, s13, s15
+  82:application/cmd/opencv.c ****             }
+ 285              		.loc 1 82 33 view .LVU76
+ 286 0134 124B     		ldr	r3, .L22+28
+ 287 0136 83ED007A 		vstr.32	s14, [r3]
+ 288              	.L12:
+  84:application/cmd/opencv.c ****             Vison_revc_flag = 1;
+ 289              		.loc 1 84 13 is_stmt 1 view .LVU77
+  84:application/cmd/opencv.c ****             Vison_revc_flag = 1;
+ 290              		.loc 1 84 30 is_stmt 0 view .LVU78
+ 291 013a 104B     		ldr	r3, .L22+24
+ 292 013c 83ED008A 		vstr.32	s16, [r3]
+  85:application/cmd/opencv.c **** 
+ 293              		.loc 1 85 13 is_stmt 1 view .LVU79
+  85:application/cmd/opencv.c **** 
+ 294              		.loc 1 85 29 is_stmt 0 view .LVU80
+ 295 0140 104B     		ldr	r3, .L22+32
+ 296 0142 0122     		movs	r2, #1
+ 297 0144 1A70     		strb	r2, [r3]
+  87:application/cmd/opencv.c ****             memmove(rx_cache, rx_cache + VISION_PACKET_SIZE, rx_cache_len);
+ 298              		.loc 1 87 13 is_stmt 1 view .LVU81
+  87:application/cmd/opencv.c ****             memmove(rx_cache, rx_cache + VISION_PACKET_SIZE, rx_cache_len);
+ 299              		.loc 1 87 28 is_stmt 0 view .LVU82
+ 300 0146 ACF13302 		sub	r2, ip, #51
+ 301 014a 92B2     		uxth	r2, r2
+  87:application/cmd/opencv.c ****             memmove(rx_cache, rx_cache + VISION_PACKET_SIZE, rx_cache_len);
+ 302              		.loc 1 87 26 view .LVU83
+ 303 014c 074B     		ldr	r3, .L22+8
+ 304 014e 1A80     		strh	r2, [r3]	@ movhi
+  88:application/cmd/opencv.c ****         }
+ 305              		.loc 1 88 13 is_stmt 1 view .LVU84
+ 306 0150 0D49     		ldr	r1, .L22+36
+ 307 0152 A1F13300 		sub	r0, r1, #51
+ 308 0156 FFF7FEFF 		bl	memmove
+ 309              	.LVL25:
+ 310 015a 98E7     		b	.L14
+ 311              	.LVL26:
+ 312              	.L1:
+  88:application/cmd/opencv.c ****         }
+ 313              		.loc 1 88 13 is_stmt 0 view .LVU85
+ 314              	.LBE7:
+  94:application/cmd/opencv.c ****         }
+  95:application/cmd/opencv.c ****     }
+  96:application/cmd/opencv.c **** }
+ 315              		.loc 1 96 1 view .LVU86
+ 316 015c BDEC028B 		vldm	sp!, {d8}
+ 317              	.LCFI2:
+ 318              		.cfi_restore 80
+ 319              		.cfi_restore 81
+ 320              		.cfi_def_cfa_offset 16
+ 321 0160 70BD     		pop	{r4, r5, r6, pc}
+ 322              	.L23:
+ 323 0162 00BF     		.align	2
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s 			page 9
+
+
+ 324              	.L22:
+ 325 0164 00000000 		.word	vis_recv_buff
+ 326 0168 00000000 		.word	rx_cache
+ 327 016c 00000000 		.word	rx_cache_len
+ 328 0170 01000000 		.word	rx_cache+1
+ 329 0174 00000000 		.word	opencv_Vision_data
+ 330 0178 31000000 		.word	rx_cache+49
+ 331 017c 00000000 		.word	last_vision_time
+ 332 0180 00000000 		.word	Vison_Frequency
+ 333 0184 00000000 		.word	Vison_revc_flag
+ 334 0188 33000000 		.word	rx_cache+51
+ 335              		.cfi_endproc
+ 336              	.LFE395:
+ 338              		.section	.text.Vision_USB_Init,"ax",%progbits
+ 339              		.align	1
+ 340              		.global	Vision_USB_Init
+ 341              		.syntax unified
+ 342              		.thumb
+ 343              		.thumb_func
+ 345              	Vision_USB_Init:
+ 346              	.LFB396:
+  97:application/cmd/opencv.c **** 
+  98:application/cmd/opencv.c **** void Vision_USB_Init(void)
+  99:application/cmd/opencv.c **** {
+ 347              		.loc 1 99 1 is_stmt 1 view -0
+ 348              		.cfi_startproc
+ 349              		@ args = 0, pretend = 0, frame = 8
+ 350              		@ frame_needed = 0, uses_anonymous_args = 0
+ 351 0000 00B5     		push	{lr}
+ 352              	.LCFI3:
+ 353              		.cfi_def_cfa_offset 4
+ 354              		.cfi_offset 14, -4
+ 355 0002 83B0     		sub	sp, sp, #12
+ 356              	.LCFI4:
+ 357              		.cfi_def_cfa_offset 16
+ 100:application/cmd/opencv.c ****     USB_Init_Config_s conf = {.rx_cbk = DecodeVisionVCP, .tx_cbk = NULL};
+ 358              		.loc 1 100 5 view .LVU88
+ 359              		.loc 1 100 23 is_stmt 0 view .LVU89
+ 360 0004 0023     		movs	r3, #0
+ 361 0006 0093     		str	r3, [sp]
+ 362 0008 054B     		ldr	r3, .L26
+ 363 000a 0193     		str	r3, [sp, #4]
+ 101:application/cmd/opencv.c ****     vis_recv_buff = USBInit(conf);
+ 364              		.loc 1 101 5 is_stmt 1 view .LVU90
+ 365              		.loc 1 101 21 is_stmt 0 view .LVU91
+ 366 000c 02AB     		add	r3, sp, #8
+ 367 000e 13E90300 		ldmdb	r3, {r0, r1}
+ 368 0012 FFF7FEFF 		bl	USBInit
+ 369              	.LVL27:
+ 370              		.loc 1 101 19 discriminator 1 view .LVU92
+ 371 0016 034B     		ldr	r3, .L26+4
+ 372 0018 1860     		str	r0, [r3]
+ 102:application/cmd/opencv.c **** }
+ 373              		.loc 1 102 1 view .LVU93
+ 374 001a 03B0     		add	sp, sp, #12
+ 375              	.LCFI5:
+ 376              		.cfi_def_cfa_offset 4
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s 			page 10
+
+
+ 377              		@ sp needed
+ 378 001c 00BD     		pop	{pc}
+ 379              	.L27:
+ 380 001e 00BF     		.align	2
+ 381              	.L26:
+ 382 0020 00000000 		.word	DecodeVisionVCP
+ 383 0024 00000000 		.word	vis_recv_buff
+ 384              		.cfi_endproc
+ 385              	.LFE396:
+ 387              		.section	.bss.rx_cache_len,"aw",%nobits
+ 388              		.align	1
+ 391              	rx_cache_len:
+ 392 0000 0000     		.space	2
+ 393              		.section	.bss.rx_cache,"aw",%nobits
+ 394              		.align	2
+ 397              	rx_cache:
+ 398 0000 00000000 		.space	256
+ 398      00000000 
+ 398      00000000 
+ 398      00000000 
+ 398      00000000 
+ 399              		.section	.bss.last_vision_time,"aw",%nobits
+ 400              		.align	2
+ 403              	last_vision_time:
+ 404 0000 00000000 		.space	4
+ 405              		.section	.bss.vis_recv_buff,"aw",%nobits
+ 406              		.align	2
+ 409              	vis_recv_buff:
+ 410 0000 00000000 		.space	4
+ 411              		.global	Vison_Frequency
+ 412              		.section	.bss.Vison_Frequency,"aw",%nobits
+ 413              		.align	2
+ 416              	Vison_Frequency:
+ 417 0000 00000000 		.space	4
+ 418              		.global	Vison_revc_flag
+ 419              		.section	.bss.Vison_revc_flag,"aw",%nobits
+ 422              	Vison_revc_flag:
+ 423 0000 00       		.space	1
+ 424              		.global	opencv_Vision_data
+ 425              		.section	.bss.opencv_Vision_data,"aw",%nobits
+ 426              		.align	2
+ 429              	opencv_Vision_data:
+ 430 0000 00000000 		.space	48
+ 430      00000000 
+ 430      00000000 
+ 430      00000000 
+ 430      00000000 
+ 431              		.text
+ 432              	.Letext0:
+ 433              		.file 2 "D:/14.3 rel1/arm-none-eabi/include/machine/_default_types.h"
+ 434              		.file 3 "D:/14.3 rel1/arm-none-eabi/include/sys/_stdint.h"
+ 435              		.file 4 "application/cmd/opencv.h"
+ 436              		.file 5 "USB_DEVICE/App/usbd_cdc_if.h"
+ 437              		.file 6 "bsp/usb/bsp_usb.h"
+ 438              		.file 7 "D:/14.3 rel1/arm-none-eabi/include/string.h"
+ 439              		.file 8 "bsp/dwt/bsp_dwt.h"
+ 440              		.file 9 "<built-in>"
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s 			page 11
+
+
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s 			page 12
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 opencv.c
+C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s:20     .text.DecodeVisionVCP:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s:25     .text.DecodeVisionVCP:00000000 DecodeVisionVCP
+C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s:325    .text.DecodeVisionVCP:00000164 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s:409    .bss.vis_recv_buff:00000000 vis_recv_buff
+C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s:397    .bss.rx_cache:00000000 rx_cache
+C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s:391    .bss.rx_cache_len:00000000 rx_cache_len
+C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s:429    .bss.opencv_Vision_data:00000000 opencv_Vision_data
+C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s:403    .bss.last_vision_time:00000000 last_vision_time
+C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s:416    .bss.Vison_Frequency:00000000 Vison_Frequency
+C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s:422    .bss.Vison_revc_flag:00000000 Vison_revc_flag
+C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s:339    .text.Vision_USB_Init:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s:345    .text.Vision_USB_Init:00000000 Vision_USB_Init
+C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s:382    .text.Vision_USB_Init:00000020 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s:388    .bss.rx_cache_len:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s:394    .bss.rx_cache:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s:400    .bss.last_vision_time:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s:406    .bss.vis_recv_buff:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s:413    .bss.Vison_Frequency:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s:423    .bss.Vison_revc_flag:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccMDa58c.s:426    .bss.opencv_Vision_data:00000000 $d
+
+UNDEFINED SYMBOLS
+DWT_GetTimeline_s
+memcpy
+memmove
+USBInit

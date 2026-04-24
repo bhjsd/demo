@@ -125,7 +125,7 @@ static void RemoteControlSet()
         vofa_debug[4] = yaw_tracking_pid.Iout;
         vofa_debug[5] = yaw_tracking_pid.Dout;
         vofa_debug[6] = yaw_tracking_pid.Output;
-        vofa_justfloat_output(vofa_debug, 7, &huart7);
+        vofa_justfloat_output(vofa_debug, 7, &huart1);
     }
     else
     {

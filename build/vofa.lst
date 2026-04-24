@@ -1,0 +1,273 @@
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLbr2mo.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 1
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"vofa.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.file 1 "modules/vofa/vofa.c"
+  19              		.section	.text.vofa_justfloat_output,"ax",%progbits
+  20              		.align	1
+  21              		.global	vofa_justfloat_output
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	vofa_justfloat_output:
+  27              	.LVL0:
+  28              	.LFB350:
+   1:modules/vofa/vofa.c **** /*
+   2:modules/vofa/vofa.c ****  * @Descripttion: 
+   3:modules/vofa/vofa.c ****  * @version: 
+   4:modules/vofa/vofa.c ****  * @Author: Chenfu
+   5:modules/vofa/vofa.c ****  * @Date: 2022-12-05 12:39:07
+   6:modules/vofa/vofa.c ****  * @LastEditTime: 2022-12-05 14:15:53
+   7:modules/vofa/vofa.c ****  */
+   8:modules/vofa/vofa.c **** #include "vofa.h"
+   9:modules/vofa/vofa.c **** 
+  10:modules/vofa/vofa.c **** /*VOFA浮点协议*/
+  11:modules/vofa/vofa.c **** void vofa_justfloat_output(float *data, uint8_t num , UART_HandleTypeDef *huart )
+  12:modules/vofa/vofa.c **** {
+  29              		.loc 1 12 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 1, uses_anonymous_args = 0
+  33              		.loc 1 12 1 is_stmt 0 view .LVU1
+  34 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+  35              	.LCFI0:
+  36              		.cfi_def_cfa_offset 24
+  37              		.cfi_offset 4, -24
+  38              		.cfi_offset 5, -20
+  39              		.cfi_offset 6, -16
+  40              		.cfi_offset 7, -12
+  41              		.cfi_offset 8, -8
+  42              		.cfi_offset 14, -4
+  43 0004 00AF     		add	r7, sp, #0
+  44              	.LCFI1:
+  45              		.cfi_def_cfa_register 7
+  46 0006 0646     		mov	r6, r0
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLbr2mo.s 			page 2
+
+
+  47 0008 0846     		mov	r0, r1
+  48              	.LVL1:
+  49              		.loc 1 12 1 view .LVU2
+  50 000a 9046     		mov	r8, r2
+  13:modules/vofa/vofa.c ****     static uint8_t i = 0;
+  51              		.loc 1 13 5 is_stmt 1 view .LVU3
+  14:modules/vofa/vofa.c ****     send_float temp[num];			//定义缓冲区数组
+  52              		.loc 1 14 5 view .LVU4
+  53              	.LVL2:
+  54              		.loc 1 14 16 is_stmt 0 view .LVU5
+  55 000c 8B00     		lsls	r3, r1, #2
+  56 000e 0733     		adds	r3, r3, #7
+  57 0010 03F4FF63 		and	r3, r3, #2040
+  58 0014 ADEB030D 		sub	sp, sp, r3
+  59 0018 6A46     		mov	r2, sp
+  60              	.LVL3:
+  15:modules/vofa/vofa.c ****     uint8_t send_data[4 * num + 4]; //定义通过串口传出去的数组，数量是所传数据�
+  61              		.loc 1 15 5 is_stmt 1 view .LVU6
+  62              		.loc 1 15 31 is_stmt 0 view .LVU7
+  63 001a 4C1C     		adds	r4, r1, #1
+  64 001c A300     		lsls	r3, r4, #2
+  65              	.LVL4:
+  66              		.loc 1 15 13 view .LVU8
+  67 001e 0733     		adds	r3, r3, #7
+  68              	.LVL5:
+  69              		.loc 1 15 13 view .LVU9
+  70 0020 DB08     		lsrs	r3, r3, #3
+  71              	.LVL6:
+  72              		.loc 1 15 13 view .LVU10
+  73 0022 A2EBC303 		sub	r3, r2, r3, lsl #3
+  74 0026 9D46     		mov	sp, r3
+  75 0028 6946     		mov	r1, sp
+  76              	.LVL7:
+  16:modules/vofa/vofa.c ****     for (i = 0; i < num; i++)
+  77              		.loc 1 16 5 is_stmt 1 view .LVU11
+  78              		.loc 1 16 12 is_stmt 0 view .LVU12
+  79 002a 264B     		ldr	r3, .L7
+  80 002c 0025     		movs	r5, #0
+  81 002e 1D70     		strb	r5, [r3]
+  82              		.loc 1 16 5 view .LVU13
+  83 0030 0AE0     		b	.L2
+  84              	.L3:
+  17:modules/vofa/vofa.c ****     {
+  18:modules/vofa/vofa.c ****         temp[i].float_t = data[i]; //将所传数据移到缓冲区数组
+  85              		.loc 1 18 9 is_stmt 1 view .LVU14
+  86              		.loc 1 18 31 is_stmt 0 view .LVU15
+  87 0032 06EB8305 		add	r5, r6, r3, lsl #2
+  88 0036 D5F800C0 		ldr	ip, [r5]	@ float
+  89              		.loc 1 18 25 view .LVU16
+  90 003a 02EB8305 		add	r5, r2, r3, lsl #2
+  91 003e C5F800C0 		str	ip, [r5]	@ float
+  16:modules/vofa/vofa.c ****     for (i = 0; i < num; i++)
+  92              		.loc 1 16 27 is_stmt 1 discriminator 3 view .LVU17
+  93 0042 0133     		adds	r3, r3, #1
+  94 0044 1F4D     		ldr	r5, .L7
+  95 0046 2B70     		strb	r3, [r5]
+  96              	.L2:
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLbr2mo.s 			page 3
+
+
+  16:modules/vofa/vofa.c ****     for (i = 0; i < num; i++)
+  97              		.loc 1 16 19 discriminator 1 view .LVU18
+  98 0048 1E4B     		ldr	r3, .L7
+  99 004a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 100 004c 8342     		cmp	r3, r0
+ 101 004e F0D3     		bcc	.L3
+  19:modules/vofa/vofa.c ****     }
+  20:modules/vofa/vofa.c ****     for (i = 0; i < num; i++)
+ 102              		.loc 1 20 5 view .LVU19
+ 103              		.loc 1 20 12 is_stmt 0 view .LVU20
+ 104 0050 1C4B     		ldr	r3, .L7
+ 105 0052 0025     		movs	r5, #0
+ 106 0054 1D70     		strb	r5, [r3]
+ 107              		.loc 1 20 5 view .LVU21
+ 108 0056 1CE0     		b	.L4
+ 109              	.LVL8:
+ 110              	.L5:
+  21:modules/vofa/vofa.c ****     {
+  22:modules/vofa/vofa.c ****         send_data[4 * i] = temp[i].uint8_t[0];
+ 111              		.loc 1 22 9 is_stmt 1 view .LVU22
+ 112              		.loc 1 22 21 is_stmt 0 view .LVU23
+ 113 0058 4FEA830C 		lsl	ip, r3, #2
+ 114              		.loc 1 22 43 view .LVU24
+ 115 005c 12F82350 		ldrb	r5, [r2, r3, lsl #2]	@ zero_extendqisi2
+ 116              		.loc 1 22 26 view .LVU25
+ 117 0060 01F82350 		strb	r5, [r1, r3, lsl #2]
+  23:modules/vofa/vofa.c ****         send_data[4 * i + 1] = temp[i].uint8_t[1];
+ 118              		.loc 1 23 9 is_stmt 1 view .LVU26
+ 119              		.loc 1 23 25 is_stmt 0 view .LVU27
+ 120 0064 0CF10105 		add	r5, ip, #1
+ 121              		.loc 1 23 47 view .LVU28
+ 122 0068 02EB0C0E 		add	lr, r2, ip
+ 123 006c 9EF80160 		ldrb	r6, [lr, #1]	@ zero_extendqisi2
+ 124              		.loc 1 23 30 view .LVU29
+ 125 0070 4E55     		strb	r6, [r1, r5]
+  24:modules/vofa/vofa.c ****         send_data[4 * i + 2] = temp[i].uint8_t[2];
+ 126              		.loc 1 24 9 is_stmt 1 view .LVU30
+ 127              		.loc 1 24 25 is_stmt 0 view .LVU31
+ 128 0072 0CF10205 		add	r5, ip, #2
+ 129              		.loc 1 24 47 view .LVU32
+ 130 0076 9EF80260 		ldrb	r6, [lr, #2]	@ zero_extendqisi2
+ 131              		.loc 1 24 30 view .LVU33
+ 132 007a 4E55     		strb	r6, [r1, r5]
+  25:modules/vofa/vofa.c ****         send_data[4 * i + 3] = temp[i].uint8_t[3]; //将缓冲区数组内的浮点型数据转成4
+ 133              		.loc 1 25 9 is_stmt 1 view .LVU34
+ 134              		.loc 1 25 25 is_stmt 0 view .LVU35
+ 135 007c 0CF1030C 		add	ip, ip, #3
+ 136              		.loc 1 25 47 view .LVU36
+ 137 0080 9EF803E0 		ldrb	lr, [lr, #3]	@ zero_extendqisi2
+ 138              		.loc 1 25 30 view .LVU37
+ 139 0084 01F80CE0 		strb	lr, [r1, ip]
+  20:modules/vofa/vofa.c ****     {
+ 140              		.loc 1 20 27 is_stmt 1 discriminator 3 view .LVU38
+ 141 0088 03F1010C 		add	ip, r3, #1
+ 142 008c 0D4B     		ldr	r3, .L7
+ 143 008e 83F800C0 		strb	ip, [r3]
+ 144              	.L4:
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLbr2mo.s 			page 4
+
+
+  20:modules/vofa/vofa.c ****     {
+ 145              		.loc 1 20 19 discriminator 1 view .LVU39
+ 146 0092 0C4B     		ldr	r3, .L7
+ 147 0094 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 148 0096 8342     		cmp	r3, r0
+ 149 0098 DED3     		bcc	.L5
+  26:modules/vofa/vofa.c ****     }
+  27:modules/vofa/vofa.c ****     send_data[4 * num] = 0x00;
+ 150              		.loc 1 27 5 view .LVU40
+ 151              		.loc 1 27 17 is_stmt 0 view .LVU41
+ 152 009a 8300     		lsls	r3, r0, #2
+ 153              		.loc 1 27 24 view .LVU42
+ 154 009c 0022     		movs	r2, #0
+ 155              	.LVL9:
+ 156              		.loc 1 27 24 view .LVU43
+ 157 009e 01F82020 		strb	r2, [r1, r0, lsl #2]
+  28:modules/vofa/vofa.c ****     send_data[4 * num + 1] = 0x00;
+ 158              		.loc 1 28 5 is_stmt 1 view .LVU44
+ 159              		.loc 1 28 23 is_stmt 0 view .LVU45
+ 160 00a2 581C     		adds	r0, r3, #1
+ 161              	.LVL10:
+ 162              		.loc 1 28 28 view .LVU46
+ 163 00a4 0A54     		strb	r2, [r1, r0]
+  29:modules/vofa/vofa.c ****     send_data[4 * num + 2] = 0x80;
+ 164              		.loc 1 29 5 is_stmt 1 view .LVU47
+ 165              		.loc 1 29 23 is_stmt 0 view .LVU48
+ 166 00a6 9A1C     		adds	r2, r3, #2
+ 167              		.loc 1 29 28 view .LVU49
+ 168 00a8 8020     		movs	r0, #128
+ 169 00aa 8854     		strb	r0, [r1, r2]
+  30:modules/vofa/vofa.c ****     send_data[4 * num + 3] = 0x7f; //加上协议要求的4个尾巴
+ 170              		.loc 1 30 5 is_stmt 1 view .LVU50
+ 171              		.loc 1 30 23 is_stmt 0 view .LVU51
+ 172 00ac 0333     		adds	r3, r3, #3
+ 173              		.loc 1 30 28 view .LVU52
+ 174 00ae 7F22     		movs	r2, #127
+ 175 00b0 CA54     		strb	r2, [r1, r3]
+  31:modules/vofa/vofa.c **** 
+  32:modules/vofa/vofa.c ****     HAL_UART_Transmit(huart, (uint8_t *)send_data, 4 * num + 4,100);
+ 176              		.loc 1 32 5 is_stmt 1 view .LVU53
+ 177 00b2 6423     		movs	r3, #100
+ 178 00b4 A200     		lsls	r2, r4, #2
+ 179 00b6 4046     		mov	r0, r8
+ 180 00b8 FFF7FEFF 		bl	HAL_UART_Transmit
+ 181              	.LVL11:
+  33:modules/vofa/vofa.c **** }
+ 182              		.loc 1 33 1 is_stmt 0 view .LVU54
+ 183 00bc BD46     		mov	sp, r7
+ 184              	.LCFI2:
+ 185              		.cfi_def_cfa_register 13
+ 186              	.LVL12:
+ 187              		.loc 1 33 1 view .LVU55
+ 188              		@ sp needed
+ 189 00be BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 190              	.LVL13:
+ 191              	.L8:
+ 192              		.loc 1 33 1 view .LVU56
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLbr2mo.s 			page 5
+
+
+ 193 00c2 00BF     		.align	2
+ 194              	.L7:
+ 195 00c4 00000000 		.word	i.0
+ 196              		.cfi_endproc
+ 197              	.LFE350:
+ 199              		.section	.bss.i.0,"aw",%nobits
+ 202              	i.0:
+ 203 0000 00       		.space	1
+ 204              		.text
+ 205              	.Letext0:
+ 206              		.file 2 "D:/14.3 rel1/arm-none-eabi/include/machine/_default_types.h"
+ 207              		.file 3 "D:/14.3 rel1/arm-none-eabi/include/sys/_stdint.h"
+ 208              		.file 4 "Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h723xx.h"
+ 209              		.file 5 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_def.h"
+ 210              		.file 6 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_dma.h"
+ 211              		.file 7 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart.h"
+ 212              		.file 8 "modules/vofa/vofa.h"
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccLbr2mo.s 			page 6
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 vofa.c
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLbr2mo.s:20     .text.vofa_justfloat_output:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLbr2mo.s:26     .text.vofa_justfloat_output:00000000 vofa_justfloat_output
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLbr2mo.s:195    .text.vofa_justfloat_output:000000c4 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLbr2mo.s:202    .bss.i.0:00000000 i.0
+C:\Users\ADMINI~1\AppData\Local\Temp\ccLbr2mo.s:203    .bss.i.0:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_UART_Transmit

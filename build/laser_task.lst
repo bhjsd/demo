@@ -1,0 +1,565 @@
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 1
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"laser_task.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.file 1 "application/laser_ctrl/laser_task.c"
+  19              		.section	.text.LaserCtrl_OnParsedPoint,"ax",%progbits
+  20              		.align	1
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  25              	LaserCtrl_OnParsedPoint:
+  26              	.LVL0:
+  27              	.LFB0:
+   1:application/laser_ctrl/laser_task.c **** #include "laser_task.h"
+   2:application/laser_ctrl/laser_task.c **** #include "cmsis_os2.h"
+   3:application/laser_ctrl/laser_task.c **** #include "galvanometer.h"
+   4:application/laser_ctrl/laser_task.c **** #include "laser.h"
+   5:application/laser_ctrl/laser_task.c **** #include "laser_proto.h"
+   6:application/laser_ctrl/laser_task.c **** 
+   7:application/laser_ctrl/laser_task.c **** #define LASER_IDLE_RELEASE_TICKS 5u
+   8:application/laser_ctrl/laser_task.c **** 
+   9:application/laser_ctrl/laser_task.c **** static osMessageQueueId_t g_laser_queue = NULL;
+  10:application/laser_ctrl/laser_task.c **** static uint32_t g_laser_queue_drop_count = 0u;
+  11:application/laser_ctrl/laser_task.c **** static uint32_t g_laser_idle_ticks = 0u;
+  12:application/laser_ctrl/laser_task.c **** 
+  13:application/laser_ctrl/laser_task.c **** static void LaserCtrl_OnParsedPoint(const LaserPointCmd_t *point)
+  14:application/laser_ctrl/laser_task.c **** {
+  28              		.loc 1 14 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 16
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  15:application/laser_ctrl/laser_task.c ****     if (point == NULL || g_laser_queue == NULL)
+  32              		.loc 1 15 5 view .LVU1
+  33              		.loc 1 15 8 is_stmt 0 view .LVU2
+  34 0000 10B3     		cbz	r0, .L6
+  14:application/laser_ctrl/laser_task.c ****     if (point == NULL || g_laser_queue == NULL)
+  35              		.loc 1 14 1 view .LVU3
+  36 0002 10B5     		push	{r4, lr}
+  37              	.LCFI0:
+  38              		.cfi_def_cfa_offset 8
+  39              		.cfi_offset 4, -8
+  40              		.cfi_offset 14, -4
+  41 0004 84B0     		sub	sp, sp, #16
+  42              	.LCFI1:
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s 			page 2
+
+
+  43              		.cfi_def_cfa_offset 24
+  44 0006 0146     		mov	r1, r0
+  45 0008 0446     		mov	r4, r0
+  46              		.loc 1 15 40 discriminator 1 view .LVU4
+  47 000a 104B     		ldr	r3, .L10
+  48 000c 1868     		ldr	r0, [r3]
+  49              	.LVL1:
+  50              		.loc 1 15 23 discriminator 1 view .LVU5
+  51 000e 20B1     		cbz	r0, .L1
+  16:application/laser_ctrl/laser_task.c ****     {
+  17:application/laser_ctrl/laser_task.c ****         return;
+  18:application/laser_ctrl/laser_task.c ****     }
+  19:application/laser_ctrl/laser_task.c **** 
+  20:application/laser_ctrl/laser_task.c ****     osStatus_t status = osMessageQueuePut(g_laser_queue, point, 0u, 0u);
+  52              		.loc 1 20 5 is_stmt 1 view .LVU6
+  53              		.loc 1 20 25 is_stmt 0 view .LVU7
+  54 0010 0023     		movs	r3, #0
+  55 0012 1A46     		mov	r2, r3
+  56 0014 FFF7FEFF 		bl	osMessageQueuePut
+  57              	.LVL2:
+  21:application/laser_ctrl/laser_task.c ****     if (status == osOK)
+  58              		.loc 1 21 5 is_stmt 1 view .LVU8
+  59              		.loc 1 21 8 is_stmt 0 view .LVU9
+  60 0018 08B9     		cbnz	r0, .L9
+  61              	.LVL3:
+  62              	.L1:
+  22:application/laser_ctrl/laser_task.c ****     {
+  23:application/laser_ctrl/laser_task.c ****         return;
+  24:application/laser_ctrl/laser_task.c ****     }
+  25:application/laser_ctrl/laser_task.c **** 
+  26:application/laser_ctrl/laser_task.c ****     LaserPointCmd_t throwaway;
+  27:application/laser_ctrl/laser_task.c ****     if (osMessageQueueGet(g_laser_queue, &throwaway, NULL, 0u) == osOK)
+  28:application/laser_ctrl/laser_task.c ****     {
+  29:application/laser_ctrl/laser_task.c ****         (void)osMessageQueuePut(g_laser_queue, point, 0u, 0u);
+  30:application/laser_ctrl/laser_task.c ****         g_laser_queue_drop_count++;
+  31:application/laser_ctrl/laser_task.c ****     }
+  32:application/laser_ctrl/laser_task.c **** }
+  63              		.loc 1 32 1 view .LVU10
+  64 001a 04B0     		add	sp, sp, #16
+  65              	.LCFI2:
+  66              		.cfi_remember_state
+  67              		.cfi_def_cfa_offset 8
+  68              		@ sp needed
+  69 001c 10BD     		pop	{r4, pc}
+  70              	.LVL4:
+  71              	.L9:
+  72              	.LCFI3:
+  73              		.cfi_restore_state
+  26:application/laser_ctrl/laser_task.c ****     if (osMessageQueueGet(g_laser_queue, &throwaway, NULL, 0u) == osOK)
+  74              		.loc 1 26 5 is_stmt 1 view .LVU11
+  27:application/laser_ctrl/laser_task.c ****     {
+  75              		.loc 1 27 5 view .LVU12
+  27:application/laser_ctrl/laser_task.c ****     {
+  76              		.loc 1 27 9 is_stmt 0 view .LVU13
+  77 001e 0023     		movs	r3, #0
+  78 0020 1A46     		mov	r2, r3
+  79 0022 01A9     		add	r1, sp, #4
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s 			page 3
+
+
+  80 0024 0948     		ldr	r0, .L10
+  81              	.LVL5:
+  27:application/laser_ctrl/laser_task.c ****     {
+  82              		.loc 1 27 9 view .LVU14
+  83 0026 0068     		ldr	r0, [r0]
+  84 0028 FFF7FEFF 		bl	osMessageQueueGet
+  85              	.LVL6:
+  27:application/laser_ctrl/laser_task.c ****     {
+  86              		.loc 1 27 8 discriminator 1 view .LVU15
+  87 002c 0028     		cmp	r0, #0
+  88 002e F4D1     		bne	.L1
+  29:application/laser_ctrl/laser_task.c ****         g_laser_queue_drop_count++;
+  89              		.loc 1 29 9 is_stmt 1 view .LVU16
+  29:application/laser_ctrl/laser_task.c ****         g_laser_queue_drop_count++;
+  90              		.loc 1 29 15 is_stmt 0 view .LVU17
+  91 0030 0346     		mov	r3, r0
+  92 0032 0246     		mov	r2, r0
+  93 0034 2146     		mov	r1, r4
+  94 0036 0548     		ldr	r0, .L10
+  95 0038 0068     		ldr	r0, [r0]
+  96 003a FFF7FEFF 		bl	osMessageQueuePut
+  97              	.LVL7:
+  30:application/laser_ctrl/laser_task.c ****     }
+  98              		.loc 1 30 9 is_stmt 1 view .LVU18
+  30:application/laser_ctrl/laser_task.c ****     }
+  99              		.loc 1 30 33 is_stmt 0 view .LVU19
+ 100 003e 044A     		ldr	r2, .L10+4
+ 101 0040 1368     		ldr	r3, [r2]
+ 102 0042 0133     		adds	r3, r3, #1
+ 103 0044 1360     		str	r3, [r2]
+ 104 0046 E8E7     		b	.L1
+ 105              	.LVL8:
+ 106              	.L6:
+ 107              	.LCFI4:
+ 108              		.cfi_def_cfa_offset 0
+ 109              		.cfi_restore 4
+ 110              		.cfi_restore 14
+  30:application/laser_ctrl/laser_task.c ****     }
+ 111              		.loc 1 30 33 view .LVU20
+ 112 0048 7047     		bx	lr
+ 113              	.L11:
+ 114 004a 00BF     		.align	2
+ 115              	.L10:
+ 116 004c 00000000 		.word	g_laser_queue
+ 117 0050 00000000 		.word	g_laser_queue_drop_count
+ 118              		.cfi_endproc
+ 119              	.LFE0:
+ 121              		.section	.text.LaserCtrl_Init,"ax",%progbits
+ 122              		.align	1
+ 123              		.global	LaserCtrl_Init
+ 124              		.syntax unified
+ 125              		.thumb
+ 126              		.thumb_func
+ 128              	LaserCtrl_Init:
+ 129              	.LFB1:
+  33:application/laser_ctrl/laser_task.c **** 
+  34:application/laser_ctrl/laser_task.c **** void LaserCtrl_Init(void)
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s 			page 4
+
+
+  35:application/laser_ctrl/laser_task.c **** {
+ 130              		.loc 1 35 1 is_stmt 1 view -0
+ 131              		.cfi_startproc
+ 132              		@ args = 0, pretend = 0, frame = 0
+ 133              		@ frame_needed = 0, uses_anonymous_args = 0
+ 134 0000 08B5     		push	{r3, lr}
+ 135              	.LCFI5:
+ 136              		.cfi_def_cfa_offset 8
+ 137              		.cfi_offset 3, -8
+ 138              		.cfi_offset 14, -4
+  36:application/laser_ctrl/laser_task.c ****     g_laser_queue_drop_count = 0u;
+ 139              		.loc 1 36 5 view .LVU22
+ 140              		.loc 1 36 30 is_stmt 0 view .LVU23
+ 141 0002 0023     		movs	r3, #0
+ 142 0004 0C4A     		ldr	r2, .L16
+ 143 0006 1360     		str	r3, [r2]
+  37:application/laser_ctrl/laser_task.c ****     g_laser_idle_ticks = 0u;
+ 144              		.loc 1 37 5 is_stmt 1 view .LVU24
+ 145              		.loc 1 37 24 is_stmt 0 view .LVU25
+ 146 0008 0C4A     		ldr	r2, .L16+4
+ 147 000a 1360     		str	r3, [r2]
+  38:application/laser_ctrl/laser_task.c ****     if (g_laser_queue == NULL)
+ 148              		.loc 1 38 5 is_stmt 1 view .LVU26
+ 149              		.loc 1 38 23 is_stmt 0 view .LVU27
+ 150 000c 0C4B     		ldr	r3, .L16+8
+ 151 000e 1B68     		ldr	r3, [r3]
+ 152              		.loc 1 38 8 view .LVU28
+ 153 0010 4BB1     		cbz	r3, .L15
+ 154              	.L13:
+  39:application/laser_ctrl/laser_task.c ****     {
+  40:application/laser_ctrl/laser_task.c ****         g_laser_queue = osMessageQueueNew(32u, sizeof(LaserPointCmd_t), NULL);
+  41:application/laser_ctrl/laser_task.c ****     }
+  42:application/laser_ctrl/laser_task.c **** 
+  43:application/laser_ctrl/laser_task.c ****     LaserProto_Init();
+ 155              		.loc 1 43 5 is_stmt 1 view .LVU29
+ 156 0012 FFF7FEFF 		bl	LaserProto_Init
+ 157              	.LVL9:
+  44:application/laser_ctrl/laser_task.c ****     LaserProto_SetPointCallback(LaserCtrl_OnParsedPoint);
+ 158              		.loc 1 44 5 view .LVU30
+ 159 0016 0B48     		ldr	r0, .L16+12
+ 160 0018 FFF7FEFF 		bl	LaserProto_SetPointCallback
+ 161              	.LVL10:
+  45:application/laser_ctrl/laser_task.c ****     Galvo_Init();
+ 162              		.loc 1 45 5 view .LVU31
+ 163 001c FFF7FEFF 		bl	Galvo_Init
+ 164              	.LVL11:
+  46:application/laser_ctrl/laser_task.c ****     Laser_Init();
+ 165              		.loc 1 46 5 view .LVU32
+ 166 0020 FFF7FEFF 		bl	Laser_Init
+ 167              	.LVL12:
+  47:application/laser_ctrl/laser_task.c **** }
+ 168              		.loc 1 47 1 is_stmt 0 view .LVU33
+ 169 0024 08BD     		pop	{r3, pc}
+ 170              	.L15:
+  40:application/laser_ctrl/laser_task.c ****     }
+ 171              		.loc 1 40 9 is_stmt 1 view .LVU34
+  40:application/laser_ctrl/laser_task.c ****     }
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s 			page 5
+
+
+ 172              		.loc 1 40 25 is_stmt 0 view .LVU35
+ 173 0026 1A46     		mov	r2, r3
+ 174 0028 0C21     		movs	r1, #12
+ 175 002a 2020     		movs	r0, #32
+ 176 002c FFF7FEFF 		bl	osMessageQueueNew
+ 177              	.LVL13:
+  40:application/laser_ctrl/laser_task.c ****     }
+ 178              		.loc 1 40 23 discriminator 1 view .LVU36
+ 179 0030 034B     		ldr	r3, .L16+8
+ 180 0032 1860     		str	r0, [r3]
+ 181 0034 EDE7     		b	.L13
+ 182              	.L17:
+ 183 0036 00BF     		.align	2
+ 184              	.L16:
+ 185 0038 00000000 		.word	g_laser_queue_drop_count
+ 186 003c 00000000 		.word	g_laser_idle_ticks
+ 187 0040 00000000 		.word	g_laser_queue
+ 188 0044 00000000 		.word	LaserCtrl_OnParsedPoint
+ 189              		.cfi_endproc
+ 190              	.LFE1:
+ 192              		.section	.text.LaserCtrl_Task,"ax",%progbits
+ 193              		.align	1
+ 194              		.global	LaserCtrl_Task
+ 195              		.syntax unified
+ 196              		.thumb
+ 197              		.thumb_func
+ 199              	LaserCtrl_Task:
+ 200              	.LFB2:
+  48:application/laser_ctrl/laser_task.c **** 
+  49:application/laser_ctrl/laser_task.c **** void LaserCtrl_Task(void)
+  50:application/laser_ctrl/laser_task.c **** {
+ 201              		.loc 1 50 1 is_stmt 1 view -0
+ 202              		.cfi_startproc
+ 203              		@ args = 0, pretend = 0, frame = 16
+ 204              		@ frame_needed = 0, uses_anonymous_args = 0
+  51:application/laser_ctrl/laser_task.c ****     if (g_laser_queue == NULL)
+ 205              		.loc 1 51 5 view .LVU38
+ 206              		.loc 1 51 23 is_stmt 0 view .LVU39
+ 207 0000 154B     		ldr	r3, .L30
+ 208 0002 1868     		ldr	r0, [r3]
+ 209              		.loc 1 51 8 view .LVU40
+ 210 0004 38B3     		cbz	r0, .L25
+  50:application/laser_ctrl/laser_task.c ****     if (g_laser_queue == NULL)
+ 211              		.loc 1 50 1 view .LVU41
+ 212 0006 00B5     		push	{lr}
+ 213              	.LCFI6:
+ 214              		.cfi_def_cfa_offset 4
+ 215              		.cfi_offset 14, -4
+ 216 0008 85B0     		sub	sp, sp, #20
+ 217              	.LCFI7:
+ 218              		.cfi_def_cfa_offset 24
+  52:application/laser_ctrl/laser_task.c ****     {
+  53:application/laser_ctrl/laser_task.c ****         return;
+  54:application/laser_ctrl/laser_task.c ****     }
+  55:application/laser_ctrl/laser_task.c **** 
+  56:application/laser_ctrl/laser_task.c ****     LaserPointCmd_t point;
+ 219              		.loc 1 56 5 is_stmt 1 view .LVU42
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s 			page 6
+
+
+  57:application/laser_ctrl/laser_task.c ****     if (osMessageQueueGet(g_laser_queue, &point, NULL, 1u) == osOK)
+ 220              		.loc 1 57 5 view .LVU43
+ 221              		.loc 1 57 9 is_stmt 0 view .LVU44
+ 222 000a 0123     		movs	r3, #1
+ 223 000c 0022     		movs	r2, #0
+ 224 000e 01A9     		add	r1, sp, #4
+ 225 0010 FFF7FEFF 		bl	osMessageQueueGet
+ 226              	.LVL14:
+ 227              		.loc 1 57 8 discriminator 1 view .LVU45
+ 228 0014 70B1     		cbz	r0, .L28
+  58:application/laser_ctrl/laser_task.c ****     {
+  59:application/laser_ctrl/laser_task.c ****         // 使用现有接口先打通“协议->队列->振镜发送”链路。
+  60:application/laser_ctrl/laser_task.c ****         Galvo_Send_XY_DMA(point.x_rel, point.y_rel);
+  61:application/laser_ctrl/laser_task.c ****         Laser_SetTargetState(LASER_STATE_EMIT);
+  62:application/laser_ctrl/laser_task.c ****         g_laser_idle_ticks = 0u;
+  63:application/laser_ctrl/laser_task.c ****     }
+  64:application/laser_ctrl/laser_task.c ****     else
+  65:application/laser_ctrl/laser_task.c ****     {
+  66:application/laser_ctrl/laser_task.c ****         if (g_laser_idle_ticks < LASER_IDLE_RELEASE_TICKS)
+ 229              		.loc 1 66 9 is_stmt 1 view .LVU46
+ 230              		.loc 1 66 32 is_stmt 0 view .LVU47
+ 231 0016 114B     		ldr	r3, .L30+4
+ 232 0018 1B68     		ldr	r3, [r3]
+ 233              		.loc 1 66 12 view .LVU48
+ 234 001a 042B     		cmp	r3, #4
+ 235 001c 02D8     		bhi	.L23
+  67:application/laser_ctrl/laser_task.c ****         {
+  68:application/laser_ctrl/laser_task.c ****             g_laser_idle_ticks++;
+ 236              		.loc 1 68 13 is_stmt 1 view .LVU49
+ 237              		.loc 1 68 31 is_stmt 0 view .LVU50
+ 238 001e 0133     		adds	r3, r3, #1
+ 239 0020 0E4A     		ldr	r2, .L30+4
+ 240 0022 1360     		str	r3, [r2]
+ 241              	.L23:
+  69:application/laser_ctrl/laser_task.c ****         }
+  70:application/laser_ctrl/laser_task.c **** 
+  71:application/laser_ctrl/laser_task.c ****         if (g_laser_idle_ticks >= LASER_IDLE_RELEASE_TICKS)
+ 242              		.loc 1 71 9 is_stmt 1 view .LVU51
+ 243              		.loc 1 71 32 is_stmt 0 view .LVU52
+ 244 0024 0D4B     		ldr	r3, .L30+4
+ 245 0026 1B68     		ldr	r3, [r3]
+ 246              		.loc 1 71 12 view .LVU53
+ 247 0028 042B     		cmp	r3, #4
+ 248 002a 10D8     		bhi	.L29
+ 249              	.L22:
+  72:application/laser_ctrl/laser_task.c ****         {
+  73:application/laser_ctrl/laser_task.c ****             Laser_SetTargetState(LASER_STATE_IDLE);
+  74:application/laser_ctrl/laser_task.c ****         }
+  75:application/laser_ctrl/laser_task.c ****     }
+  76:application/laser_ctrl/laser_task.c **** 
+  77:application/laser_ctrl/laser_task.c ****     Laser_Tick();
+ 250              		.loc 1 77 5 is_stmt 1 view .LVU54
+ 251 002c FFF7FEFF 		bl	Laser_Tick
+ 252              	.LVL15:
+  78:application/laser_ctrl/laser_task.c **** }
+ 253              		.loc 1 78 1 is_stmt 0 view .LVU55
+ 254 0030 05B0     		add	sp, sp, #20
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s 			page 7
+
+
+ 255              	.LCFI8:
+ 256              		.cfi_remember_state
+ 257              		.cfi_def_cfa_offset 4
+ 258              		@ sp needed
+ 259 0032 00BD     		pop	{pc}
+ 260              	.L28:
+ 261              	.LCFI9:
+ 262              		.cfi_restore_state
+  60:application/laser_ctrl/laser_task.c ****         Laser_SetTargetState(LASER_STATE_EMIT);
+ 263              		.loc 1 60 9 is_stmt 1 view .LVU56
+ 264 0034 DDED030A 		vldr.32	s1, [sp, #12]
+ 265 0038 9DED020A 		vldr.32	s0, [sp, #8]
+ 266 003c FFF7FEFF 		bl	Galvo_Send_XY_DMA
+ 267              	.LVL16:
+  61:application/laser_ctrl/laser_task.c ****         g_laser_idle_ticks = 0u;
+ 268              		.loc 1 61 9 view .LVU57
+ 269 0040 0220     		movs	r0, #2
+ 270 0042 FFF7FEFF 		bl	Laser_SetTargetState
+ 271              	.LVL17:
+  62:application/laser_ctrl/laser_task.c ****     }
+ 272              		.loc 1 62 9 view .LVU58
+  62:application/laser_ctrl/laser_task.c ****     }
+ 273              		.loc 1 62 28 is_stmt 0 view .LVU59
+ 274 0046 054B     		ldr	r3, .L30+4
+ 275 0048 0022     		movs	r2, #0
+ 276 004a 1A60     		str	r2, [r3]
+ 277 004c EEE7     		b	.L22
+ 278              	.L29:
+  73:application/laser_ctrl/laser_task.c ****         }
+ 279              		.loc 1 73 13 is_stmt 1 view .LVU60
+ 280 004e 0020     		movs	r0, #0
+ 281 0050 FFF7FEFF 		bl	Laser_SetTargetState
+ 282              	.LVL18:
+ 283 0054 EAE7     		b	.L22
+ 284              	.L25:
+ 285              	.LCFI10:
+ 286              		.cfi_def_cfa_offset 0
+ 287              		.cfi_restore 14
+ 288 0056 7047     		bx	lr
+ 289              	.L31:
+ 290              		.align	2
+ 291              	.L30:
+ 292 0058 00000000 		.word	g_laser_queue
+ 293 005c 00000000 		.word	g_laser_idle_ticks
+ 294              		.cfi_endproc
+ 295              	.LFE2:
+ 297              		.section	.text.LaserCtrl_OnUsbRx,"ax",%progbits
+ 298              		.align	1
+ 299              		.global	LaserCtrl_OnUsbRx
+ 300              		.syntax unified
+ 301              		.thumb
+ 302              		.thumb_func
+ 304              	LaserCtrl_OnUsbRx:
+ 305              	.LVL19:
+ 306              	.LFB3:
+  79:application/laser_ctrl/laser_task.c **** 
+  80:application/laser_ctrl/laser_task.c **** void LaserCtrl_OnUsbRx(const uint8_t *data, uint16_t len)
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s 			page 8
+
+
+  81:application/laser_ctrl/laser_task.c **** {
+ 307              		.loc 1 81 1 view -0
+ 308              		.cfi_startproc
+ 309              		@ args = 0, pretend = 0, frame = 0
+ 310              		@ frame_needed = 0, uses_anonymous_args = 0
+ 311              		.loc 1 81 1 is_stmt 0 view .LVU62
+ 312 0000 08B5     		push	{r3, lr}
+ 313              	.LCFI11:
+ 314              		.cfi_def_cfa_offset 8
+ 315              		.cfi_offset 3, -8
+ 316              		.cfi_offset 14, -4
+  82:application/laser_ctrl/laser_task.c ****     LaserProto_OnUsbRx(data, len);
+ 317              		.loc 1 82 5 is_stmt 1 view .LVU63
+ 318 0002 FFF7FEFF 		bl	LaserProto_OnUsbRx
+ 319              	.LVL20:
+  83:application/laser_ctrl/laser_task.c **** }
+ 320              		.loc 1 83 1 is_stmt 0 view .LVU64
+ 321 0006 08BD     		pop	{r3, pc}
+ 322              		.cfi_endproc
+ 323              	.LFE3:
+ 325              		.section	.text.LaserCtrl_OnDmaCompleteIRQ,"ax",%progbits
+ 326              		.align	1
+ 327              		.global	LaserCtrl_OnDmaCompleteIRQ
+ 328              		.syntax unified
+ 329              		.thumb
+ 330              		.thumb_func
+ 332              	LaserCtrl_OnDmaCompleteIRQ:
+ 333              	.LFB4:
+  84:application/laser_ctrl/laser_task.c **** 
+  85:application/laser_ctrl/laser_task.c **** void LaserCtrl_OnDmaCompleteIRQ(void)
+  86:application/laser_ctrl/laser_task.c **** {
+ 334              		.loc 1 86 1 is_stmt 1 view -0
+ 335              		.cfi_startproc
+ 336              		@ args = 0, pretend = 0, frame = 0
+ 337              		@ frame_needed = 0, uses_anonymous_args = 0
+ 338 0000 08B5     		push	{r3, lr}
+ 339              	.LCFI12:
+ 340              		.cfi_def_cfa_offset 8
+ 341              		.cfi_offset 3, -8
+ 342              		.cfi_offset 14, -4
+  87:application/laser_ctrl/laser_task.c ****     Galvo_DMA_Complete_Callback();
+ 343              		.loc 1 87 5 view .LVU66
+ 344 0002 FFF7FEFF 		bl	Galvo_DMA_Complete_Callback
+ 345              	.LVL21:
+  88:application/laser_ctrl/laser_task.c **** }
+ 346              		.loc 1 88 1 is_stmt 0 view .LVU67
+ 347 0006 08BD     		pop	{r3, pc}
+ 348              		.cfi_endproc
+ 349              	.LFE4:
+ 351              		.section	.text.LaserCtrl_GetQueueDropCount,"ax",%progbits
+ 352              		.align	1
+ 353              		.global	LaserCtrl_GetQueueDropCount
+ 354              		.syntax unified
+ 355              		.thumb
+ 356              		.thumb_func
+ 358              	LaserCtrl_GetQueueDropCount:
+ 359              	.LFB5:
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s 			page 9
+
+
+  89:application/laser_ctrl/laser_task.c **** 
+  90:application/laser_ctrl/laser_task.c **** uint32_t LaserCtrl_GetQueueDropCount(void)
+  91:application/laser_ctrl/laser_task.c **** {
+ 360              		.loc 1 91 1 is_stmt 1 view -0
+ 361              		.cfi_startproc
+ 362              		@ args = 0, pretend = 0, frame = 0
+ 363              		@ frame_needed = 0, uses_anonymous_args = 0
+ 364              		@ link register save eliminated.
+  92:application/laser_ctrl/laser_task.c ****     return g_laser_queue_drop_count;
+ 365              		.loc 1 92 5 view .LVU69
+  93:application/laser_ctrl/laser_task.c **** }
+ 366              		.loc 1 93 1 is_stmt 0 view .LVU70
+ 367 0000 014B     		ldr	r3, .L37
+ 368 0002 1868     		ldr	r0, [r3]
+ 369 0004 7047     		bx	lr
+ 370              	.L38:
+ 371 0006 00BF     		.align	2
+ 372              	.L37:
+ 373 0008 00000000 		.word	g_laser_queue_drop_count
+ 374              		.cfi_endproc
+ 375              	.LFE5:
+ 377              		.section	.bss.g_laser_idle_ticks,"aw",%nobits
+ 378              		.align	2
+ 381              	g_laser_idle_ticks:
+ 382 0000 00000000 		.space	4
+ 383              		.section	.bss.g_laser_queue_drop_count,"aw",%nobits
+ 384              		.align	2
+ 387              	g_laser_queue_drop_count:
+ 388 0000 00000000 		.space	4
+ 389              		.section	.bss.g_laser_queue,"aw",%nobits
+ 390              		.align	2
+ 393              	g_laser_queue:
+ 394 0000 00000000 		.space	4
+ 395              		.text
+ 396              	.Letext0:
+ 397              		.file 2 "D:/14.3 rel1/arm-none-eabi/include/machine/_default_types.h"
+ 398              		.file 3 "D:/14.3 rel1/arm-none-eabi/include/sys/_stdint.h"
+ 399              		.file 4 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h"
+ 400              		.file 5 "application/laser_ctrl/laser.h"
+ 401              		.file 6 "application/laser_ctrl/laser_proto.h"
+ 402              		.file 7 "application/laser_ctrl/galvanometer.h"
+ARM GAS  C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 laser_task.c
+C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s:20     .text.LaserCtrl_OnParsedPoint:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s:25     .text.LaserCtrl_OnParsedPoint:00000000 LaserCtrl_OnParsedPoint
+C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s:116    .text.LaserCtrl_OnParsedPoint:0000004c $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s:393    .bss.g_laser_queue:00000000 g_laser_queue
+C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s:387    .bss.g_laser_queue_drop_count:00000000 g_laser_queue_drop_count
+C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s:122    .text.LaserCtrl_Init:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s:128    .text.LaserCtrl_Init:00000000 LaserCtrl_Init
+C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s:185    .text.LaserCtrl_Init:00000038 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s:381    .bss.g_laser_idle_ticks:00000000 g_laser_idle_ticks
+C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s:193    .text.LaserCtrl_Task:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s:199    .text.LaserCtrl_Task:00000000 LaserCtrl_Task
+C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s:292    .text.LaserCtrl_Task:00000058 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s:298    .text.LaserCtrl_OnUsbRx:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s:304    .text.LaserCtrl_OnUsbRx:00000000 LaserCtrl_OnUsbRx
+C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s:326    .text.LaserCtrl_OnDmaCompleteIRQ:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s:332    .text.LaserCtrl_OnDmaCompleteIRQ:00000000 LaserCtrl_OnDmaCompleteIRQ
+C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s:352    .text.LaserCtrl_GetQueueDropCount:00000000 $t
+C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s:358    .text.LaserCtrl_GetQueueDropCount:00000000 LaserCtrl_GetQueueDropCount
+C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s:373    .text.LaserCtrl_GetQueueDropCount:00000008 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s:378    .bss.g_laser_idle_ticks:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s:384    .bss.g_laser_queue_drop_count:00000000 $d
+C:\Users\ADMINI~1\AppData\Local\Temp\ccmDCUt2.s:390    .bss.g_laser_queue:00000000 $d
+
+UNDEFINED SYMBOLS
+osMessageQueuePut
+osMessageQueueGet
+LaserProto_Init
+LaserProto_SetPointCallback
+Galvo_Init
+Laser_Init
+osMessageQueueNew
+Laser_Tick
+Galvo_Send_XY_DMA
+Laser_SetTargetState
+LaserProto_OnUsbRx
+Galvo_DMA_Complete_Callback
